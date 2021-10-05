@@ -1,6 +1,6 @@
 {
     "variables": {
-        "DAOS_VERSION": "1.2.0"
+        "DAOS_VERSION": "1.2.0",
         "IO500_INSTALL_DIR": "/usr/local"
     },
     "builders": [
