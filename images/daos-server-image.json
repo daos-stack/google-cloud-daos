@@ -52,6 +52,21 @@
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
       "environment_vars": "DAOS_VERSION={{user `DAOS_VERSION`}}",
       "script": "./scripts/setup.sh"
+    },
+    {
+      "type": "file",
+      "source": "./id_rsa",
+      "destination": "/tmp/"
+    },
+    {
+      "type": "file",
+      "source": "./id_rsa.pub",
+      "destination": "/tmp/"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
+      "script": "./scripts/configure_ssh.sh"
     }
   ]
 }
