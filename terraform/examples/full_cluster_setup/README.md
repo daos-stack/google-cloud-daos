@@ -17,5 +17,5 @@ terraform apply -input=false tfplan
 To destroy DAOS environment, use below command:
 
 ```
-terraform destroy -auto-approve
+terraform destroy
 ```
