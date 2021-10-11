@@ -3,7 +3,7 @@ provider "google" {
 }
 
 module "daos_server" {
-  source             = "./modules/daos_server"
+  source             = "../../modules/daos_server"
   project_id         = var.project_id
   network            = var.network
   subnetwork         = var.subnetwork
@@ -26,7 +26,7 @@ module "daos_server" {
 }
 
 module "daos_client" {
-  source             = "./modules/daos_client"
+  source             = "../../modules/daos_client"
   project_id         = var.project_id
   network            = var.network
   subnetwork         = var.subnetwork
