@@ -14,14 +14,14 @@ scp ${DAOS_FIRST_SERVER}:/etc/daos/daos_control.yml .
 echo "Configure DAOS Clients"
 for client in ${CLIENTS}
 do
-    echo "###############"
+    echo "##################################################"
     echo "#  ${client}"
-    echo "###############"
+    echo "##################################################"
     ssh ${client} "rm -f .ssh/known_hosts"
-    ssh ${client} "systemctl stop daos_agent"
-    scp daos_agent.yml ${client}:/etc/daos/daos_agent.yml
-    scp daos_control.yml ${client}:/etc/daos/daos_control.yml
-    ssh ${client} "systemctl start daos_agent"
+    ssh ${client} "sudo systemctl stop daos_agent"
+    scp daos_agent.yml daos_control.yml ${client}:~
+    ssh ${client} "sudo cp daos_agent.yml daos_control.yml /etc/daos/"
+    ssh ${client} "sudo systemctl start daos_agent"
 done
 
 echo "Format DAOS"
@@ -45,11 +45,15 @@ done
 echo "Create DAOS Pool ${POOL_SIZE}"
 export DAOS_POOL=$(dmg -i -j pool create -z ${POOL_SIZE} -t 3 -u ${USER} | jq .response | jq -r .uuid)
 echo "DAOS_POOL:" ${DAOS_POOL}
+#  Show information about a created pool
 dmg pool query --pool ${DAOS_POOL}
+#  Modify a pool's DAOS_PO_RECLAIM reclaim strategies property to never trigger aggregation
 dmg -i pool set-prop --pool ${DAOS_POOL} --name=reclaim --value=disabled
+
 echo "Create DAOS Pool container"
 export DAOS_CONT=$(daos container create --type POSIX --pool $DAOS_POOL --properties ${CONTAINER_REPLICATION_FACTOR} | egrep -o '[0-9a-f-]{36}$')
 echo "DAOS_CONT:" ${DAOS_CONT}
+#  Show container properties
 daos cont get-prop --pool ${DAOS_POOL} --cont ${DAOS_CONT}
 
 echo "Mount with DFuse DAOS pool to OS"
@@ -77,14 +81,13 @@ sed -i "s/^blockSize.*/blockSize = 1000000m/g" temp.ini
 sed -i "s/^filePerProc.*/filePerProc = TRUE /g" temp.ini
 sed -i "s/^nproc.*/nproc = $(( ${NUMBER_OF_CLIENTS_INSTANCES} * $(nproc --all) ))/g" temp.ini
 
-set -x
+# Run IO500 benchmark
 mpirun --hostfile hosts -env I_MPI_OFI_PROVIDER="tcp;ofi_rxm" --bind-to socket -np $(( ${NUMBER_OF_CLIENTS_INSTANCES} * $(nproc --all) )) /usr/local/io500/io500 temp.ini
-set +x
 
 echo "Cleaning up after run ..."
-
+echo "Unmount DFuse mountpoint"
 pdsh -w ^hosts sudo fusermount -u ${DAOS_FUSE}
 echo "fusermount complete!"
-
+echo "Delete DAOS pool"
 res=$(dmg -i pool destroy --pool ${DAOS_POOL})
 echo "dmg says: " $res

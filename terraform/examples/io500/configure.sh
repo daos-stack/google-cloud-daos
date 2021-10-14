@@ -14,6 +14,7 @@ SCM_SIZE=100
 STONEWALL_TIME=3
 POOL_SIZE="$(( 375 * ${DAOS_DISK_COUNT} * ${NUMBER_OF_SERVERS_INSTANCES} / 1000 ))TB"
 CONTAINER_REPLICATION_FACTOR="rf:0"
+SSH_USER="daos-user"
 
 # Terraform environmental variables
 export TF_VAR_project_id=""

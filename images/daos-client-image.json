@@ -49,21 +49,6 @@
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
       "environment_vars": "IO500_INSTALL_DIR={{user `IO500_INSTALL_DIR`}}",
       "script": "./scripts/io500_install.sh"
-    },
-    {
-      "type": "file",
-      "source": "./id_rsa",
-      "destination": "/tmp/"
-    },
-    {
-      "type": "file",
-      "source": "./id_rsa.pub",
-      "destination": "/tmp/"
-    },
-    {
-      "type": "shell",
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
-      "script": "./scripts/configure_ssh.sh"
     }
   ]
 }
