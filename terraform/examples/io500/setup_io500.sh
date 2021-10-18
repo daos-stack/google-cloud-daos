@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
+
 # Load needed variables
 source ./configure.sh
 
@@ -12,17 +15,11 @@ scp ${DAOS_FIRST_SERVER}:/etc/daos/daos_agent.yml .
 scp ${DAOS_FIRST_SERVER}:/etc/daos/daos_control.yml .
 
 echo "Configure DAOS Clients"
-for client in ${CLIENTS}
-do
-    echo "##################################################"
-    echo "#  ${client}"
-    echo "##################################################"
-    ssh ${client} "rm -f .ssh/known_hosts"
-    ssh ${client} "sudo systemctl stop daos_agent"
-    scp daos_agent.yml daos_control.yml ${client}:~
-    ssh ${client} "sudo cp daos_agent.yml daos_control.yml /etc/daos/"
-    ssh ${client} "sudo systemctl start daos_agent"
-done
+pdsh -w ^hosts rm -f .ssh/known_hosts
+pdsh -w ^hosts sudo systemctl stop daos_agent
+pdcp -w ^hosts daos_agent.yml daos_control.yml ~
+pdsh -w ^hosts sudo cp daos_agent.yml daos_control.yml /etc/daos/
+pdsh -w ^hosts sudo systemctl start daos_agent
 
 echo "Format DAOS"
 dmg -i -l ${SERVERS_LIST_WITH_COMMA} storage scan --verbose
@@ -32,7 +29,7 @@ echo "Wait for DAOS storage reformat to finish"
 printf "Waiting"
 while true
 do
-    if [ $(dmg -i system query -v | grep Joined | wc -l) -eq ${NUMBER_OF_SERVERS_INSTANCES} ]
+    if [ $(dmg -i -j system query -v | grep joined | wc -l) -eq ${NUMBER_OF_SERVERS_INSTANCES} ]
     then
         echo "Done"
         dmg -i system query -v
@@ -43,7 +40,7 @@ do
 done
 
 echo "Create DAOS Pool ${POOL_SIZE}"
-export DAOS_POOL=$(dmg -i -j pool create -z ${POOL_SIZE} -t 3 -u ${USER} | jq .response | jq -r .uuid)
+export DAOS_POOL=$(dmg -i -j pool create -z ${POOL_SIZE} -t 3 -u ${USER} | jq -r .response.uuid)
 echo "DAOS_POOL:" ${DAOS_POOL}
 #  Show information about a created pool
 dmg pool query --pool ${DAOS_POOL}
@@ -67,7 +64,7 @@ echo "Export needed ENVs"
 export I_MPI_OFI_LIBRARY_INTERNAL=0
 export I_MPI_OFI_PROVIDER="tcp;ofi_rxm"
 export FI_OFI_RXM_USE_SRX=1
-export FI_UNIVERSE_SIZE=1024
+export FI_UNIVERSE_SIZE=16383
 source /opt/intel/oneapi/setvars.sh
 export PATH=$PATH:/usr/local/io500/bin
 export LD_LIBRARY_PATH=/usr/local/mpifileutils/install/lib64/

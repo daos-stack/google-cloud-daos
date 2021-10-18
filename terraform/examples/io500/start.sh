@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
+
 # Load needed variables
 source ./configure.sh
 

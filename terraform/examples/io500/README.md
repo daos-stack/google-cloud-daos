@@ -22,4 +22,4 @@
 
 [stop.sh](stop.sh) script is used to destroy DAOS instances on GCP
 
-[clean.sh](clean.sh) script is used clean DAOS environment to run another IO500 benchmark on the same environment
+[clean.sh](clean.sh) script is used clean DAOS environment to run another IO500 benchmark on the same environment and reconfigure DAOS server configuration
