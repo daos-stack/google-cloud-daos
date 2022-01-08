@@ -6,43 +6,42 @@ trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 # Load needed variables
 source ./configure.sh
 
-if [ ! -f images_were_built.flag ]
-then
-    echo "##########################"
-    echo "#  Building DAOS images  #"
-    echo "##########################"
+log() {
+  local msg="$1"
+  printf "\n%80s" | tr " " "-"
+  printf "\n%s\n" "${msg}"
+  printf "%80s\n" | tr " " "-"
+}
+
+if ! gcloud compute images list | grep -q "${TF_VAR_client_os_family}"; then
+    log "Building DAOS Server & Client images"
     pushd ../../../images
     ./make_images.sh
     popd
-    touch images_were_built.flag
 fi
 
-echo "######################################"
-echo "#  Deploying DAOS Servers & Clients  #"
-echo "######################################"
+log "Deploying DAOS Servers and Clients"
 pushd ../full_cluster_setup
 terraform init -input=false
 terraform plan -out=tfplan -input=false
 terraform apply -input=false tfplan
 popd
 
-echo "#  Wait for DAOS client instances"
+printf "\nWait for DAOS client instances\n\n"
 gcloud compute instance-groups managed wait-until ${TF_VAR_client_template_name} --stable --zone ${TF_VAR_zone}
 echo "#  Wait for DAOS server instances"
 gcloud compute instance-groups managed wait-until ${TF_VAR_server_template_name} --stable --zone ${TF_VAR_zone}
 
-echo "# Add external IP to first client, so that it will be accessible over normal SSH"
+printf "\nAdd external IP to first client\n\n"
 gcloud compute instances add-access-config ${DAOS_FIRST_CLIENT} --zone ${TF_VAR_zone} && sleep 10
 IP=$(gcloud compute instances describe ${DAOS_FIRST_CLIENT} | grep natIP | awk '{print $2}')
 
-echo "##########################"
-echo "#  Configure SSH access  #"
-echo "##########################"
-echo "# Prepare SSH key"
+log "Configure SSH access"
+printf "\nCreate SSH key\n\n"
 rm -f ./id_rsa* ; ssh-keygen -t rsa -b 4096 -C "${SSH_USER}" -N '' -f id_rsa
 echo "${SSH_USER}:$(cat id_rsa.pub)" > keys.txt
 
-echo "#  Configuring SSH on nodes"
+printf "\nConfiguring SSH on nodes\n\n"
 for node in $ALL_NODES
 do
     # Disable OSLogin to be able to connect with SSH keys uploaded in next command
@@ -54,25 +53,34 @@ done
 # Wait for SSH configuring tasks to finish
 wait
 
-echo "# Copy SSH key to first DAOS client"
-scp -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+printf "\nCopy SSH key to first DAOS client\n\n"
+scp -i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     id_rsa \
     id_rsa.pub \
     "${SSH_USER}@${IP}:~/.ssh"
-ssh -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+ssh -i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     ${SSH_USER}@${IP} \
     "printf 'Host *\n  StrictHostKeyChecking no\n  IdentityFile ~/.ssh/id_rsa\n' > ~/.ssh/config && \
     chmod -R 600 .ssh/*"
 
-echo "# Copy files"
-scp -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+log "Copy files to first client"
+scp -i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     clean.sh \
     configure.sh \
-    setup_io500.sh \
+    run_io500-sc21.sh \
     "${SSH_USER}@${IP}:~"
 
-echo "#########################################################################"
-echo "#  Now run setup_io500.sh script on ${DAOS_FIRST_CLIENT}"
-echo "#  SSH to it using this command:"
-echo "#  ssh -i id_rsa ${SSH_USER}@${IP}"
-echo "#########################################################################"
+log "DAOS servers and clients deployed successfully"
+gcloud compute instances list --filter="name:daos*"
+
+printf "
+
+To run an IO500 benchmark:
+
+1. Log into the first client
+   ssh -i id_rsa ${SSH_USER}@${IP}
+
+2. Run the script
+   ~/run_io500-sc21.sh
+
+"

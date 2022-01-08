@@ -1,19 +1,19 @@
 {
     "variables": {
-        "DAOS_VERSION": "1.2.0",
-        "IO500_INSTALL_DIR": "/usr/local"
+        "DAOS_VERSION": "2.0.0"
     },
     "builders": [
     {
       "type": "googlecompute",
+      "name": "daos-client-centos7",
       "account_file": "{{user `account_file`}}",
       "project_id": "{{user `project_id`}}",
       "source_image_project_id": [
         "cloud-hpc-image-public"
       ],
       "source_image_family": "hpc-centos-7",
-      "image_name": "daos-client-v{{isotime \"20060102-030405\"}}",
-      "image_family": "daos-client",
+      "image_name": "daos-client-centos7-v{{isotime \"20060102-030405\"}}",
+      "image_family": "daos-client-centos7",
       "machine_type": "n1-standard-16",
       "disk_size": "20",
       "ssh_username": "packer",
@@ -41,14 +41,12 @@
     {
       "type": "shell",
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
-      "environment_vars": "IO500_INSTALL_DIR={{user `IO500_INSTALL_DIR`}}",
-      "script": "./scripts/mfu_install.sh"
+      "script": "./scripts/mpifileutils_install.sh"
     },
     {
       "type": "shell",
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
-      "environment_vars": "IO500_INSTALL_DIR={{user `IO500_INSTALL_DIR`}}",
-      "script": "./scripts/io500_install.sh"
+      "script": "./scripts/io500-sc21_install.sh"
     }
   ]
 }
