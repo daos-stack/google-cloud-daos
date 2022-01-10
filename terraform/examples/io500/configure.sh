@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 # Configure below variables to your needs
 # ------------------------------------------------------------------------------
-ID="maolson" # Identifier to allow multiple DAOS clusters in the same GCP
+ID="" # Identifier to allow multiple DAOS clusters in the same GCP
              # Typically, you want to set this to your username.
              # Don't change this value to use the env var '${USER}! It should be
              # set to a constant value.
@@ -13,14 +13,14 @@ PREEMPTIBLE_INSTANCES="true"
 SSH_USER="daos-user"
 
 # Server(s)
-DAOS_SERVER_INSTANCE_COUNT="4"
+DAOS_SERVER_INSTANCE_COUNT="1"
 DAOS_SERVER_MACHINE_TYPE=n2-highmem-32 # n2-custom-20-131072 n2-custom-40-262144 n2-highmem-32 n2-standard-2
 DAOS_SERVER_DISK_COUNT=16
 DAOS_SERVER_CRT_TIMEOUT=300
 DAOS_SERVER_SCM_SIZE=100
 
 # Client(s)
-DAOS_CLIENT_INSTANCE_COUNT="2"
+DAOS_CLIENT_INSTANCE_COUNT="1"
 DAOS_CLIENT_MACHINE_TYPE=c2-standard-16 # c2-standard-16 n2-standard-2
 
 # Storage
