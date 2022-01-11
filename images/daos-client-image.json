@@ -5,15 +5,15 @@
     "builders": [
     {
       "type": "googlecompute",
-      "name": "daos-client-centos7",
+      "name": "daos-client-hpc-centos-7",
       "account_file": "{{user `account_file`}}",
       "project_id": "{{user `project_id`}}",
       "source_image_project_id": [
         "cloud-hpc-image-public"
       ],
       "source_image_family": "hpc-centos-7",
-      "image_name": "daos-client-centos7-v{{isotime \"20060102-030405\"}}",
-      "image_family": "daos-client-centos7",
+      "image_name": "daos-client-hpc-centos-7-v{{isotime \"20060102-030405\"}}",
+      "image_family": "daos-client-hpc-centos-7",
       "machine_type": "n1-standard-16",
       "disk_size": "20",
       "ssh_username": "packer",
