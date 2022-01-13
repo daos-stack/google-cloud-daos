@@ -37,16 +37,6 @@
       "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
       "environment_vars": "DAOS_VERSION={{user `DAOS_VERSION`}}",
       "script": "./scripts/install-client.sh"
-    },
-    {
-      "type": "shell",
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
-      "script": "./scripts/mpifileutils_install.sh"
-    },
-    {
-      "type": "shell",
-      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
-      "script": "./scripts/io500-sc21_install.sh"
     }
   ]
 }

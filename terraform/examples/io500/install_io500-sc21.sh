@@ -35,18 +35,15 @@ export MY_IO500_PATH
 
 
 log() {
-  local msg="$1"
-  printf "%80s" | tr " " "-"
-  printf "\n%s\n" "${msg}"
-  printf "%80s\n" | tr " " "-"
+  local msg="|  $1  |"
+  line=$(printf "${msg}" | sed 's/./-/g')
+  # FIX: Can't use tput when running this script with pdsh
+  #tput setaf 14 # set Cyan color
+  printf -- "\n${line}\n${msg}\n${line}\n"
+  #tput sgr0 # reset color
 }
 
-
-printf "
-===============================================================================
-Installing IO500 ${IO500_VERSION_TAG}
-===============================================================================
-"
+log "Installing IO500 ${IO500_VERSION_TAG}"
 
 # Load Intel MPI
 export I_MPI_OFI_LIBRARY_INTERNAL=0
@@ -62,6 +59,11 @@ mkdir -p "${IO500_INSTALL_PATH}"
 cd "${IO500_INSTALL_PATH}"
 
 log "Cloning https://github.com/IO500/io500 repo. Tag ${IO500_VERSION_TAG}"
+if [[ -d "${MY_IO500_PATH}" ]]
+then
+  rm -rf "${MY_IO500_PATH}"
+fi
+
 git clone https://github.com/IO500/io500.git \
   -b ${IO500_VERSION_TAG} \
   "${MY_IO500_PATH}"
@@ -72,7 +74,10 @@ git checkout -b "${IO500_VERSION_TAG}-daos"
 #   Point to the pfind that works with our mpifileutils
 #   Build ior with DFS support
 log "Patching ${MY_IO500_PATH}/prepare.sh"
-
+cd "${MY_IO500_PATH}"
+# Attempt to always ensure the patch applies successfully
+cp prepare.sh prepare.sh.$(date "+%Y-%m-%d_%H%M%S")
+git checkout prepare.sh
 cat > io500_prepare.patch <<'EOF'
 diff --git a/prepare.sh b/prepare.sh
 index f793dfe..d4cb7e8 100755

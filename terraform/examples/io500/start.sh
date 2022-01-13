@@ -6,17 +6,29 @@ trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 # Load needed variables
 source ./configure.sh
 
+# Set SSH options for ssh and scp commands
+SSH_OPTS="-i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
 log() {
-  local msg="$1"
-  printf "\n%80s" | tr " " "-"
-  printf "\n%s\n" "${msg}"
-  printf "%80s\n" | tr " " "-"
+  local msg="|  $1  |"
+  line=$(printf "${msg}" | sed 's/./-/g')
+  tput setaf 14 # set Cyan color
+  printf -- "\n${line}\n${msg}\n${line}\n"
+  tput sgr0 # reset color
 }
 
-if ! gcloud compute images list | grep -q "${TF_VAR_client_os_family}"; then
-    log "Building DAOS Server & Client images"
+# Build the DAOS disk images if they don't exist in the project
+if ! gcloud compute images list | grep -q "${TF_VAR_server_os_family}"; then
+    log "Building DAOS server image: ${TF_VAR_server_os_family}"
     pushd ../../../images
-    ./make_images.sh
+    ./make_images.sh "server"
+    popd
+fi
+
+if ! gcloud compute images list | grep -q "${TF_VAR_client_os_family}"; then
+    log "Building DAOS client image: ${TF_VAR_client_os_family}"
+    pushd ../../../images
+    ./make_images.sh "client"
     popd
 fi
 
@@ -34,14 +46,14 @@ gcloud compute instance-groups managed wait-until ${TF_VAR_server_template_name}
 
 printf "\nAdd external IP to first client\n\n"
 gcloud compute instances add-access-config ${DAOS_FIRST_CLIENT} --zone ${TF_VAR_zone} && sleep 10
-IP=$(gcloud compute instances describe ${DAOS_FIRST_CLIENT} | grep natIP | awk '{print $2}')
+FIRST_CLIENT_IP=$(gcloud compute instances describe ${DAOS_FIRST_CLIENT} | grep natIP | awk '{print $2}')
 
 log "Configure SSH access"
 printf "\nCreate SSH key\n\n"
 rm -f ./id_rsa* ; ssh-keygen -t rsa -b 4096 -C "${SSH_USER}" -N '' -f id_rsa
 echo "${SSH_USER}:$(cat id_rsa.pub)" > keys.txt
 
-printf "\nConfiguring SSH on nodes\n\n"
+printf "\nConfiguring SSH for user '${SSH_USER}' on all nodes\n\n"
 for node in $ALL_NODES
 do
     # Disable OSLogin to be able to connect with SSH keys uploaded in next command
@@ -54,21 +66,24 @@ done
 wait
 
 printf "\nCopy SSH key to first DAOS client\n\n"
-scp -i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+scp ${SSH_OPTS} \
     id_rsa \
     id_rsa.pub \
-    "${SSH_USER}@${IP}:~/.ssh"
-ssh -i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-    ${SSH_USER}@${IP} \
+    "${SSH_USER}@${FIRST_CLIENT_IP}:~/.ssh"
+ssh ${SSH_OPTS} ${SSH_USER}@${FIRST_CLIENT_IP} \
     "printf 'Host *\n  StrictHostKeyChecking no\n  IdentityFile ~/.ssh/id_rsa\n' > ~/.ssh/config && \
     chmod -R 600 .ssh/*"
 
 log "Copy files to first client"
-scp -i id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+scp ${SSH_OPTS} \
     clean.sh \
     configure.sh \
     run_io500-sc21.sh \
-    "${SSH_USER}@${IP}:~"
+    install_io500-sc21.sh \
+    install_mpifileutils.sh \
+    "${SSH_USER}@${FIRST_CLIENT_IP}:~"
+
+ssh ${SSH_OPTS} ${SSH_USER}@${FIRST_CLIENT_IP} "chmod +x ~/*.sh && chmod -x ~/configure.sh"
 
 log "DAOS servers and clients deployed successfully"
 gcloud compute instances list --filter="name:daos*"
@@ -78,9 +93,9 @@ printf "
 To run an IO500 benchmark:
 
 1. Log into the first client
-   ssh -i id_rsa ${SSH_USER}@${IP}
+   ssh -i id_rsa ${SSH_USER}@${FIRST_CLIENT_IP}
 
-2. Run the script
+2. Run IO500
    ~/run_io500-sc21.sh
 
 "

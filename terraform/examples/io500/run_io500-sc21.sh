@@ -2,46 +2,75 @@
 #
 # Configure DAOS storage and runs an IO500 benchmark
 #
+# Instructions that were referenced to create this script are at
+# https://daosio.atlassian.net/wiki/spaces/DC/pages/11055792129/IO-500+SC21
+#
 
 set -e
+trap 'echo "Hit an unexpected and unchecked error. Unmounting and exiting."; unmount' ERR
 
 # Load needed variables
 source ./configure.sh
 
-IO500_VERSION_TAG=io500-sc21
+export IO500_VERSION_TAG=io500-sc21
 
 # Set environment variable defaults if not already set
 # This allows for the variables to be set to different values externally.
 : "${IO500_INSTALL_DIR:=/usr/local}"
 : "${IO500_DIR:=${IO500_INSTALL_DIR}/${IO500_VERSION_TAG}}"
+: "${IO500_RESULTS_DFUSE_DIR:=${HOME}/daos_fuse/${IO500_VERSION_TAG}/results}"
 : "${IO500_RESULTS_DIR:=${HOME}/${IO500_VERSION_TAG}/results}"
 : "${POOL_LABEL:=io500_pool}"
 : "${CONT_LABEL:=io500_cont}"
 
 log() {
-  local msg="$1"
-  printf "\n%80s" | tr " " "-"
-  printf "\n%s\n" "${msg}"
-  printf "%80s\n" | tr " " "-"
+  local msg="|  $1  |"
+  line=$(printf "${msg}" | sed 's/./-/g')
+  tput setaf 14 # set Cyan color
+  printf -- "\n${line}\n${msg}\n${line}\n"
+  tput sgr0 # reset color
+}
+
+unmount() {
+  if [[ -d "${IO500_RESULTS_DFUSE_DIR}" ]]
+  then
+    log "Unmount DFuse mountpoint ${IO500_RESULTS_DFUSE_DIR}"
+    pdsh -w ^hosts sudo fusermount3 -u "${IO500_RESULTS_DFUSE_DIR}"
+    pdsh -w ^hosts rm -rf "${IO500_RESULTS_DFUSE_DIR}"
+    pdsh -w ^hosts mount | sort | grep dfuse || true
+    printf "\nfusermount3 complete!\n\n"
+  fi
 }
 
 cleanup(){
-  if [[ ! -z $1 ]];then
-    echo "Hit an unexpected and unchecked error. Cleaning up and exiting."
-  fi
-
   log "Clean up"
-  if [[ -d "${IO500_RESULTS_DIR}" ]];then
-    echo "Unmount DFuse mountpoint ${IO500_RESULTS_DIR}"
-    pdsh -w ^hosts sudo fusermount -u "${IO500_RESULTS_DIR}"
-    echo "fusermount complete!"
+  if [[ -d "${IO500_RESULTS_DFUSE_DIR}" ]]
+  then
+    unmount
   fi
   source ./clean.sh
 }
 
-#trap cleanup ERR
-
 log "Prepare for IO500 ${IO500_VERSION_TAG^^} run"
+
+log "Copy install_*.sh files to client instances"
+pdcp -w ^hosts install_*.sh ~
+
+# Install mpifileutils if not already installed
+if [[ ! -d /usr/local/mpifileutils/install/bin ]]
+then
+  printf "\nRun install_mpifileutils.sh on client nodes\n\n"
+  sudo ./install_mpifileutils.sh
+  pdsh -w ^hosts_no_first "sudo ./install_mpifileutils.sh"
+fi
+
+# Install IO500 if not already installed
+if [[ ! -d "${IO500_DIR}" ]]
+then
+  printf "\nRun install_${IO500_VERSION_TAG,,}.sh on client nodes\n\n"
+  sudo "./install_${IO500_VERSION_TAG}.sh"
+  pdsh -w ^hosts_no_first "sudo ./install_${IO500_VERSION_TAG,,}.sh"
+fi
 
 cleanup
 
@@ -88,18 +117,13 @@ dmg pool query "${POOL_LABEL}"
 
 log "Create container: label=${CONT_LABEL}"
 daos container create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${CONT_LABEL}" "${POOL_LABEL}"
-#export DAOS_CONT_UUID=$(daos -j container create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${CONT_LABEL}" "${POOL_LABEL}" | jq -r .response.container_uuid)
-#echo "DAOS_CONT_UUID:" ${DAOS_CONT_UUID}
 #  Show container properties
 daos cont get-prop ${POOL_LABEL} ${CONT_LABEL}
 
-export IO500_RESULTS_DIR="${HOME}/io500-${IO500_VERSION_TAG}/results"
-pdsh -w ^hosts mkdir -p "${IO500_RESULTS_DIR}"
-
-log "Use dfuse to mount ${CONT_LABEL} on ${IO500_RESULTS_DIR}"
-pdsh -w ^hosts sudo rm -rf "${IO500_RESULTS_DIR}"
-pdsh -w ^hosts mkdir -p "${IO500_RESULTS_DIR}"
-pdsh -w ^hosts dfuse --pool="${POOL_LABEL}" --container="${CONT_LABEL}" --mountpoint="${IO500_RESULTS_DIR}"
+log "Use dfuse to mount ${CONT_LABEL} on ${IO500_RESULTS_DFUSE_DIR}"
+pdsh -w ^hosts sudo rm -rf "${IO500_RESULTS_DFUSE_DIR}"
+pdsh -w ^hosts mkdir -p "${IO500_RESULTS_DFUSE_DIR}"
+pdsh -w ^hosts dfuse --pool="${POOL_LABEL}" --container="${CONT_LABEL}" --mountpoint="${IO500_RESULTS_DFUSE_DIR}"
 sleep 10
 echo "DFuse complete!"
 
@@ -121,18 +145,30 @@ export IO500_NP=$(( ${DAOS_CLIENT_INSTANCE_COUNT} * $(nproc --all) ))
 
 cp -f "${IO500_DIR}/config-full-sc21.ini" .
 envsubst < config-full-sc21.ini > temp.ini
-sed -i "s|^resultdir.*|resultdir = ${IO500_RESULTS_DIR}|g" temp.ini
+sed -i "s|^resultdir.*|resultdir = ${IO500_RESULTS_DFUSE_DIR}|g" temp.ini
 sed -i "s/^stonewall-time.*/stonewall-time = ${IO500_STONEWALL_TIME}/g" temp.ini
 sed -i "s/^transferSize.*/transferSize = 4m/g" temp.ini
 #sed -i "s/^blockSize.*/blockSize = 1000000m/g" temp.ini # This causes failures
 sed -i "s/^filePerProc.*/filePerProc = TRUE /g" temp.ini
 sed -i "s/^nproc.*/nproc = ${IO500_NP}/g" temp.ini
 
+# Prepare final results directory for the current run
+TIMESTAMP=$(date "+%Y-%m-%d_%H%M%S")
+IO500_RESULTS_DIR_TIMESTAMPED="${IO500_RESULTS_DIR}/${TIMESTAMP}"
+mkdir -p "${IO500_RESULTS_DIR_TIMESTAMPED}"
+
 log "Run IO500"
 mpirun -np ${IO500_NP} \
   --hostfile hosts \
   --bind-to socket "${IO500_DIR}/io500" temp.ini
 
-cleanup
+log "Copy results from ${IO500_RESULTS_DFUSE_DIR} to ${IO500_RESULTS_DIR}"
 
-printf "\nIO500 DONE!\n\n"
+rsync -avh "${IO500_RESULTS_DFUSE_DIR}/" "${IO500_RESULTS_DIR_TIMESTAMPED}/"
+cp temp.ini "${IO500_RESULTS_DIR_TIMESTAMPED}/"
+printenv | sort > "${IO500_RESULTS_DIR_TIMESTAMPED}/env.sh"
+
+unmount
+
+printf "IO500 run complete!\n\n"
+printf "Results files located in "${IO500_RESULTS_DIR_TIMESTAMPED}"\n\n"

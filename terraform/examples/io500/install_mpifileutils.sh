@@ -24,18 +24,18 @@ MFU_INSTALL_DIR="${MFU_ROOT_DIR}/install"
 
 CMAKE_VERSION="3.22.1"
 
+
 log() {
-  local msg="$1"
-  printf "%80s" | tr " " "-"
-  printf "\n%s\n" "${msg}"
-  printf "%80s\n" | tr " " "-"
+  local msg="|  $1  |"
+  line=$(printf "${msg}" | sed 's/./-/g')
+  # FIX: Can't use tput when running this script with pdsh
+  #tput setaf 14 # set Cyan color
+  printf -- "\n${line}\n${msg}\n${line}\n"
+  #tput sgr0 # reset color
 }
 
-printf "
-===============================================================================
-Installing mpifileutils
-===============================================================================
-"
+
+log "Installing mpifileutils"
 
 # Exit if Intel OneAPI is not installed
 if [ ! -d /opt/intel/oneapi ];then
