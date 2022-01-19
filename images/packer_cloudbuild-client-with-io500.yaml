@@ -1,0 +1,7 @@
+steps:
+- name: 'gcr.io/$PROJECT_ID/packer'
+  args:
+  - build
+  - -var
+  - project_id=${_PROJECT_ID}
+  - daos-client-image-with-io500.json

@@ -38,3 +38,10 @@ Make DAOS client image
 cd images/
 ./make_images.sh client
 ```
+
+Make DAOS client image with builtin IO500:
+
+```bash
+cd images/
+./make_images.sh client io500
+```

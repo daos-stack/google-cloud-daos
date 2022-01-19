@@ -15,12 +15,16 @@
 # To build DAOS server images only:
 #   ./make_images.sh server
 #
+# To build DAOS client images with builtin IO500:
+#   ./make_images.sh client io500
+#
 
 set -e
 trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
 # Set environment variable defaults if not already set
 : "${IMAGE_TYPE:=all}"
+: "${CLIENT_CONFIG:=packer_cloudbuild-client.yaml}"
 
 if [[ ! -z $1 ]]; then
   IMAGE_TYPE=$(echo $1 | tr '[A-Z]' '[a-z]')
@@ -29,6 +33,13 @@ if [[ ! -z $1 ]]; then
     echo "Valid values are 'all', 'client', 'server'"
     exit 1
   fi
+fi
+
+# Build client image with IO500 inside
+if [[ $2 == "io500" ]]; then
+  echo "Building images with IO500 inside"
+  cp ../terraform/examples/io500/install_mpifileutils.sh ../terraform/examples/io500/install_io500-sc21.sh scripts/
+  CLIENT_CONFIG="packer_cloudbuild-client-with-io500.yaml"
 fi
 
 PROJECT=$(gcloud info --format="value(config.project)")
@@ -88,7 +99,7 @@ if [[ $IMAGE_TYPE =~ ^(all|client)$ ]]; then
     printf "\nBuilding client image(s)\n\n"
     gcloud builds submit --timeout=1800s \
      --substitutions=_PROJECT_ID="${PROJECT}" \
-     --config=packer_cloudbuild-client.yaml .
+     --config=${CLIENT_CONFIG} .
 fi
 
 # Remove ssh firewall
