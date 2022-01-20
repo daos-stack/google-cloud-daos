@@ -123,7 +123,7 @@ daos cont get-prop ${POOL_LABEL} ${CONT_LABEL}
 log "Use dfuse to mount ${CONT_LABEL} on ${IO500_RESULTS_DFUSE_DIR}"
 pdsh -w ^hosts sudo rm -rf "${IO500_RESULTS_DFUSE_DIR}"
 pdsh -w ^hosts mkdir -p "${IO500_RESULTS_DFUSE_DIR}"
-pdsh -w ^hosts dfuse --pool="${POOL_LABEL}" --container="${CONT_LABEL}" --mountpoint="${IO500_RESULTS_DFUSE_DIR}"
+pdsh -w ^hosts dfuse -S --pool="${POOL_LABEL}" --container="${CONT_LABEL}" --mountpoint="${IO500_RESULTS_DFUSE_DIR}"
 sleep 10
 echo "DFuse complete!"
 
@@ -133,7 +133,7 @@ export I_MPI_OFI_PROVIDER="tcp;ofi_rxm"
 source /opt/intel/oneapi/setvars.sh
 
 export PATH=$PATH:${IO500_DIR}/bin
-export LD_LIBRARY_PATH=/usr/local/mpifileutils/install/lib64/
+export LD_LIBRARY_PATH=/usr/local/mpifileutils/install/lib64:$LD_LIBRARY_PATH
 
 log "Prepare config file for IO500"
 

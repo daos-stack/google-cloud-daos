@@ -63,6 +63,14 @@ yum install -y stackdriver-agent
 log "Installing daos-server v${DAOS_VERSION}"
 yum install -y daos-server
 
+log "Downgrading libfabric to 1.12 - see DAOS-9883 "
+yum install -y wget
+wget https://packages.daos.io/v1.2/CentOS7/packages/x86_64/libfabric-1.12.0-1.el7.x86_64.rpm
+rpm -i --force ./libfabric-1.12.0-1.el7.x86_64.rpm
+rpm --erase --nodeps  libfabric-1.14.0
+echo "exclude=libfabric" >> /etc/yum.repos.d/daos.repo
+rm -f ./libfabric-1.12.0-1.el7.x86_64.rpm
+
 # TODO:
 # - enable gvnic
 

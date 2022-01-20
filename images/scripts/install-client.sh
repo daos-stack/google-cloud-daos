@@ -76,7 +76,14 @@ yum install -y daos-client daos-devel
 # Install some other software helpful for development
 # (e.g. to compile ior or fio)
 log "Installing additional packages needed on DAOS clients"
-yum install -y gcc git autoconf automake libuuid-devel devtoolset-9-gcc patch
+yum install -y gcc git autoconf automake libuuid-devel devtoolset-9-gcc patch wget
+
+log "Downgrading libfabric to 1.12 - see DAOS-9883 "
+wget https://packages.daos.io/v1.2/CentOS7/packages/x86_64/libfabric-1.12.0-1.el7.x86_64.rpm
+rpm -i --force ./libfabric-1.12.0-1.el7.x86_64.rpm
+rpm --erase --nodeps  libfabric-1.14.0
+echo "exclude=libfabric" >> /etc/yum.repos.d/daos.repo
+rm -f ./libfabric-1.12.0-1.el7.x86_64.rpm
 
 # TODO:
 # - enable gvnic
