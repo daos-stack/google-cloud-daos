@@ -117,6 +117,7 @@ show_errors() {
   fi
 }
 
+<<<<<<< HEAD
 check_dependencies() {
   # Exit if gcloud command not found
   if ! gcloud -v &> /dev/null; then
@@ -132,9 +133,15 @@ check_dependencies() {
     exit 1
   fi
 }
+=======
+printf "\nAdd external IP to first client\n\n"
+gcloud compute instances add-access-config ${DAOS_FIRST_CLIENT} --zone ${TF_VAR_zone} && sleep 10
+FIRST_CLIENT_IP=$(gcloud compute instances describe ${DAOS_FIRST_CLIENT}  --zone ${TF_VAR_zone} | grep natIP | awk '{print $2}')
+>>>>>>> 08befbe (Add zone info to a few gcloud commands (#12))
 
 opts() {
 
+<<<<<<< HEAD
   # shift will cause the script to exit if attempting to shift beyond the
   # max args.  So set +e to continue processing when shift errors.
   set +e
@@ -193,6 +200,16 @@ opts() {
     esac
   done
   set -e
+=======
+printf "\nConfiguring SSH for user '${SSH_USER}' on all nodes\n\n"
+for node in $ALL_NODES
+do
+    # Disable OSLogin to be able to connect with SSH keys uploaded in next command
+    gcloud compute instances add-metadata ${node}  --zone ${TF_VAR_zone} --metadata enable-oslogin=FALSE && \
+    # Upload SSH key to instance, so that you could login to instance over SSH
+    gcloud compute instances add-metadata ${node}  --zone ${TF_VAR_zone} --metadata-from-file ssh-keys=keys.txt &
+done
+>>>>>>> 08befbe (Add zone info to a few gcloud commands (#12))
 
   show_errors
 }
