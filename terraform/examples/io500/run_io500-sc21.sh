@@ -152,11 +152,18 @@ mount_dfuse() {
   fi
 }
 
+<<<<<<< HEAD
 io500_prepare() {
   log_section "Load Intel MPI"
   export I_MPI_OFI_LIBRARY_INTERNAL=0
   export I_MPI_OFI_PROVIDER="tcp;ofi_rxm"
   source /opt/intel/oneapi/setvars.sh
+=======
+log "Create container: label=${CONT_LABEL}"
+daos cont create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${CONT_LABEL}" "${POOL_LABEL}"
+#  Show container properties
+daos cont get-prop ${POOL_LABEL} ${CONT_LABEL}
+>>>>>>> d01cad2 (Query pool at the end of IO500 (#13))
 
   export PATH=$PATH:${IO500_DIR}/bin
   export LD_LIBRARY_PATH=/usr/local/mpifileutils/install/lib64/
@@ -209,9 +216,16 @@ process_results() {
   # Save a copy of the environment variables for the IO500 run
   printenv | sort > "${IO500_RESULTS_DIR_TIMESTAMPED}/env.sh"
 
+<<<<<<< HEAD
   # Save output from "dmg pool query"
   dmg pool query "${DAOS_POOL_LABEL}" > \
     "${IO500_RESULTS_DIR_TIMESTAMPED}/dmg_pool_query_${DAOS_POOL_LABEL}.txt"
+=======
+echo "Query pool state"
+dmg pool query "${POOL_LABEL}"
+
+unmount
+>>>>>>> d01cad2 (Query pool at the end of IO500 (#13))
 
   FIRST_SERVER=$(echo ${SERVER_LIST} | cut -d, -f1)
   ssh ${FIRST_SERVER} 'daos_server version' > \
