@@ -1,19 +1,19 @@
 {
     "variables": {
-        "DAOS_VERSION": "2.0.0"
+        "DAOS_VERSION": "1.2"
     },
     "builders": [
     {
       "type": "googlecompute",
-      "name": "daos-client-hpc-centos-7",
+      "name": "daos-client-1-2-hpc-centos-7",
       "account_file": "{{user `account_file`}}",
       "project_id": "{{user `project_id`}}",
       "source_image_project_id": [
         "cloud-hpc-image-public"
       ],
       "source_image_family": "hpc-centos-7",
-      "image_name": "daos-client-hpc-centos-7-v{{isotime \"20060102-030405\"}}",
-      "image_family": "daos-client-hpc-centos-7",
+      "image_name": "daos-client-1-2-hpc-centos-7-v{{isotime \"20060102-030405\"}}",
+      "image_family": "daos-client-1-2-hpc-centos-7",
       "machine_type": "n1-standard-16",
       "disk_size": "20",
       "ssh_username": "packer",

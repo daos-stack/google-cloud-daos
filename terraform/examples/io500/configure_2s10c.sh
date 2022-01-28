@@ -3,27 +3,28 @@
 # ------------------------------------------------------------------------------
 # Configure the following variables to meet your specific needs
 # ------------------------------------------------------------------------------
-ID="" # Optional identifier to allow multiple DAOS clusters in the same GCP
-      # project by using this ID in the DAOS server and client instance names.
-      # Typically, this would contain the username of each user who is running
-      # the terraform/examples/io500/start.sh script in one GCP project.
-      # Don't change this value to use the env var '${USER}'!
-      # This should be set to a constant value and not the value of an
-      # environment variable.
+# Optional identifier to allow multiple DAOS clusters in the same GCP
+# project by using this ID in the DAOS server and client instance names.
+# Typically, this would contain the username of each user who is running
+# the terraform/examples/io500/start.sh script in one GCP project.
+# Don't change this value to use the env var '${USER}'!
+# This should be set to a constant value and not the value of an
+# environment variable.
+ID=""
 
 # Server and client instances
 PREEMPTIBLE_INSTANCES="true"
 SSH_USER="daos-user"
 
 # Server(s)
-DAOS_SERVER_INSTANCE_COUNT="1"
-DAOS_SERVER_MACHINE_TYPE=n2-highmem-32 # n2-custom-20-131072 n2-custom-40-262144 n2-highmem-32 n2-standard-2
-DAOS_SERVER_DISK_COUNT=8
+DAOS_SERVER_INSTANCE_COUNT="2"
+DAOS_SERVER_MACHINE_TYPE=n2-custom-36-262144 # n2-custom-20-131072 n2-custom-40-262144 n2-highmem-32 n2-standard-2
+DAOS_SERVER_DISK_COUNT=16
 DAOS_SERVER_CRT_TIMEOUT=300
-DAOS_SERVER_SCM_SIZE=100
+DAOS_SERVER_SCM_SIZE=200
 
 # Client(s)
-DAOS_CLIENT_INSTANCE_COUNT="1"
+DAOS_CLIENT_INSTANCE_COUNT="10"
 DAOS_CLIENT_MACHINE_TYPE=c2-standard-16 # c2-standard-16 n2-standard-2
 
 # Storage
@@ -31,7 +32,7 @@ DAOS_POOL_SIZE="$(( 375 * ${DAOS_SERVER_DISK_COUNT} * ${DAOS_SERVER_INSTANCE_COU
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
-IO500_STONEWALL_TIME=5  # Number of seconds to run the benchmark
+IO500_STONEWALL_TIME=60  # Number of seconds to run the benchmark
 
 
 # ------------------------------------------------------------------------------

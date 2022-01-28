@@ -20,8 +20,8 @@ export IO500_VERSION_TAG=io500-sc21
 : "${IO500_DIR:=${IO500_INSTALL_DIR}/${IO500_VERSION_TAG}}"
 : "${IO500_RESULTS_DFUSE_DIR:=${HOME}/daos_fuse/${IO500_VERSION_TAG}/results}"
 : "${IO500_RESULTS_DIR:=${HOME}/${IO500_VERSION_TAG}/results}"
-: "${POOL_LABEL:=io500_pool}"
-: "${CONT_LABEL:=io500_cont}"
+: "${DAOS_POOL_LABEL:=io500_pool}"
+: "${DAOS_CONT_LABEL:=io500_cont}"
 
 log() {
   local msg="|  $1  |"
@@ -106,22 +106,31 @@ do
     sleep 10
 done
 
-log "Create pool: label=${POOL_LABEL} size=${DAOS_POOL_SIZE}"
-dmg -i pool create -z ${DAOS_POOL_SIZE} -t 3 -u ${USER} --label=${POOL_LABEL}
-echo "Set pool property: reclaim=disabled"
-dmg -i pool set-prop ${POOL_LABEL} --name=reclaim --value=disabled
-echo "Pool created successfully"
-dmg pool query "${POOL_LABEL}"
+log "Query DAOS Storage"
+dmg -i system query
 
-log "Create container: label=${CONT_LABEL}"
-daos container create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${CONT_LABEL}" "${POOL_LABEL}"
+log "Create DAOS Pool ${DAOS_POOL_SIZE}"
+export DAOS_POOL_UUID=$(dmg -i -j pool create -z ${DAOS_POOL_SIZE} --name="${DAOS_POOL_LABEL}" -t 3 -u "${USER}" | jq -r .response.uuid)
+echo "DAOS_POOL_UUID:" ${DAOS_POOL_UUID}
+
+#  Show information about a created pool
+log "Show DAOS Pool information"
+dmg pool query --pool "${DAOS_POOL_UUID}"
+#  Modify a pool's DAOS_PO_RECLAIM reclaim strategies property to never trigger aggregation
+dmg -i pool set-prop --pool="${DAOS_POOL_UUID}" --name=reclaim --value=disabled
+
+log "Create DAOS Container"
+export DAOS_CONT_UUID=$(daos container create --type POSIX --pool="${DAOS_POOL_UUID}" --properties="${DAOS_CONT_REPLICATION_FACTOR}" | egrep -o '[0-9a-f-]{36}$')
+echo "DAOS_CONT_UUID:" ${DAOS_CONT_UUID}
+
 #  Show container properties
-daos cont get-prop ${POOL_LABEL} ${CONT_LABEL}
+log "DAOS Container properties"
+daos cont get-prop --pool=${DAOS_POOL_UUID} --cont=${DAOS_CONT_UUID}
 
 log "Use dfuse to mount ${CONT_LABEL} on ${IO500_RESULTS_DFUSE_DIR}"
 pdsh -w ^hosts sudo rm -rf "${IO500_RESULTS_DFUSE_DIR}"
 pdsh -w ^hosts mkdir -p "${IO500_RESULTS_DFUSE_DIR}"
-pdsh -w ^hosts dfuse --pool="${POOL_LABEL}" --container="${CONT_LABEL}" --mountpoint="${IO500_RESULTS_DFUSE_DIR}"
+pdsh -w ^hosts dfuse --pool="${DAOS_POOL_UUID}" --container="${DAOS_CONT_UUID}" --mountpoint="${IO500_RESULTS_DFUSE_DIR}"
 sleep 10
 echo "DFuse complete!"
 
@@ -136,8 +145,8 @@ export LD_LIBRARY_PATH=/usr/local/mpifileutils/install/lib64/
 log "Prepare config file for IO500"
 
 # Set the following vars in order to do envsubst with config-full-sc21.ini
-export DAOS_POOL="${POOL_LABEL}"
-export DAOS_CONT="${CONT_LABEL}"
+export DAOS_POOL="${DAOS_POOL_UUID}"
+export DAOS_CONT="${DAOS_CONT_UUID}"
 export MFU_POSIX_TS=1
 export IO500_NP=$(( ${DAOS_CLIENT_INSTANCE_COUNT} * $(nproc --all) ))
 

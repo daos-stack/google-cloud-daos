@@ -63,6 +63,14 @@ yum install -y stackdriver-agent
 log "Installing daos-server v${DAOS_VERSION}"
 yum install -y daos-server
 
+if echo "${DAOS_VERSION}" | grep -q -e '^1\..*'; then
+    # Upgrade SPDK to work around the GCP NVMe bug with number of qpairs
+    yum install -y wget dpdk
+    wget "https://packages.daos.io/v${DAOS_VERSION}/CentOS7/spdk/x86_64/spdk-20.01.2-2.el7.x86_64.rpm"
+    wget "https://packages.daos.io/v${DAOS_VERSION}/CentOS7/spdk/x86_64/spdk-tools-20.01.2-2.el7.noarch.rpm"
+    rpm -Uvh ./spdk-20.01.2-2.el7.x86_64.rpm ./spdk-tools-20.01.2-2.el7.noarch.rpm
+fi
+
 # TODO:
 # - enable gvnic
 

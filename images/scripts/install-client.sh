@@ -39,6 +39,10 @@ repo_gpgcheck=1
 gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 EOF
 
+# Import GPG key
+echo "Importing GPG KEY https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
+rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+
 yum install -y intel-oneapi-mpi intel-oneapi-mpi-devel
 
 # Determine which repo to use
@@ -69,9 +73,21 @@ protect=1
 gpgkey=https://packages.daos.io/RPM-GPG-KEY
 EOF
 
+# Import GPG key
+echo "Importing GPG KEY https://packages.daos.io/RPM-GPG-KEY"
+rpm --import https://packages.daos.io/RPM-GPG-KEY
+
 # Install DAOS client packages
 log "Installing daos-client v${DAOS_VERSION}"
 yum install -y daos-client daos-devel
+
+if echo "${DAOS_VERSION}" | grep -q -e '^1\..*'; then
+    # Upgrade SPDK to work around the GCP NVMe bug with number of qpairs
+    yum install -y wget dpdk libaio python-configshell pexpect
+    wget "https://packages.daos.io/v${DAOS_VERSION}/CentOS7/spdk/x86_64/spdk-20.01.2-2.el7.x86_64.rpm"
+    wget "https://packages.daos.io/v${DAOS_VERSION}/CentOS7/spdk/x86_64/spdk-tools-20.01.2-2.el7.noarch.rpm"
+    rpm -Uvh ./spdk-20.01.2-2.el7.x86_64.rpm ./spdk-tools-20.01.2-2.el7.noarch.rpm
+fi
 
 # Install some other software helpful for development
 # (e.g. to compile ior or fio)
