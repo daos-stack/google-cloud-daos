@@ -37,7 +37,7 @@ for (( i=last-1 ; i>=0 ; i-- )); do
 done
 
 IMAGES_DIR="${SCRIPT_DIR}/../../../images"
-FORCE_REBUILD=0
+FORCE_REBUILD="${FORCE_REBUILD:-0}"
 ERROR_MSGS=()
 
 show_help() {

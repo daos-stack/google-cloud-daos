@@ -138,8 +138,6 @@ mount_dfuse() {
   else
     log_section "Use dfuse to mount ${DAOS_CONT_LABEL} on ${IO500_RESULTS_DFUSE_DIR}"
 
-    # clush --hostfile=hosts_clients --dsh \
-    #   "sudo rm -rf '${IO500_RESULTS_DFUSE_DIR}'"
     clush --hostfile=hosts_clients --dsh \
       "mkdir -p '${IO500_RESULTS_DFUSE_DIR}'"
 
@@ -190,14 +188,33 @@ run_io500() {
   mpirun -np ${IO500_NP} \
     --hostfile "${SCRIPT_DIR}/hosts_clients" \
     --bind-to socket "${IO500_DIR}/io500" temp.ini
+  log "IO500 run complete!"
+}
+
+show_pool_state() {
+  log "Query pool state"
+  dmg pool query "${DAOS_POOL_LABEL}"
 }
 
 process_results() {
   log_section "Copy results from ${IO500_RESULTS_DFUSE_DIR} to ${IO500_RESULTS_DIR}"
+
+  # Copy results from dfuse mount to another directory so we don't lose them
+  # when the dfuse mount is removed
   rsync -avh "${IO500_RESULTS_DFUSE_DIR}/" "${IO500_RESULTS_DIR_TIMESTAMPED}/"
   cp temp.ini "${IO500_RESULTS_DIR_TIMESTAMPED}/"
+
+  # Save a copy of the environment variables for the IO500 run
   printenv | sort > "${IO500_RESULTS_DIR_TIMESTAMPED}/env.sh"
-  log "IO500 run complete!"
+
+  # Save output from "dmg pool query"
+  dmg pool query "${DAOS_POOL_LABEL}" > \
+    "${IO500_RESULTS_DIR_TIMESTAMPED}/dmg_pool_query_${DAOS_POOL_LABEL}.txt"
+
+  FIRST_SERVER=$(echo ${SERVER_LIST} | cut -d, -f1)
+  ssh ${FIRST_SERVER} 'daos_server version' > \
+    "${IO500_RESULTS_DIR_TIMESTAMPED}/daos_server_version.txt"
+
   log "Results files located in ${IO500_RESULTS_DIR_TIMESTAMPED}"
 }
 
@@ -209,6 +226,7 @@ main(){
   mount_dfuse
   io500_prepare
   run_io500
+  process_results
   unmount
 }
 

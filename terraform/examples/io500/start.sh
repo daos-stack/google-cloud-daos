@@ -45,7 +45,7 @@ Usage:
 
 Options:
 
-  -c --config-file CONFIG_FILE Path to a configuration file that contains the
+  -c --config   CONFIG_FILE Path to a configuration file that contains the
                               settings for Terraform and the IO500 benchmark.
                               See the files in ./config
                               Default: ./config/config.sh
@@ -68,21 +68,13 @@ Options:
 
 Examples:
 
-  Build daos-client-io500 images
-    ${SCRIPT_NAME} -t client
+  Deploy a DAOS environment with the default configuration running the current
+    DAOS version.
+    ${SCRIPT_NAME}
 
-  Build daos-server images
-    ${SCRIPT_NAME} -t server
+  Deploy a DAOS environment with a different configuration
 
-  Build both daos-server and daos-client images
-    ${SCRIPT_NAME} -t all
-
-Dependencies:
-
-  ${SCRIPT_NAME} uses the Google Cloud Platform SDK (gcloud command)
-
-  You must install the Google Cloud SDK and make sure it is in your PATH
-  See https://cloud.google.com/sdk/docs/install
+    ${SCRIPT_NAME} -c ./config/config_2c_2s_16d.sh
 
 EOF
 }
@@ -144,16 +136,16 @@ opts() {
   # max args.  So set +e to continue processing when shift errors.
   set +e
   while [[ $# -gt 0 ]]; do
-    echo "in while loop: \$1=${1} \$2=${2}"
     case "$1" in
-      --config-file|-c)
+      --config|-c)
         CONFIG_FILE="$2"
         if [[ "${CONFIG_FILE}" == -* ]] || [[ "${CONFIG_FILE}" == "" ]] || [[ -z ${CONFIG_FILE} ]]; then
-          ERROR_MSGS+=("ERROR: Missing CONFIG_FILE value for -c or --config-file")
+          ERROR_MSGS+=("ERROR: Missing CONFIG_FILE value for -c or --config")
           break
         elif [[ ! -f "${CONFIG_FILE}" ]]; then
           ERROR_MSGS+=("ERROR: Configuration file '${CONFIG_FILE}' not found.")
         fi
+        export CONFIG_FILE
         shift 2
       ;;
       --version|-v)
@@ -177,7 +169,8 @@ opts() {
         shift 2
       ;;
       --force|-f)
-        export FORCE_REBUILD=1
+        FORCE_REBUILD=1
+        export FORCE_REBUILD
         shift
       ;;
       --help|-h)
@@ -268,6 +261,7 @@ create_hosts_files() {
 build_disk_images() {
   # Build the DAOS disk images
   "${SCRIPT_DIR}/build_daos_io500_images.sh" --type all
+
 }
 
 run_terraform() {
@@ -449,35 +443,11 @@ configure_ssh_all_instances() {
   # nodes. This should be in the images but we need to double-check here.
   ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
     "~/configure_clients.sh"
-
-  # # Copy ~/.ssh directory from first client instance to all other instances
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "pdcp -w^hosts_all -r ~/.ssh ~/"
-
-  # log "Get agent config files from first server ${DAOS_FIRST_SERVER}"
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "rm -f ~/.ssh/known_hosts && scp -r ${DAOS_FIRST_SERVER}:/etc/daos/daos_*.yml ~/"
-
-  # log "Configure DAOS Clients"
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "clush --hostfile=hosts_all --dsh 'rm -f ~/.ssh/known_hosts'"
-
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "clush --hostfile=hosts_all --dsh 'sudo systemctl stop daos_agent'"
-
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "pdcp -w ^hosts_clients '~/daos_agent.yml ~daos_control.yml ~/'"
-
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "clush --hostfile=hosts_all --dsh 'sudo cp -f daos_agent.yml daos_control.yml /etc/daos/'"
-
-  # ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-  #   "clush --hostfile=hosts_all --dsh 'sudo systemctl start daos_agent'"
 }
 
 show_instances() {
   log_section "DAOS Server and Client instances"
-  DAOS_FILTER="$(echo ${DAOS_SERVER_BASE_NAME} | sed -r 's/server/*/g')-*"
+  DAOS_FILTER="$(echo ${DAOS_SERVER_BASE_NAME} | sed -r 's/server/.*/g')-.*"
   gcloud compute instances list \
     --project="${TF_VAR_project_id}" \
     --zones="${TF_VAR_zone}" \
