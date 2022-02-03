@@ -15,8 +15,14 @@ tfplan
 # Ignore Terraform vars files to avoid leaking information
 terraform.tfvars
 
+# Ignore all /tmp directories
+**/tmp
+
+# Ignore all terraform/examples/io500 generated files and symlinks
+terraform/examples/io500/config/active_config.sh
+terraform/examples/io500/tmp
+
 # Ignore other files
 id_rsa*
 hosts*
 *.flag
-keys.txt
