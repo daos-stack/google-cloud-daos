@@ -60,16 +60,14 @@ pdcp -w ^hosts install_*.sh ~
 if [[ ! -d /usr/local/mpifileutils/install/bin ]]
 then
   printf "\nRun install_mpifileutils.sh on client nodes\n\n"
-  sudo ./install_mpifileutils.sh
-  pdsh -w ^hosts_no_first "sudo ./install_mpifileutils.sh"
+  pdsh -w ^hosts "sudo ./install_mpifileutils.sh"
 fi
 
 # Install IO500 if not already installed
 if [[ ! -d "${IO500_DIR}" ]]
 then
   printf "\nRun install_${IO500_VERSION_TAG,,}.sh on client nodes\n\n"
-  sudo "./install_${IO500_VERSION_TAG}.sh"
-  pdsh -w ^hosts_no_first "sudo ./install_${IO500_VERSION_TAG,,}.sh"
+  pdsh -w ^hosts "sudo ./install_${IO500_VERSION_TAG,,}.sh"
 fi
 
 cleanup
@@ -116,7 +114,7 @@ echo "Pool created successfully"
 dmg pool query "${POOL_LABEL}"
 
 log "Create container: label=${CONT_LABEL}"
-daos container create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${CONT_LABEL}" "${POOL_LABEL}"
+daos cont create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${CONT_LABEL}" "${POOL_LABEL}"
 #  Show container properties
 daos cont get-prop ${POOL_LABEL} ${CONT_LABEL}
 
@@ -167,6 +165,9 @@ log "Copy results from ${IO500_RESULTS_DFUSE_DIR} to ${IO500_RESULTS_DIR}"
 rsync -avh "${IO500_RESULTS_DFUSE_DIR}/" "${IO500_RESULTS_DIR_TIMESTAMPED}/"
 cp temp.ini "${IO500_RESULTS_DIR_TIMESTAMPED}/"
 printenv | sort > "${IO500_RESULTS_DIR_TIMESTAMPED}/env.sh"
+
+echo "Query pool state"
+dmg pool query "${POOL_LABEL}"
 
 unmount
 
