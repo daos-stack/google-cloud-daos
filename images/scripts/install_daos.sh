@@ -179,7 +179,8 @@ preinstall_check() {
 
 add_repo() {
   # Determine which repo to use
-  . /etc/os-release
+  # shellcheck disable=SC1091
+  source "/etc/os-release"
   OS_VERSION=$(echo "${VERSION_ID}" | cut -d. -f1)
   OS_VERSION_ID="${ID,,}_${OS_VERSION}"
   case ${OS_VERSION_ID} in

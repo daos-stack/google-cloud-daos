@@ -340,7 +340,7 @@ main() {
   build_images
   remove_firewall
   list_images
-  printf "\n\n${SCRIPT_NAME} finished!\n\n"
+  printf "\n\n%s\n\n" "${SCRIPT_NAME} finished!"
 }
 
 main "$@"
