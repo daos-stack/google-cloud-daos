@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configure DAOS storage and runs an IO500 benchmark
+# Cleans DAOS storage and runs an IO500 benchmark
 #
 # Instructions that were referenced to create this script are at
 # https://daosio.atlassian.net/wiki/spaces/DC/pages/11055792129/IO-500+SC21
@@ -66,7 +66,7 @@ log_section() {
   log "$1" "1"
 }
 
-unmount() {
+unmount_defuse() {
   if [[ -d "${IO500_RESULTS_DFUSE_DIR}" ]]; then
     log_section "Unmount DFuse mountpoint ${IO500_RESULTS_DFUSE_DIR}"
 
@@ -85,8 +85,8 @@ unmount() {
 
 cleanup(){
   log_section "Clean up DAOS storage"
-  unmount
-  ./storage_clean.sh
+  unmount_defuse
+  "${SCRIPT_DIR}/clean_storage.sh"
 }
 
 storage_scan() {
@@ -99,18 +99,20 @@ format_storage() {
   log_section "Format DAOS storage"
   dmg -i -l ${SERVER_LIST} storage format --reformat
 
-  printf "%s" "Waiting for DAOS storage reformat to finish"
+  printf "%s" "Waiting for DAOS storage format to finish"
   while true
   do
-      if [ $(dmg -i -j system query -v | grep joined | wc -l) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]
-      then
-          echo "Done"
-          dmg -i system query -v
-          break
-      fi
-      printf "%s" "."
-      sleep 10
+    if [[ $(dmg -i -j system query -v | grep joined | wc -l) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]]; then
+      printf "\n%s\n" "DAOS storage format finished"
+      dmg -i system query -v
+      break
+    fi
+    printf "%s" "."
+    sleep 5
   done
+
+  dmg storage query usage
+
 }
 
 create_pool() {
@@ -197,7 +199,7 @@ show_pool_state() {
 }
 
 process_results() {
-  log_section "Copy results from ${IO500_RESULTS_DFUSE_DIR} to ${IO500_RESULTS_DIR}"
+  log_section "Copy results from ${IO500_RESULTS_DFUSE_DIR} to ${IO500_RESULTS_DIR_TIMESTAMPED}"
 
   # Copy results from dfuse mount to another directory so we don't lose them
   # when the dfuse mount is removed
@@ -227,7 +229,7 @@ main(){
   io500_prepare
   run_io500
   process_results
-  unmount
+  unmount_defuse
 }
 
 main

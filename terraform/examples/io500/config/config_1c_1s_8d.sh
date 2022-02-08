@@ -32,14 +32,14 @@ DAOS_POOL_SIZE="$(( 375 * ${DAOS_SERVER_DISK_COUNT} * ${DAOS_SERVER_INSTANCE_COU
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
-IO500_STONEWALL_TIME=60  # Number of seconds to run the benchmark
+IO500_STONEWALL_TIME=5  # Number of seconds to run the benchmark
 
 # ------------------------------------------------------------------------------
 # Modify instance base names if ID variable is set
 # ------------------------------------------------------------------------------
-CONFIG_ID="${DAOS_CLIENT_INSTANCE_COUNT}c-${DAOS_SERVER_INSTANCE_COUNT}s-${DAOS_SERVER_DISK_COUNT}d"
-DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME:-daos-server-${CONFIG_ID}}"
-DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME:-daos-client-${CONFIG_ID}}"
+DAOS_CONFIG_NAME="${DAOS_CLIENT_INSTANCE_COUNT}c-${DAOS_SERVER_INSTANCE_COUNT}s-${DAOS_SERVER_DISK_COUNT}d"
+DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME:-daos-server-${DAOS_CONFIG_NAME}}"
+DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME:-daos-client-${DAOS_CONFIG_NAME}}"
 if [[ -n ${ID} ]]; then
     DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME}-${ID}"
     DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME}-${ID}"
@@ -66,7 +66,7 @@ export TF_VAR_server_template_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_mig_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_machine_type="${DAOS_SERVER_MACHINE_TYPE}"
 export TF_VAR_server_os_project="${TF_VAR_project_id}"
-export TF_VAR_server_os_family="daos-server-centos-7"
+export TF_VAR_server_os_family="daos-server-io500-centos-7"
 # Clients
 export TF_VAR_client_number_of_instances=${DAOS_CLIENT_INSTANCE_COUNT}
 export TF_VAR_client_instance_base_name="${DAOS_CLIENT_BASE_NAME}"

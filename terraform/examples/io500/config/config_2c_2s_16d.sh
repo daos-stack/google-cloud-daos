@@ -13,7 +13,7 @@
 ID=""
 
 # Server and client instances
-PREEMPTIBLE_INSTANCES="false"
+PREEMPTIBLE_INSTANCES="true"
 SSH_USER="daos-user"
 
 # Server(s)
@@ -21,7 +21,7 @@ DAOS_SERVER_INSTANCE_COUNT="2"
 DAOS_SERVER_MACHINE_TYPE=n2-custom-36-262144
 DAOS_SERVER_DISK_COUNT=16
 DAOS_SERVER_CRT_TIMEOUT=300
-DAOS_SERVER_SCM_SIZE=240
+DAOS_SERVER_SCM_SIZE=200
 
 # Client(s)
 DAOS_CLIENT_INSTANCE_COUNT="2"
@@ -32,14 +32,14 @@ DAOS_POOL_SIZE="$(( 375 * ${DAOS_SERVER_DISK_COUNT} * ${DAOS_SERVER_INSTANCE_COU
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
-IO500_STONEWALL_TIME=60      # Amount of seconds to run the benchmark
+IO500_STONEWALL_TIME=60  # Number of seconds to run the benchmark
 
 # ------------------------------------------------------------------------------
 # Modify instance base names if ID variable is set
 # ------------------------------------------------------------------------------
-CONFIG_ID="${DAOS_CLIENT_INSTANCE_COUNT}c-${DAOS_SERVER_INSTANCE_COUNT}s-${DAOS_SERVER_DISK_COUNT}d"
-DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME:-daos-server-${CONFIG_ID}}"
-DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME:-daos-client-${CONFIG_ID}}"
+DAOS_CONFIG_NAME="${DAOS_CLIENT_INSTANCE_COUNT}c-${DAOS_SERVER_INSTANCE_COUNT}s-${DAOS_SERVER_DISK_COUNT}d"
+DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME:-daos-server-${DAOS_CONFIG_NAME}}"
+DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME:-daos-client-${DAOS_CONFIG_NAME}}"
 if [[ -n ${ID} ]]; then
     DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME}-${ID}"
     DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME}-${ID}"
@@ -66,7 +66,7 @@ export TF_VAR_server_template_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_mig_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_machine_type="${DAOS_SERVER_MACHINE_TYPE}"
 export TF_VAR_server_os_project="${TF_VAR_project_id}"
-export TF_VAR_server_os_family="daos-server-centos-7"
+export TF_VAR_server_os_family="daos-server-io500-centos-7"
 # Clients
 export TF_VAR_client_number_of_instances=${DAOS_CLIENT_INSTANCE_COUNT}
 export TF_VAR_client_instance_base_name="${DAOS_CLIENT_BASE_NAME}"
@@ -76,4 +76,4 @@ export TF_VAR_client_template_name="${DAOS_CLIENT_BASE_NAME}"
 export TF_VAR_client_mig_name="${DAOS_CLIENT_BASE_NAME}"
 export TF_VAR_client_machine_type="${DAOS_CLIENT_MACHINE_TYPE}"
 export TF_VAR_client_os_project="${TF_VAR_project_id}"
-export TF_VAR_client_os_family="daos-client-hpc-centos-7"
+export TF_VAR_client_os_family="daos-client-io500-hpc-centos-7"

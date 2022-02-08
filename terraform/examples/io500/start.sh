@@ -24,6 +24,9 @@ CONFIG_DIR="${CONFIG_DIR:-${SCRIPT_DIR}/config}"
 # Config file in ./config that is used to spin up the environment and configure IO500
 CONFIG_FILE="${CONFIG_FILE:-${CONFIG_DIR}/config.sh}"
 
+# active_config.sh is a symlink to the last config file used by start.sh
+ACTIVE_CONFIG="${CONFIG_DIR}/active_config.sh"
+
 # SSH config file path
 # We generate an SSH config file that is used with 'ssh -F' to simplify logging
 # into the first DAOS client instance. The first DAOS client instance is our
@@ -198,7 +201,28 @@ create_active_config_symlink() {
   # Create a ${IO500_TMP}/config/active_config.sh symlink that points to the
   # config file that is being used now. This is needed so that the stop.sh can
   # always source the same config file that was used in start.sh
-  ln -snf "${CONFIG_FILE}" "${CONFIG_DIR}/active_config.sh"
+  if [[ -L "${ACTIVE_CONFIG}" ]]; then
+    current_config=$(readlink "${ACTIVE_CONFIG}")
+    if [[ "$(basename ${CONFIG_FILE})" != $(basename "${current_config}") ]]; then
+       read -d '' err_msg <<EOF || true
+ERROR
+Cannot use configuration: ${CONFIG_FILE}
+An active configuration already exists: ${current_config}
+
+You must run
+
+  ${SCRIPT_NAME} -c ${current_config}
+
+or run the stop.sh script before running
+
+  ${SCRIPT_NAME} -c ${CONFIG_FILE}
+EOF
+      log_error "${err_msg}"
+      exit 1
+    fi
+  else
+    ln -snf "${CONFIG_FILE}" "${CONFIG_DIR}/active_config.sh"
+  fi
 }
 
 load_config() {
@@ -423,8 +447,8 @@ copy_files_to_first_client() {
     "${HOSTS_CLIENTS_FILE}" \
     "${HOSTS_SERVERS_FILE}" \
     "${HOSTS_ALL_FILE}" \
-    ${SCRIPT_DIR}/configure_clients.sh \
-    ${SCRIPT_DIR}/storage_clean.sh \
+    ${SCRIPT_DIR}/configure_daos.sh \
+    ${SCRIPT_DIR}/clean_storage.sh \
     ${SCRIPT_DIR}/run_io500-sc21.sh \
     "${FIRST_CLIENT_IP}:~/"
 
@@ -433,16 +457,9 @@ copy_files_to_first_client() {
 
 }
 
-configure_ssh_all_instances() {
-
-  # Use the first client to issue commands across all other clients.
-
-  log "Configure client nodes"
-
-  # Unfortunately we can't use pdcp unless the pdsh package is installed on all
-  # nodes. This should be in the images but we need to double-check here.
-  ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} \
-    "~/configure_clients.sh"
+configure_daos() {
+  log "Configure DAOS instances"
+  ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} "~/configure_daos.sh"
 }
 
 show_instances() {
@@ -482,7 +499,7 @@ main() {
   configure_first_client_nat_ip
   configure_ssh
   copy_files_to_first_client
-  configure_ssh_all_instances
+  configure_daos
   show_instances
   show_run_steps
 }
