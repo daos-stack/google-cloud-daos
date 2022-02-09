@@ -29,31 +29,18 @@ Usage:
 
 Options:
 
-  -t --type       DAOS_INSTALL_TYPE Installation Type
-                                    Valid values [ all | client | server ]
+  -t --type           DAOS_INSTALL_TYPE    Installation Type
+                                           Valid values [ all | client | server ]
 
-  [ -v --version  DAOS_VERSION ]    Version of DAOS to install from
-                                    https://packages.daos.io/
-                                    If https://packages.daos.io/v${DAOS_VERSION}
-                                    then --version "${DAOS_VERSION}"
-                                    Default: "${DEFAULT_DAOS_VERSION}"
+  [ -v --version      DAOS_VERSION ]       Version of DAOS to install
 
-  [ -u --repo-baseurl DAOS_REPO_BASE_URL ]
-                                    Base URL of a repo.
-                                    This is the URL up to the version.
-                                    If the repo is at https://example.com/foo/v${DAOS_VERSION}
-                                    then -u "https://example.com/foo"
+  [ -u --repo-baseurl DAOS_REPO_BASE_URL ] Base URL of a repo
 
-  [ -p --project  GCP_PROJECT ]     Google Cloud Platform Project ID
-                                    Default: Uses the default in the Cloud SDK
-                                             configuration.
+  [ -p --project      GCP_PROJECT ]        Google Cloud Platform Project ID
+                                           Default: Cloud SDK default project
 
-  [ -z --zone     GCP_ZONE    ]     Google Cloud Platform Compute Zone
-                                    Default: Uses the default in the Cloud SDK
-                                             configuration.
-
-  [ -f --force ]                    Force images to be built if there are existing
-                                    images with the same DAOS version
+  [ -z --zone         GCP_ZONE    ]        Google Cloud Platform Compute Zone
+                                           Default: Cloud SDK default zone
 
   [ -h --help ]                     Show help
 
@@ -61,32 +48,15 @@ Examples:
 
   Build daos-client image with DAOS v${DAOS_VERSION} installed
 
-    ${SCRIPT_NAME} -t client -v ${DAOS_VERSION}
-
-    OR
-
-    export DAOS_INSTALL_TYPE="client"
-    export DAOS_VERSION="${DAOS_VERSION}"
-    ${SCRIPT_NAME}
+    ${SCRIPT_NAME} -t client
 
   Build daos-server image with DAOS v${DAOS_VERSION} installed
 
-    ${SCRIPT_NAME} -t server -v ${DAOS_VERSION}
+    ${SCRIPT_NAME} -t server
 
-    OR
+  Build daos-client and daos-server images with DAOS v${DAOS_VERSION} installed
 
-    export DAOS_INSTALL_TYPE="server"
-    export DAOS_VERSION="${DAOS_VERSION}"
-    ${SCRIPT_NAME}
-
-Dependencies:
-
-  ${SCRIPT_NAME} uses the Google Cloud Platform SDK (gcloud command)
-
-  You must install the Google Cloud SDK and make sure it is in your PATH
-  See https://cloud.google.com/sdk/docs/install
-
-  You should also set a default project, region and zone.
+    ${SCRIPT_NAME} -t all
 
 EOF
 }

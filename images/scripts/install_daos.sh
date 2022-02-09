@@ -19,44 +19,24 @@ Usage:
 
 Options:
 
-  -t --type     DAOS_INSTALL_TYPE   Installation Type
-                                    Valid values [ all | client | server ]
-                                    all = Install both client and server
+  -t --type     DAOS_INSTALL_TYPE        Installation Type
+                                         Valid values [ all | client | server ]
 
-  -v --version  DAOS_VERSION        Version of DAOS to install from
-                                    https://packages.daos.io/
-                                    If https://packages.daos.io/v2.0.0
-                                    then --version "2.0.0"
+  -v --version  DAOS_VERSION              Version of DAOS to install
 
-  [-u --repo-baseurl DAOS_REPO_BASE_URL ]
-                                    Base URL of a repo.
-                                    This is the URL up to the version.
-                                    If the repo is at https://example.com/foo/v2.0.0
-                                    then -u "https://example.com/foo"
+  [-u --repo-baseurl DAOS_REPO_BASE_URL ] Base URL of a repo
 
-  [ -h --help ]                     Show help
+  [ -h --help ]                           Show help
 
 Examples:
 
-  Install daos-client 2.0.0
+  Install daos-client
 
-    ${SCRIPT_NAME} -t client -v 2.0.0
+    ${SCRIPT_NAME} -t client
 
-    OR
+  Install daos-server
 
-    export DAOS_INSTALL_TYPE="client"
-    export DAOS_VERSION="2.0.0"
-    ${SCRIPT_NAME}
-
-  Install daos-server 2.0.0
-
-    ${SCRIPT_NAME} -t server -v 2.0.0
-
-    OR
-
-    export DAOS_INSTALL_TYPE="server"
-    export DAOS_VERSION="2.0.0"
-    ${SCRIPT_NAME}
+    ${SCRIPT_NAME} -t server
 
 EOF
 }

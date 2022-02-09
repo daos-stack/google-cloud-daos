@@ -48,36 +48,23 @@ Usage:
 
 Options:
 
-  -c --config   CONFIG_FILE Path to a configuration file that contains the
-                              settings for Terraform and the IO500 benchmark.
-                              See the files in ./config
-                              Default: ./config/config.sh
+  [ -c --config   CONFIG_FILE ]   Path to a configuration file.
+                                  See files in ./config
+                                  Default: ./config/config.sh
 
-  -v --version  DAOS_VERSION Version of DAOS to install from
-                              https://packages.daos.io/
-                              If https://packages.daos.io/v2.0.0
-                              then --version "2.0.0"
+  [ -v --version  DAOS_VERSION ]  Version of DAOS to install
 
-  -u --repo-baseurl DAOS_REPO_BASE_URL
-                              Base URL of a repo.
-                              This is the URL up to the version.
-                              If the repo is at https://example.com/foo/v${DAOS_VERSION}
-                              then -u "https://example.com/foo"
+  [ -u --repo-baseurl DAOS_REPO_BASE_URL ] Base URL of a repo.
 
-  -f --force                 Force images to be built if there are already
-                              existing images
+  [ -f --force ]                  Force images to be re-built
 
-  -h --help                  Show help
+  [ -h --help ]                   Show help
 
 Examples:
 
-  Deploy a DAOS environment with the default configuration running the current
-    DAOS version.
-    ${SCRIPT_NAME}
+  Deploy a DAOS environment with a specifc configuration
 
-  Deploy a DAOS environment with a different configuration
-
-    ${SCRIPT_NAME} -c ./config/config_2c_2s_16d.sh
+    ${SCRIPT_NAME} -c ./config/config_1c_1s_8d.sh
 
 EOF
 }
@@ -285,7 +272,6 @@ create_hosts_files() {
 build_disk_images() {
   # Build the DAOS disk images
   "${SCRIPT_DIR}/build_daos_io500_images.sh" --type all
-
 }
 
 run_terraform() {

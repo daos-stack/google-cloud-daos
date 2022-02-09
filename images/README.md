@@ -59,9 +59,3 @@ Build a DAOS client image
 cd images/
 ./build_images.sh --type client
 ```
-
-For more information see the help
-```bash
-cd images/
-./build_images.sh --help
-```
