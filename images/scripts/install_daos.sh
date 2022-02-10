@@ -244,8 +244,8 @@ main() {
   preinstall_check
   verify_version
   add_repo
-  install_additional_pkgs
   install_epel
+  install_additional_pkgs
   install_daos
   downgrade_libfabric
   printf "\n%s\n\n" "DONE! DAOS v${DAOS_VERSION} installed"
