@@ -32,7 +32,7 @@ You will also need to install the dependencies that are required for the pre-com
    See [https://github.com/terraform-docs/terraform-docs](https://github.com/terraform-docs/terraform-docs)
 
 
-4. *OPTIONAL* - MacOS only
+4. MacOS only
 
    MacOS users will need to install `findutils` and `coreutils`.
 
