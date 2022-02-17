@@ -36,11 +36,13 @@ variable "labels" {
 variable "os_family" {
   description = "OS GCP image family"
   default     = null
+  type        = string
 }
 
 variable "os_project" {
   description = "OS GCP image project name"
   default     = null
+  type        = string
 }
 
 variable "os_disk_size_gb" {

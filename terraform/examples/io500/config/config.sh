@@ -13,7 +13,7 @@
 ID=""
 
 # Server and client instances
-PREEMPTIBLE_INSTANCES="true"
+PREEMPTIBLE_INSTANCES="false"
 SSH_USER="daos-user"
 
 # Server(s)
