@@ -24,7 +24,7 @@ You will also need to install the dependencies that are required for the pre-com
 
    ```shell
    cd <root of google-cloud-daos repo>
-   tflint init
+   tflint --init
    ```
 
 3. Install terraform-docs
