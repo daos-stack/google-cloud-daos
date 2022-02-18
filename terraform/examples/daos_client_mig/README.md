@@ -4,6 +4,11 @@ Creates a managed instance group running ```number_of_instances``` DAOS clients.
 
 A DAOS client is simply an instance based on an image containing all DAOS packages and dependencies (can be created with the image scripts).
 
+## Setup
+
+1. Create ```terraform.tfvars``` in this directory or the directory where you're running this example.
+2. Copy the ```terraform.tfvars.example``` content into ```terraform.tfvars``` file and update the contents to match your environment.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
