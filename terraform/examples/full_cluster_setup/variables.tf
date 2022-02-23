@@ -164,3 +164,9 @@ variable "preemptible" {
   default     = true
   type        = string
 }
+
+variable "access_points" {
+  description = "List of servers to add to client .yml files"
+  default     = null
+  type        = list(string)
+}

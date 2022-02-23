@@ -85,14 +85,100 @@ resource "google_compute_per_instance_config" "named_instances" {
   name                   = format("%s-%04d", var.instance_base_name, sum([count.index, 1]))
   preserved_state {
     metadata = {
-      inst_type      = "daos-server"
-      enable-oslogin = "true"
-      inst_nr        = var.number_of_instances
-      inst_base_name = var.instance_base_name
+      inst_type                 = "daos-server"
+      enable-oslogin            = "true"
+      inst_nr                   = var.number_of_instances
+      inst_base_name            = var.instance_base_name
+      daos_server_yaml_content  = local.daos_server_yaml_content
+      daos_control_yaml_content = local.daos_control_yaml_content
+      daos_agent_yaml_content   = local.daos_agent_yaml_content
+      startup-script            = local.server_startup_script
       # Adding a reference to the instance template used causes the stateful instance to update
       # if the instance template changes. Otherwise there is no explicit dependency and template
       # changes may not occur on the stateful instance
       instance_template = google_compute_instance_template.daos_sig_template.self_link
     }
   }
+}
+
+// resource "local_file" "daos_server_config" {
+//     #content     = "${local.daos_server_yaml}"
+//     content     = templatefile(
+//       "${path.module}/templates/daos_server.yml.tftpl",
+//       {
+//         access_points = var.number_of_instances > 1 ? "foo" : [ join(var.instance_base_name,"-",format("%04s", var.number_of_instances)) ]
+//         nr_hugepages = (var.daos_disk_count * 1048576) / 2048
+//         targets    = var.daos_disk_count
+//         scm_size   = var.daos_scm_size
+//         crt_timeout = var.daos_crt_timeout
+//       }
+//     )
+//     filename = "daos_server.yml"
+// }
+
+resource "local_file" "daos_server_config" {
+  content  = "${local.daos_server_yaml_content}"
+  filename = "daos_server.yml"
+}
+
+
+// echo "Selecting access points among ${hosts}..."
+
+// if [[ ${inst_nr} -ge 5 ]]; then
+//   # Support up to 2 instance failures
+//   apnr=5
+// elif [[ ${inst_nr} -ge 3 ]]; then
+//   # Support single instance failure
+//   apnr=3
+// else
+//   # single-replica, no failure supported
+//   apnr=1
+// fi
+// # choose contiguous access points until we know more about fault domains
+// # host range not supported in the yaml file yet
+// # ap=\'`printf "%s-[%04d-%04d]" "${base_name}" 0 $((apnr-1))`\'
+// # so list each node individually
+// ap=""
+// for i in `seq 1 ${apnr}`; do
+//   name=`printf "%s-%04d" "${base_name}" ${i}`
+//   if [[ "$ap" == "" ]]; then
+//     ap=\'${name}\'
+//   else
+//     ap=$ap,\'${name}\'
+//   fi
+// done
+// echo "${ap} selected as access points"
+
+locals {
+  max_aps = var.number_of_instances > 5 ? 5 : (var.number_of_instances % 2) == 1 ? var.number_of_instances : var.number_of_instances - 1
+  access_points = formatlist("%s-%04s", var.instance_base_name, range(1, local.max_aps+1))
+  scm_size = var.daos_scm_size
+  # To get nr_hugepages value: (targets * 1Gib) / hugepagesize
+  huge_pages = (var.daos_disk_count * 1048576) / 2048
+  targets = var.daos_disk_count
+  crt_timeout = var.daos_crt_timeout
+  daos_server_yaml_content = templatefile(
+    "${path.module}/templates/daos_server.yml.tftpl",
+    {
+      access_points = local.access_points
+      nr_hugepages = local.huge_pages
+      targets    = local.targets
+      scm_size   = local.scm_size
+      crt_timeout = local.crt_timeout
+    }
+  )
+  daos_control_yaml_content = templatefile(
+    "${path.module}/templates/daos_control.yml.tftpl",
+    {
+      access_points = local.access_points
+    }
+  )
+  daos_agent_yaml_content = templatefile(
+    "${path.module}/templates/daos_agent.yml.tftpl",
+    {
+      access_points = local.access_points
+    }
+  )
+  server_startup_script = file(
+    "${path.module}/templates/daos_startup_script.tftpl")
 }

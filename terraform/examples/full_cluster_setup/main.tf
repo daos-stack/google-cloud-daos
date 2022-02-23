@@ -11,10 +11,8 @@ module "daos_server" {
   region             = var.region
   zone               = var.zone
   labels             = var.server_labels
-
   number_of_instances = var.server_number_of_instances
   daos_disk_count     = var.server_daos_disk_count
-
   instance_base_name = var.server_instance_base_name
   os_disk_size_gb    = var.server_os_disk_size_gb
   os_disk_type       = var.server_os_disk_type
@@ -35,9 +33,7 @@ module "daos_client" {
   region             = var.region
   zone               = var.zone
   labels             = var.client_labels
-
   number_of_instances = var.client_number_of_instances
-
   instance_base_name = var.client_instance_base_name
   os_disk_size_gb    = var.client_os_disk_size_gb
   os_disk_type       = var.client_os_disk_type
@@ -47,4 +43,5 @@ module "daos_client" {
   os_project         = var.client_os_project
   os_family          = var.client_os_family
   preemptible        = var.preemptible
+  access_points      = module.daos_server.access_points
 }
