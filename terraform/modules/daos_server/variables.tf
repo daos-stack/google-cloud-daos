@@ -137,13 +137,6 @@ variable "preemptible" {
   type        = string
 }
 
-# TODO: Check with team to make sure we want these variables.
-#       For now this allows us to create example.tfvars with well known server
-#       configurations. Without these as variables we would need to calculate
-#       the values which I'm not sure how to do because you would have to
-#       know how much memory and vcpu is available in the instance type before
-#       the instance is deployed. Might be a
-
 variable "daos_scm_size" {
   description = "scm_size"
   default = 200
