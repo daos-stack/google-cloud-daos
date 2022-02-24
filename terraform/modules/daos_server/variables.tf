@@ -139,12 +139,12 @@ variable "preemptible" {
 
 variable "daos_scm_size" {
   description = "scm_size"
-  default = 200
-  type = number
+  default     = null
+  type        = number
 }
 
 variable "daos_crt_timeout" {
   description = "crt_timeout"
-  default = 300
-  type = number
+  default     = null
+  type        = number
 }

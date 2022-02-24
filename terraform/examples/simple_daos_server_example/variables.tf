@@ -94,12 +94,12 @@ variable "daos_disk_count" {
 
 variable "daos_scm_size" {
   description = "scm_size"
-  default = 669
-  type = number
+  default     = null
+  type        = number
 }
 
 variable "daos_crt_timeout" {
   description = "crt_timeout"
-  default = 666
-  type = number
+  default     = null
+  type        = number
 }
