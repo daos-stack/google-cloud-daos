@@ -8,6 +8,8 @@ preemptible        = "false"
 # Server
 server_number_of_instances = 1
 server_daos_disk_count     = 8
+server_daos_crt_timeout    = 300
+server_daos_scm_size       = 100
 server_instance_base_name  = "daos-server"
 server_os_disk_size_gb     = 20
 server_os_disk_type        = "pd-ssd"

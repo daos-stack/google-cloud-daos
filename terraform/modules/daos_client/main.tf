@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
+locals {
+  daos_agent_yaml_content = templatefile(
+    "${path.module}/templates/daos_agent.yml.tftpl",
+    {
+      access_points = var.access_points
+    }
+  )
+ daos_control_yaml_content = templatefile(
+    "${path.module}/templates/daos_control.yml.tftpl",
+    {
+      access_points = var.access_points
+    }
+  )
+  client_startup_script = file(
+    "${path.module}/templates/daos_startup_script.tftpl")
+}
+
 data "google_compute_image" "os_image" {
   family  = var.os_family
   project = var.os_project
@@ -85,21 +102,4 @@ resource "google_compute_per_instance_config" "named_instances" {
       instance_template = google_compute_instance_template.daos_sig_template.self_link
     }
   }
-}
-
-locals {
-  daos_agent_yaml_content = templatefile(
-    "${path.module}/templates/daos_agent.yml.tftpl",
-    {
-      access_points = var.access_points
-    }
-  )
- daos_control_yaml_content = templatefile(
-    "${path.module}/templates/daos_control.yml.tftpl",
-    {
-      access_points = var.access_points
-    }
-  )
-  client_startup_script = file(
-    "${path.module}/templates/daos_startup_script.tftpl")
 }

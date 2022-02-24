@@ -13,6 +13,8 @@ module "daos_server" {
   labels             = var.server_labels
   number_of_instances = var.server_number_of_instances
   daos_disk_count     = var.server_daos_disk_count
+  daos_crt_timeout    = var.server_daos_crt_timeout
+  daos_scm_size       = var.server_daos_scm_size
   instance_base_name = var.server_instance_base_name
   os_disk_size_gb    = var.server_os_disk_size_gb
   os_disk_type       = var.server_os_disk_type

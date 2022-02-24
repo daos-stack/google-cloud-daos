@@ -21,11 +21,9 @@ cd "${DAOS_CONFIG_DIR}"
 fetch_attr "daos_server_yaml_content" > daos_server.yml
 fetch_attr "daos_control_yaml_content" > daos_control.yml
 fetch_attr "daos_agent_yaml_content" > daos_agent.yml
-# chown -f -R daos_server:daos_server "${DAOS_CONFIG_DIR}"
 
 # Create directory for engine logs and tmpfs mount point
 mkdir -p "${DAOS_MOUNT_DIR}"
-#chown -f daos_server:daos_server "${DAOS_MOUNT_DIR}"
 
 # Modify systemd script for GCP
 # First, run daos_server as root since GCP does not support VFIO
