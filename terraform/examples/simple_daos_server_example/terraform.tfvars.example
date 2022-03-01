@@ -1,17 +1,18 @@
-project_id         = "<my_project_id>"
-network            = "<my_VPC_network>"
-subnetwork         = "<my_VPC_subnetwork>"
-subnetwork_project = "<my_project_id>"
+project_id         = "<project_id>"
+network            = "default"
+subnetwork         = "default"
+subnetwork_project = "<project_id>"
 region             = "us-central1"
-zone               = "us-central1-a"
+zone               = "us-central1-f"
+
 labels = {
   example = "simple_daos_server_example"
 }
 
-number_of_instances     = 2
-daos_disk_count         = 16
-server_daos_crt_timeout = 300
-server_daos_scm_size    = 200
+number_of_instances = 2
+daos_disk_count     = 16
+daos_crt_timeout    = 300
+daos_scm_size       = 200
 
 instance_base_name = "daos-server"
 os_disk_size_gb    = 20
@@ -21,5 +22,5 @@ mig_name           = "daos-server"
 machine_type       = "n2-custom-36-262144"
 
 # the image must be built before (see build folder)
-os_project = "<my_project_id>"
+os_project = "<project_id>"
 os_family  = "daos-server-centos-7"
