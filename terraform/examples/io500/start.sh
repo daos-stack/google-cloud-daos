@@ -450,7 +450,7 @@ propagate_ssh_keys_to_all_nodes () {
 
   # Copy ~/.ssh directory to all instances
   ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
-    "pdcp -w^hosts_all -r ~/.ssh ~/"
+    "clush --hostfile=hosts_all --dsh --copy ~/.ssh --dest ~/"
 }
 
 configure_daos() {
