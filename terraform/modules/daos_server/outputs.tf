@@ -6,3 +6,13 @@ output "access_points" {
     local.access_points
   ]
 }
+
+output "daos_agent_yml" {
+  description = "YAML to configure the daos agent. This is typically saved in /etc/daos/daos_agent.yml"
+  value       = local.daos_agent_yaml_content
+}
+
+output "daos_control_yml" {
+  description = "YAML configuring DAOS control. This is typically saved in /etc/daos/daos_control.yml"
+  value       = local.daos_control_yaml_content
+}

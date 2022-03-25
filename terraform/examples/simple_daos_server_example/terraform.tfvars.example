@@ -1,4 +1,4 @@
-project_id         = "<project_id>"
+project_id         = "hpc-toolkit-demo"
 
 # network_name       = "default"
 # subnetwork_name    = "default"

@@ -48,7 +48,7 @@
       "name": "machine_type",
       "type": "string",
       "description": "GCP machine type.",
-      "default": "n2-custom-36-21504",
+      "default": "n2-custom-36-215040",
       "required": false
     },
     {

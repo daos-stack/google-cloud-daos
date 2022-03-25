@@ -70,7 +70,7 @@ variable "mig_name" {
 
 variable "machine_type" {
   description = "GCP machine type."
-  default     = "n2-custom-36-21504"
+  default     = "n2-custom-36-215040"
   type        = string
 }
 

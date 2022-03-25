@@ -48,7 +48,7 @@
       "name": "machine_type",
       "type": "string",
       "description": "GCP machine type.",
-      "default": "n2-custom-36-21504",
+      "default": "n2-custom-36-215040",
       "required": false
     },
     {
@@ -172,6 +172,14 @@
     {
       "name": "access_points",
       "description": "List of DAOS servers to use as access points"
+    },
+    {
+      "name": "daos_agent_yml",
+      "description": "YAML to configure the daos agent. This is typically saved in /etc/daos/daos_agent.yml"
+    },
+    {
+      "name": "daos_control_yml",
+      "description": "YAML configuring DAOS control. This is typically saved in /etc/daos/daos_control.yml"
     }
   ],
   "providers": [
