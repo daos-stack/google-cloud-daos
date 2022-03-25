@@ -16,3 +16,8 @@ output "daos_control_yml" {
   description = "YAML configuring DAOS control. This is typically saved in /etc/daos/daos_control.yml"
   value       = local.daos_control_yaml_content
 }
+
+output "daos_config_script" {
+  description = "Script to configure the DAOS system. This will format the sytem with dmg -l and optionally create the specified pools."
+  value       = local.configure_daos_content
+}

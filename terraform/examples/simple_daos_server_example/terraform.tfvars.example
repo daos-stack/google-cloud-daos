@@ -25,3 +25,12 @@ zone               = "us-central1-f"
 # the image must be built before (see build folder)
 # os_project = "<project_id>"
 # os_family  = "daos-server-centos-7"
+
+ pools = [
+  {
+    pool_name = "test_pool"
+    pool_size = "1TB"
+    container_label = "test_container"
+  }
+]
+

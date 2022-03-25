@@ -29,4 +29,5 @@ module "daos_server" {
 
   service_account = var.service_account
   preemptible     = var.preemptible
+  pools           = var.pools
 }

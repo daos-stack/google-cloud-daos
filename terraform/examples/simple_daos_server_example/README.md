@@ -48,6 +48,7 @@ No resources.
 | <a name="input_os_disk_type"></a> [os\_disk\_type](#input\_os\_disk\_type) | OS disk type ie. pd-ssd, pd-standard | `string` | `"pd-ssd"` | no |
 | <a name="input_os_family"></a> [os\_family](#input\_os\_family) | OS GCP image family | `string` | `"daos-server-centos-7"` | no |
 | <a name="input_os_project"></a> [os\_project](#input\_os\_project) | OS GCP image project name. Defaults to project\_id if null. | `string` | `null` | no |
+| <a name="input_pools"></a> [pools](#input\_pools) | If provided, this module will generate a script to create a list of pools. pool attributes have to be specified in a format acceptable by [dmg](https://docs.daos.io/v2.0/admin/pool_operations/) and daos. | <pre>list(object({<br>    pool_name       = string<br>    pool_size       = string<br>    container_label = string<br>    })<br>  )</pre> | `[]` | no |
 | <a name="input_preemptible"></a> [preemptible](#input\_preemptible) | If preemptible instances | `string` | `false` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The GCP project to use | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | The GCP region to create and test resources in | `string` | n/a | yes |
@@ -59,5 +60,9 @@ No resources.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_daos_agent_yml"></a> [daos\_agent\_yml](#output\_daos\_agent\_yml) | YAML to configure the daos agent. This is typically saved in /etc/daos/daos\_agent.yml |
+| <a name="output_daos_config_script"></a> [daos\_config\_script](#output\_daos\_config\_script) | Script to configure the DAOS system. This will format the sytem with dmg -l and optionally create the specified pools. |
+| <a name="output_daos_control_yml"></a> [daos\_control\_yml](#output\_daos\_control\_yml) | YAML configuring DAOS control. This is typically saved in /etc/daos/daos\_control.yml |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

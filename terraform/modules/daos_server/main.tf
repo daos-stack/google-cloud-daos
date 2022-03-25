@@ -20,6 +20,7 @@ locals {
 
   max_aps       = var.number_of_instances > 5 ? 5 : (var.number_of_instances % 2) == 1 ? var.number_of_instances : var.number_of_instances - 1
   access_points = formatlist("%s-%04s", var.instance_base_name, range(1, local.max_aps + 1))
+  servers       = format("%s-[%04s-%04s]", var.instance_base_name, 1, var.number_of_instances)
   scm_size      = var.daos_scm_size
   # To get nr_hugepages value: (targets * 1Gib) / hugepagesize
   huge_pages  = (var.daos_disk_count * 1048576) / 2048
@@ -49,6 +50,14 @@ locals {
   )
   server_startup_script = file(
   "${path.module}/templates/daos_startup_script.tftpl")
+
+  configure_daos_content = templatefile(
+    "${path.module}/templates/configure_daos.tftpl",
+    {
+      servers = local.servers
+      pools   = var.pools
+    }
+  )
 }
 
 data "google_compute_image" "os_image" {
