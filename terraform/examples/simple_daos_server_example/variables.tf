@@ -1,3 +1,18 @@
+/**
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 variable "project_id" {
   description = "The GCP project to use "
   type        = string
@@ -19,12 +34,12 @@ variable "labels" {
 
 variable "os_family" {
   description = "OS GCP image family"
-  default     = null
   type        = string
+  default     = "daos-server-centos-7"
 }
 
 variable "os_project" {
-  description = "OS GCP image project name"
+  description = "OS GCP image project name. Defaults to project_id if null."
   default     = null
   type        = string
 }
@@ -54,24 +69,27 @@ variable "mig_name" {
 }
 
 variable "machine_type" {
-  description = "GCP machine type. ie. e2-medium"
-  default     = "n2-custom-20-131072"
+  description = "GCP machine type."
+  default     = "n2-custom-36-21504"
   type        = string
 }
 
-variable "network" {
-  description = "GCP network to use"
+variable "network_name" {
+  description = "Name of the GCP network to use"
+  default     = "default"
   type        = string
 }
 
-variable "subnetwork" {
-  description = "GCP sub-network to use"
+variable "subnetwork_name" {
+  description = "Name of the GCP sub-network to use"
+  default     = "default"
   type        = string
 }
 
 variable "subnetwork_project" {
-  description = "The GCP project where the subnetwork is defined"
+  description = "The GCP project where the subnetwork is defined. Defaults to project_id if null."
   type        = string
+  default     = null
 }
 
 variable "instance_base_name" {
@@ -86,20 +104,51 @@ variable "number_of_instances" {
   type        = number
 }
 
+variable "daos_disk_type" {
+  #TODO: At some point we will support more than local-ssd with NVME
+  # interface.  This variable will be useful then. For now its just this.
+  description = "Daos disk type to use. For now only suported one is local-ssd"
+  default     = "local-ssd"
+  type        = string
+}
+
 variable "daos_disk_count" {
   description = "Number of local ssd's to use"
   default     = 16
   type        = number
 }
 
+variable "service_account" {
+  description = "Service account to attach to the instance. See https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#service_account."
+  type = object({
+    email  = string,
+    scopes = set(string)
+  })
+  default = {
+    email = null
+    scopes = ["https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/service.management.readonly",
+    "https://www.googleapis.com/auth/trace.append"]
+  }
+}
+
+variable "preemptible" {
+  description = "If preemptible instances"
+  default     = false
+  type        = string
+}
+
 variable "daos_scm_size" {
   description = "scm_size"
-  default     = null
+  default     = 200
   type        = number
 }
 
 variable "daos_crt_timeout" {
   description = "crt_timeout"
-  default     = null
+  default     = 300
   type        = number
 }

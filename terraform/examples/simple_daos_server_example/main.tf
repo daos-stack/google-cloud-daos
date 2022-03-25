@@ -5,8 +5,8 @@ provider "google" {
 module "daos_server" {
   source             = "../../modules/daos_server"
   project_id         = var.project_id
-  network            = var.network
-  subnetwork         = var.subnetwork
+  network_name       = var.network_name
+  subnetwork_name    = var.subnetwork_name
   subnetwork_project = var.subnetwork_project
   region             = var.region
   zone               = var.zone
@@ -14,6 +14,7 @@ module "daos_server" {
 
   number_of_instances = var.number_of_instances
   daos_disk_count     = var.daos_disk_count
+  daos_disk_type      = var.daos_disk_type
   daos_crt_timeout    = var.daos_crt_timeout
   daos_scm_size       = var.daos_scm_size
 
@@ -25,4 +26,7 @@ module "daos_server" {
   machine_type       = var.machine_type
   os_project         = var.os_project
   os_family          = var.os_family
+
+  service_account = var.service_account
+  preemptible     = var.preemptible
 }

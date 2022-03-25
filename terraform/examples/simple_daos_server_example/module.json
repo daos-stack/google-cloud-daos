@@ -3,10 +3,31 @@
   "footer": "",
   "inputs": [
     {
+      "name": "daos_crt_timeout",
+      "type": "number",
+      "description": "crt_timeout",
+      "default": 300,
+      "required": false
+    },
+    {
       "name": "daos_disk_count",
       "type": "number",
       "description": "Number of local ssd's to use",
       "default": 16,
+      "required": false
+    },
+    {
+      "name": "daos_disk_type",
+      "type": "string",
+      "description": "Daos disk type to use. For now only suported one is local-ssd",
+      "default": "local-ssd",
+      "required": false
+    },
+    {
+      "name": "daos_scm_size",
+      "type": "number",
+      "description": "scm_size",
+      "default": 200,
       "required": false
     },
     {
@@ -26,8 +47,8 @@
     {
       "name": "machine_type",
       "type": "string",
-      "description": "GCP machine type. ie. e2-medium",
-      "default": "n2-custom-20-131072",
+      "description": "GCP machine type.",
+      "default": "n2-custom-36-21504",
       "required": false
     },
     {
@@ -38,11 +59,11 @@
       "required": false
     },
     {
-      "name": "network",
+      "name": "network_name",
       "type": "string",
-      "description": "GCP network to use",
-      "default": null,
-      "required": true
+      "description": "Name of the GCP network to use",
+      "default": "default",
+      "required": false
     },
     {
       "name": "number_of_instances",
@@ -69,14 +90,21 @@
       "name": "os_family",
       "type": "string",
       "description": "OS GCP image family",
-      "default": null,
+      "default": "daos-server-centos-7",
       "required": false
     },
     {
       "name": "os_project",
       "type": "string",
-      "description": "OS GCP image project name",
+      "description": "OS GCP image project name. Defaults to project_id if null.",
       "default": null,
+      "required": false
+    },
+    {
+      "name": "preemptible",
+      "type": "string",
+      "description": "If preemptible instances",
+      "default": false,
       "required": false
     },
     {
@@ -94,18 +122,35 @@
       "required": true
     },
     {
-      "name": "subnetwork",
+      "name": "service_account",
+      "type": "object({\n    email  = string,\n    scopes = set(string)\n  })",
+      "description": "Service account to attach to the instance. See https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#service_account.",
+      "default": {
+        "email": null,
+        "scopes": [
+          "https://www.googleapis.com/auth/devstorage.read_only",
+          "https://www.googleapis.com/auth/logging.write",
+          "https://www.googleapis.com/auth/monitoring.write",
+          "https://www.googleapis.com/auth/servicecontrol",
+          "https://www.googleapis.com/auth/service.management.readonly",
+          "https://www.googleapis.com/auth/trace.append"
+        ]
+      },
+      "required": false
+    },
+    {
+      "name": "subnetwork_name",
       "type": "string",
-      "description": "GCP sub-network to use",
-      "default": null,
-      "required": true
+      "description": "Name of the GCP sub-network to use",
+      "default": "default",
+      "required": false
     },
     {
       "name": "subnetwork_project",
       "type": "string",
-      "description": "The GCP project where the subnetwork is defined",
+      "description": "The GCP project where the subnetwork is defined. Defaults to project_id if null.",
       "default": null,
-      "required": true
+      "required": false
     },
     {
       "name": "template_name",
