@@ -157,9 +157,9 @@ variable "pools" {
   description = "If provided, this module will generate a script to create a list of pools. pool attributes have to be specified in a format acceptable by [dmg](https://docs.daos.io/v2.0/admin/pool_operations/) and daos."
   default     = []
   type = list(object({
-    pool_name       = string
-    pool_size       = string
-    container_label = string
+    pool_name  = string
+    pool_size  = string
+    containers = list(string)
     })
   )
 }

@@ -30,7 +30,7 @@ zone               = "us-central1-f"
   {
     pool_name = "test_pool"
     pool_size = "1TB"
-    container_label = "test_container"
+    containers = [ "test_container1", "test_container2" ]
   }
 ]
 

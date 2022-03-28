@@ -102,7 +102,7 @@
     },
     {
       "name": "pools",
-      "type": "list(object({\n    pool_name       = string\n    pool_size       = string\n    container_label = string\n    })\n  )",
+      "type": "list(object({\n    pool_name  = string\n    pool_size  = string\n    containers = list(string)\n    })\n  )",
       "description": "If provided, this module will generate a script to create a list of pools. pool attributes have to be specified in a format acceptable by [dmg](https://docs.daos.io/v2.0/admin/pool_operations/) and daos.",
       "default": [],
       "required": false

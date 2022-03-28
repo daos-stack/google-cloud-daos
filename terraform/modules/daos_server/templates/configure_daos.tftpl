@@ -23,7 +23,9 @@ systemctl enable daos_agent
 dmg -l ${servers} storage format
 sleep 300 &&  dmg storage query usage
 %{for pool in pools}
-## Create pool & container
+## Create pool & containers
 dmg  pool create -z ${pool.pool_size} ${pool.pool_name}
-daos container create --type POSIX ${pool.pool_name} --label ${pool.container_label}
+    %{for container in pool.containers}
+daos container create --type POSIX ${pool.pool_name} --label ${container}
+    %{endfor}
 %{endfor}
