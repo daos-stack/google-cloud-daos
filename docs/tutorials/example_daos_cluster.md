@@ -224,12 +224,11 @@ Hosts            SCM-Total SCM-Free SCM-Used NVMe-Total NVMe-Free NVMe-Used
 daos-server-0001 107 GB    107 GB   0 %      3.2 TB     3.2 TB    0 %
 ```
 
-> If the values in the *-Total, *-Free, and *-Used columns are showing > zeros, wait for 1-2 minutes and run the command again.
+> If the values in the columns are showing zeros, wait for 1-2 minutes and run the command again.
 >
-> Even though the `dmg storage format` command returned immediately it > can sometimes take a few minutes for the storage system to be ready.
+> Even though the `dmg storage format` command returned immediately it can sometimes take a few minutes for the storage system to be ready.
 >
 > You will know it's ready when you no longer see zeros in the output > from the `dmg storage query usage` command.
->
 
 In the example output above there is one server with a total of 3.2TB > of free space.
 
@@ -308,4 +307,4 @@ You then performed the following administration tasks:
 
 What's next?
 
-See https://docs.daos.io to learn more about DAOS!
+See [https://docs.daos.io](https://docs.daos.io) to learn more about DAOS!
