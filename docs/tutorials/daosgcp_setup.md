@@ -130,11 +130,15 @@ In order to use Terraform to provision DAOS Server and Client instances you need
 To build the DAOS Server and Client instances run:
 
 ```bash
-cd ~/cloudshell_open/google-cloud-daos/images
+pushd .
+cd images
 ./build_images.sh --type all
+popd
 ```
 
-It will take a few minutes for the images to be built.
+It will take a few minutes for the images to build.
+
+Wait for the image build to complete.
 
 Click **Next** to continue
 
