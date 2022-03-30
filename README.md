@@ -66,7 +66,7 @@ Steps to deploy DAOS on GCP
 
   >  Click the button to open an interactive walk-through in Cloud Shell which will guide you through the steps listed above.
   >
-  >  [![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-75&shellonly=true&tutorial=docs/tutorials/daosgcp_setup.md)
+  >  [![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/daos-stack/google-cloud-daos&cloudshell_git_branch=main&shellonly=true&tutorial=docs/tutorials/daosgcp_setup.md)
 
 4. **Use DAOS Terraform modules in your Terraform code**
 

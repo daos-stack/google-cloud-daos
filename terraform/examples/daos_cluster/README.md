@@ -24,7 +24,7 @@ The following steps must be performed prior to running this example.
 
 If you have not completed these steps yet, click the button below to open an interactive walkthrough in [Cloud Shell](https://cloud.google.com/shell). After completing the walkthrough your GCP project will contain the images required to run this Terraform example.
 
-[![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-75&shellonly=true&tutorial=docs/tutorials/daosgcp_setup.md)
+[![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/daos-stack/google-cloud-daos&cloudshell_git_branch=main&shellonly=true&tutorial=docs/tutorials/daosgcp_setup.md)
 
 ## Deploy a DAOS cluster with this example
 
@@ -32,7 +32,7 @@ Click the button below to open a [Cloud Shell](https://cloud.google.com/shell) t
 
 After completing the tutorial you will have a basic understanding of how to use the [DAOS Terraform Modules](../../modules) in your own Terraform configurations as well as how to perform basic administration steps on the DAOS instances after they are deployed.
 
-[![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-75&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
+[![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/daos-stack/google-cloud-daos&cloudshell_git_branch=main&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
 
 ## Terraform Files
 
