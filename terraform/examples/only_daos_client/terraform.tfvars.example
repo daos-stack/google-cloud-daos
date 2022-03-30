@@ -4,9 +4,9 @@ zone                       = "us-central1-f"
 network                    = "default"
 subnetwork_project         = "<project_id>"
 subnetwork                 = "default"
-client_number_of_instances = 2
+client_number_of_instances = 16
 client_labels              = {
-  example = "daos_cluster"
+  example = "only_daos_client"
 }
 client_preemptible         = "false"
 client_mig_name            = "daos-client"

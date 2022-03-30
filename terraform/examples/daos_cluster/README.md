@@ -58,9 +58,7 @@ You will need to decide which of these files you will copy to `terraform.tfvars`
 
 ### The terraform.tfvars.tco.example file
 
-The `terraform.tfvars.tco.example` contains variables for a smaller cluster deployment that is more affordable to operate due to fewer instances.
-
-This is a good choice if you just want to deploy a DAOS cluster to learn how to use DAOS.
+The `terraform.tfvars.tco.example` contains variables for a cluster deployment with 16 DAOS Clients, 4 DAOS Servers with 16 375GB NVMe SSDs per server.
 
 To use the `terraform.tfvars.tco.example` file run
 
@@ -70,7 +68,7 @@ cp terraform.tfvars.tco.example terraform.tfvars
 
 ### The terraform.tfvars.perf.example file
 
-The `terraform.tfvars.perf.example` contains variables for a larger cluster deployment that costs more to operate but will have better performance due to more instances being deployed.
+The `terraform.tfvars.perf.example` contains variables for a cluster deployment with 16 DAOS Clients, 4 DAOS Servers with 4 375GB NVMe SSDs per server.
 
 To use the ```terraform.tfvars.perf.example``` file run
 

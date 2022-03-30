@@ -67,9 +67,7 @@ The example tfvars files are:
 
 1. `terraform.tfvars.tco.example`
 
-   Lower cost, smaller cluster configuration.
-
-   2 DAOS Clients, 2 DAOS Servers with 4 375GB NVMe SSDs per server.
+   16 DAOS Clients, 4 DAOS Servers with 16 375GB NVMe SSDs per server.
 
    To use this configuration run
    ```bash
@@ -78,9 +76,7 @@ The example tfvars files are:
 
 2. `terraform.tfvars.perf.example`
 
-   Higher performance cluster with more disk space due to more client instances and more disks attached to server instances.
-
-   10 DAOS Clients, 2 DAOS Servers with 16 375GB NVMe SSDs per server.
+   16 DAOS Clients, 4 DAOS Servers with 4 375GB NVMe SSDs per server.
 
    To use this configuration run
    ```bash

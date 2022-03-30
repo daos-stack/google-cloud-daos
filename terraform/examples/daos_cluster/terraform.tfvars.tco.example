@@ -6,7 +6,7 @@ subnetwork_project = "<project_id>"
 subnetwork         = "default"
 
 # Server
-server_number_of_instances = 2
+server_number_of_instances = 16
 server_labels              = {
   example = "daos_cluster"
 }
@@ -14,14 +14,14 @@ server_preemptible         = "false"
 server_mig_name            = "daos-server"
 server_template_name       = "daos-server"
 server_instance_base_name  = "daos-server"
-server_machine_type        = "n2-highmem-32"
+server_machine_type        = "n2-custom-36-215040"
 server_os_family           = "daos-server-centos-7"
 server_os_project          = "<project_id>"
 server_os_disk_type        = "pd-ssd"
 server_os_disk_size_gb     = 20
-server_daos_disk_count     = 8
+server_daos_disk_count     = 16
 server_daos_crt_timeout    = 300
-server_daos_scm_size       = 100
+server_daos_scm_size       = 180
 
 # Client
 client_number_of_instances = 2
