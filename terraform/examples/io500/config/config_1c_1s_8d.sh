@@ -28,7 +28,7 @@ DAOS_CLIENT_INSTANCE_COUNT="1"
 DAOS_CLIENT_MACHINE_TYPE=c2-standard-16
 
 # Storage
-DAOS_POOL_SIZE="$(( 375 * ${DAOS_SERVER_DISK_COUNT} * ${DAOS_SERVER_INSTANCE_COUNT} / 1000 ))TB"
+DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${DAOS_SERVER_INSTANCE_COUNT} 'BEGIN {pool_size = 375 * disk_count * server_count / 1000; print pool_size"TB"}')"
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
@@ -59,6 +59,8 @@ export TF_VAR_preemptible="${PREEMPTIBLE_INSTANCES}"
 # Servers
 export TF_VAR_server_number_of_instances=${DAOS_SERVER_INSTANCE_COUNT}
 export TF_VAR_server_daos_disk_count=${DAOS_SERVER_DISK_COUNT}
+export TF_VAR_server_daos_crt_timeout=${DAOS_SERVER_CRT_TIMEOUT}
+export TF_VAR_server_daos_scm_size=${DAOS_SERVER_SCM_SIZE}
 export TF_VAR_server_instance_base_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_os_disk_size_gb=20
 export TF_VAR_server_os_disk_type="pd-ssd"

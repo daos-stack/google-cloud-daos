@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
+locals {
+  daos_agent_yaml_content = templatefile(
+    "${path.module}/templates/daos_agent.yml.tftpl",
+    {
+      access_points = var.access_points
+    }
+  )
+ daos_control_yaml_content = templatefile(
+    "${path.module}/templates/daos_control.yml.tftpl",
+    {
+      access_points = var.access_points
+    }
+  )
+  client_startup_script = file(
+    "${path.module}/templates/daos_startup_script.tftpl")
+}
+
 data "google_compute_image" "os_image" {
   family  = var.os_family
   project = var.os_project
@@ -47,7 +64,7 @@ resource "google_compute_instance_template" "daos_sig_template" {
   }
 
   scheduling {
-    preemptible = var.preemptible
+    preemptible       = var.preemptible
     automatic_restart = false
   }
 }
@@ -74,11 +91,14 @@ resource "google_compute_per_instance_config" "named_instances" {
   name                   = format("%s-%04d", var.instance_base_name, sum([count.index, 1]))
   preserved_state {
     metadata = {
-      inst_type      = "daos-client"
-      enable-oslogin = "true"
-      // Adding a reference to the instance template used causes the stateful instance to update
-      // if the instance template changes. Otherwise there is no explicit dependency and template
-      // changes may not occur on the stateful instance
+      inst_type                 = "daos-client"
+      enable-oslogin            = "true"
+      daos_control_yaml_content = local.daos_control_yaml_content
+      daos_agent_yaml_content   = local.daos_agent_yaml_content
+      startup-script            = local.client_startup_script
+      # Adding a reference to the instance template used causes the stateful instance to update
+      # if the instance template changes. Otherwise there is no explicit dependency and template
+      # changes may not occur on the stateful instance
       instance_template = google_compute_instance_template.daos_sig_template.self_link
     }
   }

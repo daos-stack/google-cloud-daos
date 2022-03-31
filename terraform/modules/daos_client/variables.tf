@@ -119,6 +119,12 @@ variable "daos_service_account_scopes" {
 
 variable "preemptible" {
   description = "If preemptible instances"
-  default = false
-  type = string
+  default     = false
+  type        = string
+}
+
+variable "access_points" {
+  description = "List of servers to add to client .yml files"
+  default     = null
+  type        = list(string)
 }

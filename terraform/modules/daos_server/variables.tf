@@ -133,6 +133,18 @@ variable "daos_service_account_scopes" {
 
 variable "preemptible" {
   description = "If preemptible instances"
-  default = false
-  type = string
+  default     = false
+  type        = string
+}
+
+variable "daos_scm_size" {
+  description = "scm_size"
+  default     = null
+  type        = number
+}
+
+variable "daos_crt_timeout" {
+  description = "crt_timeout"
+  default     = null
+  type        = number
 }
