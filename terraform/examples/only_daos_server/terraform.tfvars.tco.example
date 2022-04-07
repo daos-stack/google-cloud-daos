@@ -12,9 +12,9 @@ server_daos_scm_size       = 180
 # subnetwork_name            = "default"
 # subnetwork_project         = "<project_id>"
 server_number_of_instances = 4
-# server_labels              = {
-#   example = "only_daos_server"
-# }
+server_labels              = {
+  example = "only_daos_server"
+}
 # server_preemptible         = "false"
 # server_mig_name            = "daos-server"
 # server_template_name       = "daos-server"

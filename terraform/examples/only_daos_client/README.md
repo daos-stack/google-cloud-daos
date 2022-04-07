@@ -40,27 +40,23 @@ GCP_PROJECT=$(gcloud config list --format='value(core.project)')
 sed -i "s/<project_id>/${GCP_PROJECT}/g" terraform.tfvars
 ```
 
-### Update the `access_points` variable
+### Update the client_*_yml variables
 
-This example assumes there is an existing group of DAOS server instances that the clients will connect to.
+Typically, when using both the `terraform/modules/daos_server` and `terraform/modules/daos_client` modules in the same Terraform configuration the `client_daos_agent_yml` and `client_daos_control_yml` variables would be set using output variables from the `terraform/modules/daos_server` module.
 
-The `access_points` variable in the `terraform.tfvars` file should contain a comma delimited list of DAOS server names or IP addresses.
+In this client only example we are assuming that the DAOS server instances already exist and are not deployed in your Terraform configuration.  You are only deploying clients in your Terrform configuration.
 
-For example, if the existing DAOS server names are
+Therefore, you will not have the output variables from the `terraform/modules/daos_server` module to pass to the `client_daos_agent_yml` and `client_daos_control_yml` variables.
 
-- daos-server-0001
-- daos-server-0002
-- daos-server-0003
+In this case [heredocs](https://www.terraform.io/language/expressions/strings#indented-heredocs) are used to set the values `client_*_yml` variables.
 
-the `access_points` variable should be set to
+The `client_daos_agent_yml` variable should contain the contents of the `/etc/daos/daos_agent.yml` file on the DAOS client instances.
 
-```
-access_points = ["daos-server-0001","daos-server-0002","daos-server-0002"]
-```
+The `client_daos_control_yml` variable should contain the contents of the `/etc/daos/daos_control.yml` file on the DAOS client instances.
 
-The `access_points` variable does not need to contain every server in the DAOS cluster.
+See the values of the variables in the `terraform.tfvars.example` file.
 
-It only needs enough entries so that if a server is not available there are others to connect to.
+The names of the servers will need to be modified to match the names of the DAOS server instances your clients will communicate with.
 
 ## Deploy DAOS Client Instances
 

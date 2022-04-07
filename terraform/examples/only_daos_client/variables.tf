@@ -138,4 +138,3 @@ variable "client_daos_control_yml" {
   description = "YAML configuring DAOS control."
   type        = string
 }
-
