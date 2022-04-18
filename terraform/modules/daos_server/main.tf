@@ -47,20 +47,18 @@ locals {
       access_points = local.access_points
     }
   )
-  server_startup_script = file(
-  "${path.module}/templates/daos_startup_script.tftpl")
-
-  configure_daos_content = templatefile(
-    "${path.module}/templates/configure_daos.tftpl",
-    {
-      servers = local.servers
-      pools   = var.pools
-    }
-  )
 
   daos_client_install_script_content = file(
   "${path.module}/scripts/daos_client_install_script.sh")
 
+  server_startup_script = templatefile(
+  "${path.module}/templates/daos_startup_script.tftpl",
+    {
+      instances = var.number_of_instances
+      servers   = local.servers
+      pools     = var.pools
+    }
+  )
   # Google Virtual NIC (gVNIC) network interface
   nic_type                    = var.gvnic ? "GVNIC" : "VIRTIO_NET"
   total_egress_bandwidth_tier = var.gvnic ? "TIER_1" : "DEFAULT"
