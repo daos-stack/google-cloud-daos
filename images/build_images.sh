@@ -242,27 +242,27 @@ configure_gcp_project() {
   log "Packer will be using service account ${CLOUD_BUILD_ACCOUNT}"
 
   # Add cloudbuild SA permissions
-  CHECK_FIRST_PERMISSION=$(
+  CHECK_ROLE_INST_ADMIN=$(
     gcloud projects get-iam-policy "${GCP_PROJECT}" \
     --flatten="bindings[].members" \
     --filter="bindings.role=roles/compute.instanceAdmin.v1 AND \
               bindings.members=${CLOUD_BUILD_ACCOUNT}" \
     --format="value(bindings.members[])"
   )
-  if [[ "${CHECK_FIRST_PERMISSION}" != "${CLOUD_BUILD_ACCOUNT}" ]]; then
+  if [[ "${CHECK_ROLE_INST_ADMIN}" != "${CLOUD_BUILD_ACCOUNT}" ]]; then
     gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
       --member "${CLOUD_BUILD_ACCOUNT}" \
       --role roles/compute.instanceAdmin.v1
   fi
 
-  CHECK_SECOND_PERMISSION=$(
+  CHECK_ROLE_SVC_ACCT=$(
     gcloud projects get-iam-policy "${GCP_PROJECT}" \
     --flatten="bindings[].members" \
     --filter="bindings.role=roles/iam.serviceAccountUser AND \
               bindings.members=${CLOUD_BUILD_ACCOUNT}" \
     --format="value(bindings.members[])"
   )
-  if [[ "${CHECK_SECOND_PERMISSION}" != "${CLOUD_BUILD_ACCOUNT}" ]]; then
+  if [[ "${CHECK_ROLE_SVC_ACCT}" != "${CLOUD_BUILD_ACCOUNT}" ]]; then
     gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
       --member "${CLOUD_BUILD_ACCOUNT}" \
       --role roles/iam.serviceAccountUser
