@@ -42,7 +42,7 @@ download_addlicense() {
 	echo "Downloading ${ADDLICENSE_TAG_URL}/${ADDLICENSE_ARCHIVE}"
 	curl  -s -L -O "${ADDLICENSE_TAG_URL}/${ADDLICENSE_ARCHIVE}"
 	if [ -f "${SCRIPT_DIR}/${ADDLICENSE_ARCHIVE}" ]; then
-		tar -xzf "${ADDLICENSE_ARCHIVE}"
+		tar -xz --file "${ADDLICENSE_ARCHIVE}" addlicense
 		chmod +x addlicense
 		rm -f "${SCRIPT_DIR}/${ADDLICENSE_ARCHIVE}"
 	fi
