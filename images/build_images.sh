@@ -282,14 +282,14 @@ configure_gcp_project() {
       --role roles/iam.serviceAccountUser
   fi
 
-  CHECK_ROLE_SVC_ACCT=$(
+  CHECK_ROLE_IAP_TUNL_RESR_ACCS=$(
     gcloud projects get-iam-policy "${GCP_PROJECT}" \
     --flatten="bindings[].members" \
     --filter="bindings.role=roles/iap.tunnelResourceAccessor AND \
               bindings.members=${CLOUD_BUILD_ACCOUNT}" \
     --format="value(bindings.members[])"
   )
-  if [[ "${CHECK_ROLE_SVC_ACCT}" != "${CLOUD_BUILD_ACCOUNT}" ]]; then
+  if [[ "${CHECK_ROLE_IAP_TUNL_RESR_ACCS}" != "${CLOUD_BUILD_ACCOUNT}" ]]; then
     gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
       --member "${CLOUD_BUILD_ACCOUNT}" \
       --role roles/iap.tunnelResourceAccessor
