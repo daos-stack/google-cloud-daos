@@ -24,6 +24,9 @@ chown -R daos_agent:daos_agent /etc/daos/
 %{ if !allow_insecure ~}
 # Get certs from Secret Manager and deploy them
 $${DAOS_DIR}/cert_gen/sm_get_ca.sh "${daos_ca_secret_id}" "client"
+chown -R daos-user /etc/daos/certs
+chmod 700 /etc/daos/certs/admin.key
+chown daos_agent /etc/daos/certs/agent.key
 %{ endif ~}
 
 systemctl enable daos_agent

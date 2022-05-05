@@ -57,6 +57,7 @@ EOF
   rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
   # Refresh yum cache and install Intel OneAPI
+  sudo sed -i 's/repo_gpgcheck=1/repo_gpgcheck=0/g' /etc/yum.repos.d/google-cloud.repo
   yum clean all
   yum makecache
   yum install -y intel-oneapi-mpi intel-oneapi-mpi-devel
