@@ -71,6 +71,7 @@ export TF_VAR_subnetwork="default"
 export TF_VAR_subnetwork_project="${TF_VAR_project_id}"
 export TF_VAR_region="us-central1"
 export TF_VAR_zone="us-central1-f"
+export TF_VAR_ssh_user="${SSH_USER}"
 # Servers
 export TF_VAR_server_preemptible=${PREEMPTIBLE_INSTANCES}
 export TF_VAR_server_number_of_instances=${DAOS_SERVER_INSTANCE_COUNT}

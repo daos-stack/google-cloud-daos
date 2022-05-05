@@ -22,12 +22,14 @@ locals {
   total_egress_bandwidth_tier = var.gvnic ? "TIER_1" : "DEFAULT"
   daos_ca_secret_id           = basename(var.daos_ca_secret_id)
   allow_insecure              = var.allow_insecure
+  ssh_user                    = var.ssh_user
 
   client_startup_script = templatefile(
     "${path.module}/templates/daos_startup_script.tftpl",
     {
       daos_ca_secret_id = local.daos_ca_secret_id
       allow_insecure    = local.allow_insecure
+      ssh_user          = local.ssh_user
     }
   )
 }

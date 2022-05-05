@@ -49,5 +49,6 @@ output "daos_ca_secret_id" {
 }
 
 output "default_service_account_email" {
-  value = data.google_compute_default_service_account.default.email
+  description = "Default service account email"
+  value       = data.google_compute_default_service_account.default.email
 }

@@ -118,7 +118,7 @@ variable "service_account" {
       "https://www.googleapis.com/auth/servicecontrol",
       "https://www.googleapis.com/auth/service.management.readonly",
       "https://www.googleapis.com/auth/trace.append",
-      "https://www.googleapis.com/auth/cloud-platform"]
+    "https://www.googleapis.com/auth/cloud-platform"]
   }
 }
 
@@ -153,4 +153,10 @@ variable "allow_insecure" {
   description = "Sets the allow_insecure setting in the transport_config section of the daos_*.yml files"
   default     = false
   type        = bool
+}
+
+variable "ssh_user" {
+  description = "Sets user used to SSH, so that it could sets proper permissions on files"
+  type        = string
+  default     = null
 }
