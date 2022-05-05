@@ -142,6 +142,28 @@ Wait for the image build to complete.
 
 Click **Next** to continue
 
+## Assign Roles to Service Account
+
+TODO: Need to figure out how to find the default service account
+
+In order for your default service account to be able to add secrets and secret versions you need to grant the service account some roles.
+
+```bash
+
+  # TODO: figure out how to get default service account
+
+  DEFAULT_SVC_ACCT_EMAIL="930438600841-compute@developer.gserviceaccount.com"
+  PROJECT_ID="daosgcp-10547913"
+
+  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${DEFAULT_SVC_ACCT_EMAIL}" \
+    --role="roles/secretmanager.secretVersionManager"
+
+  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${DEFAULT_SVC_ACCT_EMAIL}" \
+    --role="roles/secretmanager.secretVersionManager"
+```
+
 ## DAOS GCP Setup Complete
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>

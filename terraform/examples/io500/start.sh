@@ -430,6 +430,9 @@ EOF
   ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
     "chmod -R 600 ~/.ssh/*"
 
+  echo "#!/bin/bash
+  ssh -F ./tmp/ssh_config ${FIRST_CLIENT_IP}" > "${SCRIPT_DIR}/login"
+  chmod +x "${SCRIPT_DIR}/login"
 }
 
 copy_files_to_first_client() {
@@ -500,7 +503,7 @@ show_run_steps() {
 To run the IO500 benchmark:
 
 1. Log into the first client
-   ssh -F ./tmp/ssh_config ${FIRST_CLIENT_IP}
+   ./login
 
 2. Run IO500
    ~/run_io500-sc21.sh
