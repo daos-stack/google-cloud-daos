@@ -130,7 +130,8 @@ gcloud compute ssh daos-client-0001
 Format the storage system.
 
 ```bash
-dmg storage format
+sudo dmg storage format
+sudo dmg system query -v
 ```
 
 Upon successful format, DAOS Control Servers will start DAOS I/O engines that have been specified in the server config file.
@@ -139,30 +140,33 @@ For more information see the [Storage Formatting section in the Administration G
 
 ### Create a Pool
 
-Now that the system has been formatted a Pool can be created.
-
 Check free NVMe storage.
 
 ```bash
-dmg storage query usage
+sudo dmg storage query usage
 ```
 
-This will return something like
+This will return storage information for the servers.
+
+The output looks similar to
 
 ```
 Hosts            SCM-Total SCM-Free SCM-Used NVMe-Total NVMe-Free NVMe-Used
 -----            --------- -------- -------- ---------- --------- ---------
-daos-server-0001 107 GB    107 GB   0 %      3.2 TB     3.2 TB    0 %
+daos-server-0001 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
+daos-server-0002 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
+daos-server-0003 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
+daos-server-0004 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
 ```
 
-In the example output above there is one server with a total of 3.2TB of free space.
+In the example output above there are 4 servers with a total of 6.4TB of free space.
 
-With that information you know you can create a 3TB pool.
+With that information you know you can safely create a 6TB pool.
 
 Create the pool.
 
 ```bash
-dmg pool create -z 3TB -t 3 -u ${USER} --label=daos_pool
+sudo dmg pool create -z 6TB -t 3 -u ${USER} --label=daos_pool
 ```
 
 For more information about pools see
