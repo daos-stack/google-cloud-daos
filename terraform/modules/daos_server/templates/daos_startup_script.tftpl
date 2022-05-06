@@ -34,6 +34,7 @@ sed -i "s/User=daos_server/User=root/; s/Group=daos_server/Group=root/" $${DAOS_
 
 if [[ "$${HOSTNAME}" == "$${FIRST_DAOS_SERVER_HOSTNAME}" ]]; then
   # Only run on the first DAOS server instance
+  echo "Running startup script on first DAOS server"
   %{ if !allow_insecure }
   # Generate CA and certs. Store in Secret Manager.
   $${DAOS_DIR}/cert_gen/sm_set_ca.sh "${daos_ca_secret_id}"
