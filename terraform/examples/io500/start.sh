@@ -469,6 +469,18 @@ propagate_ssh_keys_to_all_nodes () {
     "clush --hostfile=hosts_all --dsh --copy ~/.ssh --dest ~/"
 }
 
+wait_for_startup_script_to_finish () {
+  ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
+    "printf 'Waiting for startup script to finish\n'
+     until sudo journalctl -u google-startup-scripts.service --no-pager | grep 'Finished running startup scripts.'
+     do
+       printf '.'
+       sleep 5
+     done
+     printf '\n'
+    "
+}
+
 set_permissions_on_cert_files () {
   if [[ "${DAOS_ALLOW_INSECURE}" == "false" ]]; then
     ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
@@ -527,6 +539,7 @@ main() {
   configure_ssh
   copy_files_to_first_client
   propagate_ssh_keys_to_all_nodes
+  wait_for_startup_script_to_finish
   set_permissions_on_cert_files
   show_instances
   check_gvnic
