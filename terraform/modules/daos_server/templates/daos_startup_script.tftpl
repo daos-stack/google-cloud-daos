@@ -8,7 +8,7 @@ DAOS_MOUNT_DIR="/var/daos"
 fetch_attr()
 {
   local attr_name=$*
-  curl -s ${METADATA_URL}/${attr_name} -H "Metadata-Flavor: Google"
+  curl -s $${METADATA_URL}/$${attr_name} -H "Metadata-Flavor: Google"
 }
 
 echo "BEGIN: Setting up DAOS server"
@@ -16,22 +16,39 @@ echo "BEGIN: Setting up DAOS server"
 systemctl stop daos_server
 
 # Create server config files
-mkdir -p "${DAOS_CONFIG_DIR}"
-cd "${DAOS_CONFIG_DIR}"
+mkdir -p "$${DAOS_CONFIG_DIR}"
+# Create directory for engine logs and tmpfs mount point
+mkdir -p "$${DAOS_MOUNT_DIR}"
+cp /tmp/configure_daos.sh  $${DAOS_MOUNT_DIR}/configure_daos.sh
+cd "$${DAOS_CONFIG_DIR}"
+
 fetch_attr "daos_server_yaml_content" > daos_server.yml
 fetch_attr "daos_control_yaml_content" > daos_control.yml
 fetch_attr "daos_agent_yaml_content" > daos_agent.yml
 
-# Create directory for engine logs and tmpfs mount point
-mkdir -p "${DAOS_MOUNT_DIR}"
-
 # Modify systemd script for GCP
 # First, run daos_server as root since GCP does not support VFIO
-sed -i "s/User=daos_server/User=root/; s/Group=daos_server/Group=root/" ${DAOS_SERVER_SYSTEMD_FILE}
+sed -i "s/User=daos_server/User=root/; s/Group=daos_server/Group=root/" $${DAOS_SERVER_SYSTEMD_FILE}
 
 # enable daos_server in systemd (will be started automatically at boot time)
 systemctl enable daos_server
 
 systemctl start daos_server
 
+if [ `hostname` != "daos-server-0001" ]; then
+    echo "END: Setting up DAOS server"
+    exit
+fi
+
+bash $${DAOS_MOUNT_DIR}/configure_daos.sh ${instances} ${servers}
+
+## Create pool & containers
+%{for pool in pools}
+  dmg  pool create -t 3 -z ${pool.pool_size} ${pool.pool_name}
+  %{for container in pool.containers}
+    daos container create --type POSIX ${pool.pool_name} --label ${container}
+  %{endfor}
+%{endfor}
+
 echo "END: Setting up DAOS server"
+

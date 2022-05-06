@@ -215,8 +215,8 @@ install_daos() {
   fi
 
   if [[ "${DAOS_INSTALL_TYPE,,}" =~ ^(all|server)$ ]]; then
-    echo "Install daos-server packages"
-    yum install -y daos-server
+    echo "Install daos-server and client packages"
+    yum install -y daos-server daos-client
   fi
 
   if echo "${DAOS_VERSION}" | grep -q -e '^1\..*'; then

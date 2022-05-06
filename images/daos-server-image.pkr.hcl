@@ -58,6 +58,11 @@ source "googlecompute" "daos-server-centos-7" {
 build {
   sources = ["source.googlecompute.daos-server-centos-7"]
 
+  provisioner "file" {
+     source = "./scripts/configure_daos.sh"
+     destination =  "/tmp/configure_daos.sh"
+  }
+
   provisioner "shell" {
     environment_vars = ["DAOS_REPO_BASE_URL=${var.daos_repo_base_url}", "DAOS_VERSION=${var.daos_version}", "DAOS_INSTALL_TYPE=server"]
     execute_command  = "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
