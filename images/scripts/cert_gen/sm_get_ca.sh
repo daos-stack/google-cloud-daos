@@ -151,7 +151,11 @@ if [[ "${INSTALL_TYPE,,}" == "server" ]]; then
   # So all certs and keys should be owned by root
   cp ${DAOS_DIR}/daosCA/certs/daosCA.crt /etc/daos/certs/
   cp ${DAOS_DIR}/daosCA/certs/server.* /etc/daos/certs/
+
   cp ${DAOS_DIR}/daosCA/certs/agent.* /etc/daos/certs/
+  chown daos_agent:daos_agent /etc/daos/certs/agent.*
+  chmod 0644 /etc/daos/certs/agent.crt
+  chmod 0600 /etc/daos/certs/agent.key
 
   # Server needs a copy of the agent.crt in /etc/daos/certs/clients
   mkdir -p /etc/daos/certs/clients
