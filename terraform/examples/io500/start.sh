@@ -450,7 +450,6 @@ copy_files_to_first_client() {
     "${HOSTS_CLIENTS_FILE}" \
     "${HOSTS_SERVERS_FILE}" \
     "${HOSTS_ALL_FILE}" \
-    ${SCRIPT_DIR}/configure_daos.sh \
     ${SCRIPT_DIR}/clean_storage.sh \
     ${SCRIPT_DIR}/run_io500-sc21.sh \
     "${FIRST_CLIENT_IP}:~/"
@@ -470,9 +469,14 @@ propagate_ssh_keys_to_all_nodes () {
     "clush --hostfile=hosts_all --dsh --copy ~/.ssh --dest ~/"
 }
 
-configure_daos() {
-  log "Configure DAOS instances"
-  ssh -q -F "${SSH_CONFIG_FILE}" ${FIRST_CLIENT_IP} "~/configure_daos.sh"
+set_permissions_on_cert_files () {
+  if [[ "${DAOS_ALLOW_INSECURE}" == "false" ]]; then
+    ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
+      "clush --hostfile=hosts_clients --dsh sudo chown ${SSH_USER}:${SSH_USER} /etc/daos/certs/daosCA.crt"
+
+    ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
+      "clush --hostfile=hosts_clients --dsh sudo chown ${SSH_USER}:${SSH_USER} /etc/daos/certs/admin.*"
+  fi
 }
 
 show_instances() {
@@ -523,6 +527,7 @@ main() {
   configure_ssh
   copy_files_to_first_client
   propagate_ssh_keys_to_all_nodes
+  set_permissions_on_cert_files
   show_instances
   check_gvnic
   show_run_steps

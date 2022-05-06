@@ -176,9 +176,3 @@ variable "allow_insecure" {
   default     = false
   type        = bool
 }
-
-variable "ssh_user" {
-  description = "Sets user used to SSH, so that it could sets proper permissions on files"
-  type        = string
-  default     = null
-}

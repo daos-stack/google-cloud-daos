@@ -19,7 +19,7 @@
     {
       "name": "daos_ca_secret_id",
       "type": "string",
-      "description": "ID of Secret Manager secret used to store daosCA.tar.gz file generated on first DAOS server instance",
+      "description": "ID of Secret Manager secret used to store TLS certificates",
       "default": null,
       "required": true
     },
@@ -144,13 +144,6 @@
           "https://www.googleapis.com/auth/cloud-platform"
         ]
       },
-      "required": false
-    },
-    {
-      "name": "ssh_user",
-      "type": "string",
-      "description": "Sets user used to SSH, so that it could sets proper permissions on files",
-      "default": null,
       "required": false
     },
     {

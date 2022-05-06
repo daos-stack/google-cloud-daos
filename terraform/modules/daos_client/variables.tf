@@ -145,7 +145,7 @@ variable "gvnic" {
 }
 
 variable "daos_ca_secret_id" {
-  description = "ID of Secret Manager secret used to store daosCA.tar.gz file generated on first DAOS server instance"
+  description = "ID of Secret Manager secret used to store TLS certificates"
   type        = string
 }
 
@@ -153,10 +153,4 @@ variable "allow_insecure" {
   description = "Sets the allow_insecure setting in the transport_config section of the daos_*.yml files"
   default     = false
   type        = bool
-}
-
-variable "ssh_user" {
-  description = "Sets user used to SSH, so that it could sets proper permissions on files"
-  type        = string
-  default     = null
 }

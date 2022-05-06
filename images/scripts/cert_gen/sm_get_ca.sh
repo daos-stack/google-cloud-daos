@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Copyright 2022 Intel Corporation
 #
@@ -14,31 +13,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# PURPOSE / DESCRIPTION
 #
-# Look for Secret Manager secret that contains the daosCA.tar.gz file.
-# When the secret is found
-#    1. Get the daosCA.tar.gz from the secret version data
-#    2. Extract the daosCA.tar.gz to /var/daos/daosCA
-#    3. Copy the cert and key files to their proper locations in /etc/daos/certs
-#    4. Set ownership and permissions on certs and key files
-#    3. Clean up
+#   Get certificates from a Secret Manager secret and copy them to /etc/daos/certs
+#
+#   Look for Secret Manager secret that contains the daosCA.tar.gz file.
+#   The Secret Manager secret is created by Terraform but the certs are generated
+#   and stored in the secret when the startup script runs on the first DAOS
+#   server instance.
+#
+#   When the secret is found
+#      1. Get the daosCA.tar.gz from the secret version data
+#      2. Extract the daosCA.tar.gz to /var/daos/daosCA
+#      3. Copy the cert and key files to their proper locations in /etc/daos/certs
+#      4. Set ownership and permissions on certs and key files
+#      3. Clean up
 #
 # This script only needs to be run once on each DAOS client or server instance.
+# It should be called from the startup script of all DAOS client and server
+# instances.
 #
 # In order for this script to access the secret version containing the
 # daosCA.tar.gz file, the service account that is running the instance must
-# be given the proper permissions on the secret. Typically the secret is created
-# by Terraform and therefore it is owned by the user who is running Terraform.
-# The daos_server Terraform module will create the secret and apply the necessary
-# policies to allow the service account to access the secret.
+# be given the proper permissions on the secret. The daos_server Terraform
+# module will create the secret and assign the necessary IAM
+# policies to the service account so that it can access the secret.
 #
+# NOTE
+#
+#   At the time this script was written DAOS services and the dmg command
+#   required that permissions on some files such as /etc/daos/certs/admin.key
+#   and /etc/daos/certs/daosCA.crt files have mode 0700.  Not 0600 but 0700.
+#   So when you see the odd mode, that is why it was done.
 
-set -ue
+set -e
 trap 'echo "An unexpected error occurred. Exiting."' ERR
 
-SECRET_NAME="$1"
-INSTALL_TYPE="$2"  # client or server
+SECRET_NAME="${SECRET_NAME:-$1}"    # Name of secret that was created by Terraform
+INSTALL_TYPE="${INSTALL_TYPE:-$2}"  # client or server
 DAOS_DIR=/var/daos
+SCRIPT_NAME=$(basename "$0")
 
 if [[ -z "${SECRET_NAME}" ]]; then
   echo "ERROR: Secret name must be passed as the first parameter. Exiting..."
@@ -56,19 +70,22 @@ get_ca_from_sm() {
   # to /etc/daos/certs
 
   if [[ -f "${DAOS_DIR}/daosCA.tar.gz" ]]; then
-    # Make sure that the file doesn't exist before
-    # we attempt to retrieve it from Secret manager.
+    # Make sure that an old daosCA.tar.gz file doesn't exist before
+    # we attempt to retrieve the file from Secret manager.
     rm -f "${DAOS_DIR}/daosCA.tar.gz"
   fi
 
   # Loop until the secret exists.
-  # Exit if secret is not found in max_secret_wait_time.
+  # If the secret is not found in max_secret_wait_time, then exit.
   max_secret_wait_time="5 mins"
   endtime=$(date -ud "${max_secret_wait_time}" +%s)
-  until gcloud secrets list | grep -q -i ${SECRET_NAME}
+  until gcloud secrets versions list "${SECRET_NAME}" \
+    --filter="NAME:1" \
+    --format="value('name')" \
+    --verbosity=none | grep -q 1
   do
     if [[ $(date -u +%s) -ge ${endtime} ]]; then
-      echo "ERROR: Secret '${SECRET_NAME}' was not found after checking for ${max_secret_wait_time}"
+      echo "ERROR: Secret '${SECRET_NAME}' not found after checking for ${max_secret_wait_time}"
       exit 1
     fi
     echo "Checking for secret: ${SECRET_NAME}"
@@ -99,73 +116,70 @@ get_ca_from_sm() {
   fi
 }
 
-# TODO: Need to test without this
-#       It was added when I was running into issues with missing keys on the
-#       instances. The keys eventually appear on the instances with this sleep command
-sleep 120
+echo "BEGIN: ${SCRIPT_NAME}"
 
 cd "${DAOS_DIR}"
 
 # Only get the ${DAOS_DIR}/daosCA from Secret Manager
-# if the ${DAOS_DIR}/daosCA directory doesn't exist.
+# when the ${DAOS_DIR}/daosCA directory doesn't exist.
+# On the first DAOS server instance ${DAOS_DIR}/daosCA will exist because that
+# is where the certs were generated. No need to get the daosCA.tar.gz file
+# from the secret in that case.
 if [[ ! -d "${DAOS_DIR}/daosCA" ]]; then
   get_ca_from_sm
 fi
 
-# Cleanup any old certs that may exist
+# Cleanup any old certs that may exist.
 rm -rf /etc/daos/certs
-mkdir -m 0755 -p /etc/daos/certs
+mkdir -p /etc/daos/certs
 
+echo "Copying certs and setting permissions"
+
+# CLIENT CERTS
 if [[ "${INSTALL_TYPE,,}" == "client" ]]; then
-  echo "Install type is '${INSTALL_TYPE,,}'"
-
-  cp "${DAOS_DIR}/daosCA/certs/agent.crt" /etc/daos/certs/
-  chown -R daos_agent:daos_agent /etc/daos/certs/agent.crt
-  chmod 0660 /etc/daos/certs/agent.crt
-
-  cp "${DAOS_DIR}/daosCA/certs/agent.key" /etc/daos/certs/
-  chown -R daos_agent:daos_agent /etc/daos/certs/agent.key
-  chmod 0600 /etc/daos/certs/agent.key
-
-  chown -R daos_agent:daos_daemons /etc/daos/certs
+  cp ${DAOS_DIR}/daosCA/certs/daosCA.crt /etc/daos/certs/
+  cp ${DAOS_DIR}/daosCA/certs/agent.* /etc/daos/certs/
+  chown -R daos_agent:daos_agent /etc/daos/certs
+  chmod 0755 /etc/daos/certs
+  chmod 0644 /etc/daos/certs/*.crt
+  chmod 0600 /etc/daos/certs/*.key
 fi
 
+# SERVER CERTS
 if [[ "${INSTALL_TYPE,,}" == "server" ]]; then
+  # On GCP daos_server runs as root because instances don't have IOMMU
+  # So all certs and keys should be owned by root
+  cp ${DAOS_DIR}/daosCA/certs/daosCA.crt /etc/daos/certs/
+  cp ${DAOS_DIR}/daosCA/certs/server.* /etc/daos/certs/
 
-  # TODO: On GCP daos_server runs as root because instances don't have IOMMU
-  #       Need to investigate to be able to run as the daos_server user
-
-  echo "Install type is '${INSTALL_TYPE,,}'. Setting permissions for root:daos_daemons"
-  mkdir -m 0755 -p /etc/daos/certs/clients
-
-  cp "${DAOS_DIR}/daosCA/certs/agent.crt" /etc/daos/certs/clients/
-  chmod 0600 /etc/daos/certs/clients/agent.crt
-
-  cp "${DAOS_DIR}/daosCA/certs/server.crt" /etc/daos/certs/
-  chmod 0600 /etc/daos/certs/server.crt
-
-  cp "${DAOS_DIR}/daosCA/certs/server.key" /etc/daos/certs/
-  chmod 0600 /etc/daos/certs/server.key
+  # Server needs a copy of the agent.crt in /etc/daos/certs/clients
+  mkdir -p /etc/daos/certs/clients
+  cp "${DAOS_DIR}/daosCA/certs/agent.crt" /etc/daos/certs/clients
 
   chown -R root:root /etc/daos/certs
+  chmod 0755 /etc/daos/certs
+  chmod 0755 /etc/daos/certs/clients
+  chmod 0644 /etc/daos/certs/*.crt
+  chmod 0600 /etc/daos/certs/*.key
+  chmod 0644 /etc/daos/certs/clients/*
 fi
 
-# Copy daosCA.crt to /etc/daos/certs on all DAOS server and client instances
-cp "${DAOS_DIR}/daosCA/certs/daosCA.crt" /etc/daos/certs/
-chown root:daos_daemons /etc/daos/certs/daosCA.crt
-chmod 0644 /etc/daos/certs/daosCA.crt
+#
+# ADMIN CERTS ON CLIENTS AND SERVERS
+#
 
-# Copy admin cert to both clients and servers because we don't know
-# where dmg will need to be run.
-cp "${DAOS_DIR}/daosCA/certs/admin.crt" /etc/daos/certs/
-chown root:daos_daemons /etc/daos/certs/admin.crt
+# As of 2022-05-05 dmg requires mode 0700 admin.key
+# Odd that its not 0600
+# dmg must run as root
+cp ${DAOS_DIR}/daosCA/certs/admin.* /etc/daos/certs/
+
+chown root:root /etc/daos/certs/admin.*
 chmod 0644 /etc/daos/certs/admin.crt
-
-cp "${DAOS_DIR}/daosCA/certs/admin.key" /etc/daos/certs/
-chown root:daos_daemons /etc/daos/certs/admin.key
-chmod 0640 /etc/daos/certs/admin.key
+chmod 0700 /etc/daos/certs/admin.key
 
 # Remove the CA dir now that the certs have been copied to /etc/daos/certs
 if [[ -d "${DAOS_DIR}/daosCA" ]]; then
   rm -rf "${DAOS_DIR}/daosCA"
 fi
+
+echo "END: ${SCRIPT_NAME}"

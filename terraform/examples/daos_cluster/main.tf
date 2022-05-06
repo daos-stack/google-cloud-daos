@@ -45,7 +45,6 @@ module "daos_server" {
   pools               = var.server_pools
   gvnic               = var.server_gvnic
   allow_insecure      = var.allow_insecure
-  ssh_user            = var.ssh_user
 }
 
 module "daos_client" {
@@ -73,5 +72,4 @@ module "daos_client" {
   gvnic               = var.client_gvnic
   daos_ca_secret_id   = module.daos_server.daos_ca_secret_id
   allow_insecure      = var.allow_insecure
-  ssh_user            = var.ssh_user
 }

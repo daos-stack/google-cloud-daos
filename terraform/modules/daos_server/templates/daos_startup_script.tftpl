@@ -34,18 +34,15 @@ sed -i "s/User=daos_server/User=root/; s/Group=daos_server/Group=root/" $${DAOS_
 
 if [[ "$${HOSTNAME}" == "$${FIRST_DAOS_SERVER_HOSTNAME}" ]]; then
   # Only run on the first DAOS server instance
-  %{ if !allow_insecure ~}
+  %{ if !allow_insecure }
   # Generate CA and certs. Store in Secret Manager.
   $${DAOS_DIR}/cert_gen/sm_set_ca.sh "${daos_ca_secret_id}"
-  %{ endif ~}
+  %{ endif }
 fi
 
-# Run on all DAOS servers
 %{ if !allow_insecure ~}
 # Get certs from Secret Manager and deploy them
 $${DAOS_DIR}/cert_gen/sm_get_ca.sh "${daos_ca_secret_id}" "server"
-chown -R "${ssh_user}" /etc/daos/certs
-chmod 700 /etc/daos/certs/admin.key
 %{ endif ~}
 
 systemctl enable daos_server

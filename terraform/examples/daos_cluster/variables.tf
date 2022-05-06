@@ -53,12 +53,6 @@ variable "allow_insecure" {
   type        = bool
 }
 
-variable "ssh_user" {
-  description = "Sets user used to SSH, so that it could sets proper permissions on files"
-  type        = string
-  default     = null
-}
-
 variable "server_labels" {
   description = "Set of key/value label pairs to assign to daos-server instances"
   type        = any

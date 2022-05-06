@@ -161,13 +161,6 @@
       "required": false
     },
     {
-      "name": "ssh_user",
-      "type": "string",
-      "description": "Sets user used to SSH, so that it could sets proper permissions on files",
-      "default": null,
-      "required": false
-    },
-    {
       "name": "subnetwork_name",
       "type": "string",
       "description": "Name of the GCP sub-network to use",

@@ -28,7 +28,6 @@ locals {
   crt_timeout       = var.daos_crt_timeout
   daos_ca_secret_id = basename(google_secret_manager_secret.daos_ca.id)
   allow_insecure    = var.allow_insecure
-  ssh_user          = var.ssh_user
 
   daos_server_yaml_content = templatefile(
     "${path.module}/templates/daos_server.yml.tftpl",
@@ -64,7 +63,6 @@ locals {
       first_server      = local.first_server
       daos_ca_secret_id = local.daos_ca_secret_id
       allow_insecure    = local.allow_insecure
-      ssh_user          = local.ssh_user
     }
   )
 
@@ -202,19 +200,19 @@ data "google_iam_policy" "daos_ca_secret_version_manager" {
   binding {
     role = "roles/secretmanager.secretVersionManager"
     members = [
-      format("serviceAccount:%s", data.google_compute_default_service_account.default.email)
+      format("serviceAccount:%s", var.service_account.email == null ? data.google_compute_default_service_account.default.email : var.service_account.email)
     ]
   }
   binding {
     role = "roles/secretmanager.viewer"
     members = [
-      format("serviceAccount:%s", data.google_compute_default_service_account.default.email)
+      format("serviceAccount:%s", var.service_account.email == null ? data.google_compute_default_service_account.default.email : var.service_account.email)
     ]
   }
   binding {
     role = "roles/secretmanager.secretAccessor"
     members = [
-      format("serviceAccount:%s", data.google_compute_default_service_account.default.email)
+      format("serviceAccount:%s", var.service_account.email == null ? data.google_compute_default_service_account.default.email : var.service_account.email)
     ]
   }
 }
