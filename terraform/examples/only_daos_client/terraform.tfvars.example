@@ -27,7 +27,7 @@ client_daos_agent_yml = <<EOT
 #
 
 # Management server access points
-access_points: ["daos-server-maolson-0001"]
+access_points: ["daos-server-0001","daos-server-0002","daos-server-0003"]
 
 transport_config:
   allow_insecure: false
@@ -43,7 +43,7 @@ client_daos_control_yml = <<EOT
 #
 
 # hostlist must contain the list of all DAOS servers
-hostlist: ["daos-server-maolson-0001"]
+hostlist: ["daos-server-[0001-0004"]
 transport_config:
   allow_insecure: false
   ca_cert: /etc/daos/certs/daosCA.crt
