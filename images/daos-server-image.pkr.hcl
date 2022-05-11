@@ -67,4 +67,18 @@ build {
       "./scripts/install_daos.sh"
     ]
   }
+
+  provisioner "file" {
+    source = "./scripts/cert_gen",
+    destination = "/tmp/"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo mkdir -p /var/daos/",
+      "sudo mv /tmp/cert_gen /var/daos/",
+      "sudo chown -R root:root /var/daos/cert_gen",
+      "sudo chmod +x /var/daos/cert_gen/*.sh"
+    ]
+  }
 }
