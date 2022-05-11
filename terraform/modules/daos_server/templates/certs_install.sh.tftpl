@@ -44,6 +44,7 @@ get_ca_from_sm() {
   echo "Saving '$${SECRET_NAME}' data to /var/daos/daosCA.tar.gz"
 
   # Always get version 1 of the secret. There should not be other versions.
+  mkdir -p /var/daos
   gcloud secrets versions access 1 --secret="$${SECRET_NAME}" \
     --format "value(payload.data.decode(base64).encode(base64))" \
     | base64 --decode > "/var/daos/daosCA.tar.gz"
