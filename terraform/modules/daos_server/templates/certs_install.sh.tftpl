@@ -96,14 +96,9 @@ fi
 # SERVER CERTS
 if [[ "$${INSTALL_TYPE,,}" == "server" ]]; then
   # On GCP daos_server runs as root because instances don't have IOMMU
-  # So all certs and keys should be owned by root
+  # So server certs and keys should be owned by root
   cp /var/daos/daosCA/certs/daosCA.crt /etc/daos/certs/
   cp /var/daos/daosCA/certs/server.* /etc/daos/certs/
-
-  cp /var/daos/daosCA/certs/agent.* /etc/daos/certs/
-  chown daos_agent:daos_agent /etc/daos/certs/agent.*
-  chmod 0644 /etc/daos/certs/agent.crt
-  chmod 0600 /etc/daos/certs/agent.key
 
   # Server needs a copy of the agent.crt in /etc/daos/certs/clients
   mkdir -p /etc/daos/certs/clients
@@ -112,9 +107,17 @@ if [[ "$${INSTALL_TYPE,,}" == "server" ]]; then
   chown -R root:root /etc/daos/certs
   chmod 0755 /etc/daos/certs
   chmod 0755 /etc/daos/certs/clients
+
+  # Since the daos_agent is also running on the server instances the
+  # agent certs must exist in /etc/daos/certs/ and be owned by the daos_agent
+  # user
+  cp /var/daos/daosCA/certs/agent.* /etc/daos/certs/
+  chown daos_agent:daos_agent /etc/daos/certs/agent.*
+
   chmod 0644 /etc/daos/certs/*.crt
   chmod 0600 /etc/daos/certs/*.key
   chmod 0644 /etc/daos/certs/clients/*
+
 fi
 
 #
