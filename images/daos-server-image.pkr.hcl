@@ -69,7 +69,7 @@ build {
   }
 
   provisioner "file" {
-    source = "./scripts/cert_gen",
+    source = "./scripts/cert_gen"
     destination = "/tmp/"
   }
 
