@@ -14,6 +14,7 @@ systemctl stop daos_agent
 
 %{ if !allow_insecure }
 # Install certificates
+mkdir -p /var/daos/cert_gen
 fetch_attr "certs_install_script_content" > /var/daos/cert_gen/certs_install.sh
 chmod +x /var/daos/cert_gen/certs_install.sh
 /var/daos/cert_gen/certs_install.sh client
@@ -21,9 +22,8 @@ chmod +x /var/daos/cert_gen/certs_install.sh
 
 # Create agent config files from metadata
 mkdir -p /etc/daos
-cd /etc/daos
-fetch_attr "daos_control_yaml_content" > daos_control.yml
-fetch_attr "daos_agent_yaml_content" > daos_agent.yml
+fetch_attr "daos_control_yaml_content" > /etc/daos/daos_control.yml
+fetch_attr "daos_agent_yaml_content" > /etc/daos/daos_agent.yml
 chown -R daos_agent:daos_agent /etc/daos/
 
 systemctl enable daos_agent
