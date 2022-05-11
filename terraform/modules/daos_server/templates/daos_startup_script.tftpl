@@ -44,15 +44,15 @@ cd /etc/daos
 fetch_attr "daos_server_yaml_content" > daos_server.yml
 fetch_attr "daos_control_yaml_content" > daos_control.yml
 fetch_attr "daos_agent_yaml_content" > daos_agent.yml
-chown -R root:root /etc/daos
 
 # Modify systemd script for GCP
 # GCP does not support VFIO so daos_server must run as root
 sed -i "s/User=daos_server/User=root/; s/Group=daos_server/Group=root/" $${DAOS_SERVER_SYSTEMD_FILE}
 
-# Start servers
+# Enable and start services
 systemctl enable daos_server
 systemctl start daos_server
+
 systemctl enable daos_agent
 systemctl start daos_agent
 

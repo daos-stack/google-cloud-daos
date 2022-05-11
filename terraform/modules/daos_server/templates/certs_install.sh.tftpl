@@ -81,7 +81,7 @@ fi
 rm -rf /etc/daos/certs
 mkdir -p /etc/daos/certs
 
-echo "Copying certs and setting permissions"
+echo "Copying certs and setting permissions on $${INSTALL_TYPE,,} instance"
 
 # CLIENT CERTS
 if [[ "$${INSTALL_TYPE,,}" == "client" ]]; then
