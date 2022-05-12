@@ -26,11 +26,34 @@ server_daos_scm_size       = 45
 # server_os_disk_type        = "pd-ssd"
 
 # pools = [
-#  {
-#    pool_name = "test_pool"
-#    pool_size = "1TB"
-#    containers = [ "test_container1", "test_container2" ]
-#  }
+#   {
+#     name = "test_pool",
+#     size = "1TB",
+#     tier_ratio = 3
+#     acls = [
+#       "A::OWNER@:rwdtTaAo",
+#       "A:G:GROUP@:rwtT"
+#     ],
+#     properties = [
+#       "reclaim:disabled"
+#     ],
+#     containers = [
+#       {
+#         name = "test_container1",
+#         type = "POSIX",
+#         acls = [
+#           "A::OWNER@:rwdtTaAo",
+#           "A:G:GROUP@:rwtT"
+#         ],
+#         properties = [
+#           "rf:0"
+#         ],
+#         user_attributes = [
+#           "automount true"
+#         ]
+#       }
+#     ]
+#   }
 # ]
 
 # client_number_of_instances = 16
