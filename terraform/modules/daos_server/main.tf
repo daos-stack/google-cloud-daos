@@ -99,9 +99,9 @@ locals {
   startup_script = templatefile(
     "${path.module}/templates/startup_script.tftpl",
     {
-      first_server          = local.first_server
-      certs_gen_content     = local.certs_gen_content
-      certs_install_content = local.certs_install_content
+      first_server             = local.first_server
+      certs_gen_content        = local.certs_gen_content
+      certs_install_content    = local.certs_install_content
       pool_cont_create_content = local.pool_cont_create_content
     }
   )
