@@ -1,0 +1,58 @@
+%{ if length(pools) != 0 }
+set -x
+
+echo "BEGIN: DAOS pool and container creation"
+
+if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
+  # Wait for servers to start
+  until dmg network scan | grep --fixed-strings "${servers}"
+  do
+    sleep 5
+  done
+  echo "All DAOS Servers started"
+
+  echo "Formatting storage on servers: ${servers}"
+  dmg storage format
+  dmg system query -v
+  echo "Done formating DAOS server"
+
+  echo "Creating requested pools and containers"
+  %{for pool in pools}
+    dmg pool create \
+      --size=${pool.size} \
+      --tier-ratio=${pool.tier_ratio} \
+      ${pool.name}
+
+    %{for property in pool.properties}
+      dmg pool set-prop ${pool.name} ${property}
+    %{endfor}
+
+    %{for acl in pool.acls}
+      dmg pool update-acl --entry ${acl} ${pool.name}
+    %{endfor}
+
+    %{for container in pool.containers}
+      daos container create \
+        --type ${container.type} \
+        --properties=%{~ for property in container.properties ~}
+                        %{~ if property == element(container.properties, length(container.properties)-1) ~}
+                          ${~ property ~}
+                        %{~ else ~}${~ property ~},%{~ endif ~}
+                      %{~ endfor } \
+        ${pool.name} \
+        --label ${container.name}
+
+      %{for acl in container.acls}
+        daos cont update-acl ${pool.name} ${container.name} --entry ${acl}
+      %{endfor}
+
+      %{for attribute in container.user_attributes}
+        daos cont set-attr ${pool.name} ${container.name} ${attribute}
+      %{endfor}
+    %{endfor}
+  %{endfor}
+  echo "Done creating requested pools and containers"
+fi
+
+echo "END: DAOS pool and container creation"
+%{ endif }
