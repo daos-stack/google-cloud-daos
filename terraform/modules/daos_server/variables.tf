@@ -167,20 +167,20 @@ variable "allow_insecure" {
 }
 
 variable "pools" {
-  description = "If provided, this module will generate a script to create a list of pools. pool attributes have to be specified in a format acceptable by [dmg](https://docs.daos.io/v2.0/admin/pool_operations/) and daos."
+  description = "List of pools and containers to be created"
   default     = []
   type = list(object({
     name       = string
     size       = string
     tier_ratio = number
     acls       = list(string)
-    properties = list(string)
+    properties = map(string)
     containers = list(object({
       name            = string
       type            = string
       acls            = list(string)
-      properties      = list(string)
-      user_attributes = list(string)
+      properties      = map(string)
+      user_attributes = map(any)
     }))
   }))
 }

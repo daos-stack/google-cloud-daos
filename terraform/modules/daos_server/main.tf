@@ -89,7 +89,7 @@ locals {
   )
 
   pool_cont_create_content = templatefile(
-    "${path.module}/templates/pool_cont_create.tftpl",
+    "${path.module}/templates/pool_cont_create.inc.sh.tftpl",
     {
       servers = local.servers
       pools   = local.pools

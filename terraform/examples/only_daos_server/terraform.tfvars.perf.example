@@ -24,32 +24,34 @@ server_labels              = {
 # server_os_project          = "<project_id>"
 # server_os_disk_type        = "pd-ssd"
 
-# pools = [
+# server_pools = [
 #   {
-#     name = "test_pool",
-#     size = "1TB",
+#     name       = "pool1",
+#     size       = "1TB",
 #     tier_ratio = 3
 #     acls = [
 #       "A::OWNER@:rwdtTaAo",
-#       "A:G:GROUP@:rwtT"
+#       "A:G:GROUP@:rwtT",
+#       "A::EVERYONE@:r",
 #     ],
-#     properties = [
-#       "reclaim:disabled"
-#     ],
+#     properties = {
+#       reclaim = "lazy"
+#     },
 #     containers = [
 #       {
-#         name = "test_container1",
+#         name = "container1",
 #         type = "POSIX",
 #         acls = [
 #           "A::OWNER@:rwdtTaAo",
-#           "A:G:GROUP@:rwtT"
+#           "A:G:GROUP@:rwtT",
+#           "A::EVERYONE@:rwtT"
 #         ],
-#         properties = [
-#           "rf:0"
-#         ],
-#         user_attributes = [
-#           "automount true"
-#         ]
+#         properties = {
+#           rf = 0
+#         },
+#         user_attributes = {
+#           automount = true
+#         }
 #       }
 #     ]
 #   }
