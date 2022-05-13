@@ -30,49 +30,14 @@ ID=""
 PREEMPTIBLE_INSTANCES="true"
 SSH_USER="daos-user"
 DAOS_ALLOW_INSECURE="false"
-# DAOS_POOLS='[]'
-DAOS_POOLS='[
-  {
-    name = "io500_pool",
-    size = "1TB",
-    tier_ratio = 3
-    acls = [
-      "A::OWNER@:rwdtTaAo",
-      "A:G:GROUP@:rwtT",
-      "A::EVERYONE@:rwdtTaAo"
-    ],
-    properties = [
-      "reclaim:disabled"
-    ],
-    containers = [
-      {
-        name = "io500_cont",
-        type = "POSIX",
-        acls = [
-          "A::OWNER@:rwdtTaAo",
-          "A:G:GROUP@:rwtT",
-          "A::EVERYONE@:rwdtTaAo"
-        ],
-        properties = [
-          "cksum:sha1",
-          "dedup:hash",
-          "rf:0"
-        ],
-        user_attributes = [
-          "automount true",
-          "mount_path /mnt/daos"
-        ]
-      }
-    ]
-  }
-]'
+
 
 # Server(s)
 DAOS_SERVER_INSTANCE_COUNT="1"
-DAOS_SERVER_MACHINE_TYPE=n2-standard-16 # n2-custom-20-131072 n2-custom-40-262144 n2-highmem-32 n2-standard-2
+DAOS_SERVER_MACHINE_TYPE=n2-highmem-32 # n2-custom-20-131072 n2-custom-40-262144 n2-highmem-32 n2-standard-2
 DAOS_SERVER_DISK_COUNT=8
 DAOS_SERVER_CRT_TIMEOUT=300
-DAOS_SERVER_SCM_SIZE=45
+DAOS_SERVER_SCM_SIZE=100
 DAOS_SERVER_GVNIC=false
 
 # Client(s)
@@ -123,7 +88,6 @@ export TF_VAR_server_machine_type="${DAOS_SERVER_MACHINE_TYPE}"
 export TF_VAR_server_os_project="${TF_VAR_project_id}"
 export TF_VAR_server_os_family="daos-server-io500-centos-7"
 export TF_VAR_server_gvnic="${DAOS_SERVER_GVNIC}"
-export TF_VAR_server_pools="${DAOS_POOLS}"
 # Clients
 export TF_VAR_client_preemptible=${PREEMPTIBLE_INSTANCES}
 export TF_VAR_client_number_of_instances=${DAOS_CLIENT_INSTANCE_COUNT}

@@ -159,12 +159,12 @@ variable "server_pools" {
     size       = string
     tier_ratio = number
     acls       = list(string)
-    properties = map(string)
+    properties = map(any)
     containers = list(object({
       name            = string
       type            = string
       acls            = list(string)
-      properties      = map(string)
+      properties      = map(any)
       user_attributes = map(any)
     }))
   }))
