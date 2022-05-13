@@ -31,7 +31,6 @@ PREEMPTIBLE_INSTANCES="true"
 SSH_USER="daos-user"
 DAOS_ALLOW_INSECURE="false"
 
-
 # Server(s)
 DAOS_SERVER_INSTANCE_COUNT="1"
 DAOS_SERVER_MACHINE_TYPE=n2-highmem-32 # n2-custom-20-131072 n2-custom-40-262144 n2-highmem-32 n2-standard-2

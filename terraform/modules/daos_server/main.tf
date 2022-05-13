@@ -88,6 +88,13 @@ locals {
     }
   )
 
+  storage_format_content = templatefile(
+    "${path.module}/templates/storage_format.inc.sh.tftpl",
+    {
+      servers = local.servers
+    }
+  )
+
   pool_cont_create_content = templatefile(
     "${path.module}/templates/pool_cont_create.inc.sh.tftpl",
     {
@@ -102,6 +109,7 @@ locals {
       first_server             = local.first_server
       certs_gen_content        = local.certs_gen_content
       certs_install_content    = local.certs_install_content
+      storage_format_content   = local.storage_format_content
       pool_cont_create_content = local.pool_cont_create_content
     }
   )

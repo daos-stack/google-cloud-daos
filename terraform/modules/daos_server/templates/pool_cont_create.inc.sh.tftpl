@@ -1,44 +1,22 @@
 %{ if length(pools) != 0 }
-echo "BEGIN: DAOS pool and container creation"
+echo "BEGIN: DAOS pool and container creation from definition in 'pool' variable"
 
 if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
-  # Wait for servers to start
-  until dmg network scan | grep --fixed-strings "${servers}"
-  do
-    sleep 5
-  done
-  echo "All DAOS Servers started"
-
-  # ---------------------------------------------------------------------------
-  # TODO: Request by Keith Mannthey
-  #       Move storage format into a separate storage_format.inc.sh.tftpl file.
-  #       This will allow the storage format to be done either on the server
-  #       or the client separately from the pool creation. In other words it
-  #       would allow storage format on the server and pool creation on the
-  #       client.
-  echo "BEGIN: Storage format"
-  dmg storage format
-  dmg system query -v
-  echo "END: Storage format"
-  # ---------------------------------------------------------------------------
-
-  %{ if length(pools) != 0 }
-    echo "BEGIN: Create pools and containers from definition in 'pool' variable"
-    %{for pool in pools}
+  %{for pool in pools}
   dmg pool create \
     --size=${pool.size} \
     --tier-ratio="${pool.tier_ratio}" \
     "${pool.name}"
 
-      %{~ for property_key, property_value in pool.properties ~}
+    %{~ for property_key, property_value in pool.properties ~}
   dmg pool set-prop "${pool.name}" "${property_key}:${property_value}"
-      %{~ endfor ~}
+    %{~ endfor ~}
 
-      %{~ for acl in pool.acls ~}
+    %{~ for acl in pool.acls ~}
   dmg pool update-acl --entry "${acl}" "${pool.name}"
-      %{~ endfor ~}
+    %{~ endfor ~}
 
-      %{~ for container in pool.containers ~}
+    %{~ for container in pool.containers ~}
   daos container create \
     --type ${container.type} \
       %{~ if length(container.properties) != 0 ~}
@@ -48,19 +26,17 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
     "${pool.name}" \
     --label "${container.name}"
 
-        %{~ for acl in container.acls ~}
+      %{~ for acl in container.acls ~}
   daos cont update-acl "${pool.name}" "${container.name}" --entry "${acl}"
-        %{~ endfor ~}
-
-        %{~ for attr_key, attr_value in container.user_attributes ~}
-  daos cont set-attr "${pool.name}" "${container.name}" "${attr_key}" "${attr_value}"
-        %{~ endfor ~}
       %{~ endfor ~}
-    %{~endfor ~}
-    echo "END: Create pools and containers from definition in 'pool' variable"
-  %{~ endif ~}
 
-fi # if first daos server instance
+      %{~ for attr_key, attr_value in container.user_attributes ~}
+  daos cont set-attr "${pool.name}" "${container.name}" "${attr_key}" "${attr_value}"
+      %{~ endfor ~}
+    %{~ endfor ~}
+  %{~endfor ~}
 
-echo "END: DAOS pool and container creation"
+fi
+
+echo "END: DAOS pool and container creation from definition in 'pool' variable"
 %{~ endif ~}
