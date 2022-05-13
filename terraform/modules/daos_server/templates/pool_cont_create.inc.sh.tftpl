@@ -6,11 +6,11 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
   dmg pool create \
     --size=${pool.size} \
     --tier-ratio="${pool.tier_ratio}" \
+    %{~ if length(pool.properties) != 0 ~}
+    --properties="%{~ for idx, pprop_key in keys(pool.properties) ~}
+        ${~ pprop_key}:${pool.properties[pprop_key]}%{~ if idx != length(pool.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
+      %{~ endif ~}
     "${pool.name}"
-
-    %{~ for property_key, property_value in pool.properties ~}
-  dmg pool set-prop "${pool.name}" "${property_key}:${property_value}"
-    %{~ endfor ~}
 
     %{~ for acl in pool.acls ~}
   dmg pool update-acl --entry "${acl}" "${pool.name}"
@@ -20,8 +20,8 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
   daos container create \
     --type ${container.type} \
       %{~ if length(container.properties) != 0 ~}
-    --properties="%{~ for idx, cprop_key in keys(container.properties)  ~}
-  ${cprop_key}:${container.properties[cprop_key]}%{~ if idx != length(container.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
+    --properties="%{~ for idx, cprop_key in keys(container.properties) ~}
+        ${~ cprop_key}:${container.properties[cprop_key]}%{~ if idx != length(container.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
       %{~ endif ~}
     "${pool.name}" \
     --label "${container.name}"
