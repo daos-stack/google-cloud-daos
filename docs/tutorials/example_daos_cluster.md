@@ -287,6 +287,7 @@ Click **Next** to continue
 Unmount the container before logging out of the daos-client-0001 instance.
 
 ```bash
+cd ~/
 fusermount -u /home/${USER}/daos/cont1
 ```
 
