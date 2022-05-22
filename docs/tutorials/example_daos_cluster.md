@@ -275,7 +275,7 @@ The `cont1` container is now mounted on `/home/${USER}/daos/cont1`
 Create a 20GiB file which will be stored in the DAOS filesystem.
 
 ```bash
-cd /home/${USER}/daos/cont1
+pushd /home/${USER}/daos/cont1
 time LD_PRELOAD=/usr/lib64/libioil.so \
 dd if=/dev/zero of=./test20GiB.img iflag=fullblock bs=1G count=20
 ```
@@ -287,15 +287,16 @@ Click **Next** to continue
 Unmount the container before logging out of the daos-client-0001 instance.
 
 ```bash
-cd ~/
+popd
 fusermount -u /home/${USER}/daos/cont1
+logout
 ```
 
 Click **Next** to continue
 
 ## Shut Down the DAOS Cluster
 
-Log out of the daos-client-0001 instance and destroy all resources created by Terraform
+Destroy all resources created by Terraform
 
 ```bash
 terraform destroy
