@@ -95,9 +95,9 @@ The Cloud Build service account requires the editor role.
 To grant the editor role to the service account run:
 
 ```bash
-CLOUD_BUILD_ACCOUNT=$(gcloud projects get-iam-policy {{project-id}} --filter="(bindings.role:roles/cloudbuild.builds.builder)" --flatten="bindings[].members" --format="value(bindings.members[])")
+CLOUD_BUILD_ACCOUNT=$(gcloud projects get-iam-policy <walkthrough-project-id/> --filter="(bindings.role:roles/cloudbuild.builds.builder)" --flatten="bindings[].members" --format="value(bindings.members[])")
 
-gcloud projects add-iam-policy-binding {{project-id}} \
+gcloud projects add-iam-policy-binding <walkthrough-project-id/> \
   --member "${CLOUD_BUILD_ACCOUNT}" \
   --role roles/compute.instanceAdmin
 ```
