@@ -4,8 +4,9 @@ In this tutorial you will complete the following pre-deployment steps which are 
 
 1. Set defaults for Google Cloud CLI (```gcloud```)
 2. Enable APIs
-3. Create a Packer image in your GCP project
-4. Build DAOS Server and Client images with Packer in Cloud Build
+3. Create a Cloud NAT
+4. Create a Packer image in your GCP project
+5. Build DAOS Server and Client images with Packer in Cloud Build
 
 After completing this walkthrough you will be able to run Terraform to deploy DAOS Server and Client instances.
 
@@ -66,29 +67,51 @@ You have now set the necessary defaults required for the scripts and examples in
 
 Click **Next** to continue
 
-## Create Packer Image
+## Enable APIs
 
-DAOS images are built using [Packer](https://www.packer.io/) in [Cloud Build](https://cloud.google.com/build).
-
-In order to run Packer in Cloud Build you need to provision an instance from an image that has Packer installed.
-
-Therfore, in order to build DAOS images with Packer in Cloud Build, your GCP project must contain a Packer image.
-
-Creating the Packer image only needs to be done once in the GCP project.
-
-### Enable APIs
-
-To enable the necessary APIs for Cloud Build run:
+Enable the APIs that are used for building images and deploying DAOS instances
 
 ```bash
-gcloud services enable sourcerepo.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
 gcloud services enable compute.googleapis.com
-gcloud services enable servicemanagement.googleapis.com
-gcloud services enable storage-api.googleapis.com
+gcloud services enable networkmanagement.googleapis.com
 gcloud services enable secretmanager.googleapis.com
+gcloud services enable servicemanagement.googleapis.com
+gcloud services enable sourcerepo.googleapis.com
+gcloud services enable storage-api.googleapis.com
 ```
 
-### Required IAM permissions
+Click **Next** to continue
+
+## Create a Cloud NAT
+
+When deploying DAOS server and client instances external IPs are not added to the instances. The instances need to use services that are not accessible on the internal VPC default network as well as the https://packages.daos.io site for installs from DAOS repos.
+
+Therefore, it is necessary to create a [Cloud NAT using Cloud Router](https://cloud.google.com/architecture/building-internet-connectivity-for-private-vms#create_a_nat_configuration_using_cloud_router).
+
+1. Create a Cloud Router instance
+
+    ```bash
+    gcloud compute routers create nat-router-us-central1 \
+      --network default \
+      --region us-central1
+    ```
+
+2. Configure the router for Cloud NAT
+
+    ```bash
+    gcloud compute routers nats create nat-config \
+      --router-region us-central1 \
+      --router nat-router-us-central1 \
+      --nat-all-subnet-ip-ranges \
+      --auto-allocate-nat-external-ips
+    ```
+
+Click **Next** to continue
+
+## Create Packer Image
+
+### IAM permissions
 
 The Cloud Build service account requires the editor role.
 
@@ -102,15 +125,22 @@ gcloud projects add-iam-policy-binding <walkthrough-project-id/> \
   --role roles/compute.instanceAdmin
 ```
 
-### Create the Packer Image
+### Build Packer Image
+
+DAOS images are built using [Packer](https://www.packer.io/) in [Cloud Build](https://cloud.google.com/build).
+
+In order to run Packer in Cloud Build you need to provision an instance from an image that has Packer installed.
+
+Therfore, in order to build DAOS images with Packer in Cloud Build, your GCP project must contain a Packer image.
+
+Creating the Packer image only needs to be done once in the GCP project.
 
 Cloud Build provides the [Packer community builder image](https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/packer).
 
 To build the Packer image run:
 
 ```bash
-pushd .
-cd ~/
+pushd ~/
 git clone https://github.com/GoogleCloudPlatform/cloud-builders-community.git
 cd cloud-builders-community/packer
 gcloud builds submit .
@@ -118,28 +148,22 @@ rm -rf ~/cloud-builders-community
 popd
 ```
 
-<br>
-
-You have completed the necessary steps to create your Packer image which will be used to build DAOS images with Packer in Cloud Build.
 
 Click **Next** to continue
 
-## Build DAOS Server and Client images
+## Build DAOS images
 
 In order to use Terraform to provision DAOS Server and Client instances you need to build images that have DAOS pre-installed.
 
-To build the DAOS Server and Client instances run:
+Build the DAOS Server and Client instances
 
 ```bash
-pushd .
-cd images
+pushd images
 ./build_images.sh --type all
 popd
 ```
 
 It will take a few minutes for the images to build.
-
-Wait for the image build to complete.
 
 Click **Next** to continue
 

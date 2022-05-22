@@ -181,6 +181,10 @@ Check to make sure that the DAOS storage system is ready
 sudo dmg system query -v
 ```
 
+You should see 4 servers with a state of *Joined*
+
+<br>
+
 View free NVMe storage
 
 ```bash
@@ -203,7 +207,29 @@ In the example output above there are 4 servers with a total of 6.4TB of free sp
 Create a pool named `pool1` that uses all available space.
 
 ```bash
-sudo dmg pool create -z 6.4TB -t 3 -u ${USER} --label=pool1
+sudo dmg pool create -z 6.4TB -t 3 --label=pool1
+```
+
+View the ACLs on *pool1*
+
+```bash
+sudo dmg pool get-acl pool1
+```
+
+```text
+# Owner: root@
+# Owner Group: root@
+# Entries:
+A::OWNER@:rw
+A:G:GROUP@:rw
+```
+
+Here we see that root owns the pool.
+
+Add an [ACE](https://docs.daos.io/v2.0/admin/pool_operations/#adding-and-updating-aces) that will allow any user to create a container in the pool
+
+```bash
+sudo dmg pool update-acl -e A::EVERYONE@:rcta pool1
 ```
 
 Click **Next** to continue
@@ -250,7 +276,8 @@ Create a 20GiB file which will be stored in the DAOS filesystem.
 
 ```bash
 cd /home/${USER}/daos/cont1
-time LD_PRELOAD=/usr/lib64/libioil.so dd if=/dev/zero of=./test21G.img bs=1G count=20
+time LD_PRELOAD=/usr/lib64/libioil.so \
+dd if=/dev/zero of=./test20GiB.img iflag=fullblock bs=1G count=20
 ```
 
 Click **Next** to continue
