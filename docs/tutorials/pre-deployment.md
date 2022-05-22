@@ -85,7 +85,7 @@ gcloud services enable sourcerepo.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable servicemanagement.googleapis.com
 gcloud services enable storage-api.googleapis.com
-gcloud services enable cloud-platform.googleapis.com
+gcloud services enable secretmanager.googleapis.com
 ```
 
 ### Required IAM permissions
