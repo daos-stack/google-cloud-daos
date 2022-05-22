@@ -1,10 +1,11 @@
-# DAOS GCP Setup
+# DAOS GCP Pre-Deployment Steps
 
-In this walkthrough you will
+In this tutorial you will complete the following pre-deployment steps which are required to be done once for your GCP project.
 
 1. Set defaults for Google Cloud CLI (```gcloud```)
-2. Create a Packer image in your GCP project
-3. Build DAOS Server and Client images with Packer in Cloud Build
+2. Enable APIs
+3. Create a Packer image in your GCP project
+4. Build DAOS Server and Client images with Packer in Cloud Build
 
 After completing this walkthrough you will be able to run Terraform to deploy DAOS Server and Client instances.
 
@@ -31,13 +32,12 @@ The default settings are
 2. region
 3. zone
 
-
 ### Set Default Project
 
 To set the default project run
 
 ```bash
-gcloud config set project {{project-id}}
+gcloud config set project <walkthrough-project-id/>
 ```
 
 ### Set Default Region
@@ -85,6 +85,7 @@ gcloud services enable sourcerepo.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable servicemanagement.googleapis.com
 gcloud services enable storage-api.googleapis.com
+gcloud services enable cloud-platform.googleapis.com
 ```
 
 ### Required IAM permissions
@@ -146,14 +147,14 @@ Click **Next** to continue
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>
 
-You can now begin using Terraform to provision DAOS Server and Client instances in the **{{project-id}}** project!
+You can now begin using Terraform to provision DAOS Server and Client instances in the **<walkthrough-project-id/>** project!
 
 **Next Steps**
 
 - Read the <walkthrough-editor-open-file filePath="terraform/modules/daos_client/README.md">terraform/modules/daos_client/README.md</walkthrough-editor-open-file> file
 - Read the <walkthrough-editor-open-file filePath="terraform/modules/daos_server/README.md">terraform/modules/daos_server/README.md</walkthrough-editor-open-file> file
 - View the files in the ```terraform/examples/daos_cluster``` directory
-- Open a tutorial that walks you through the process of deploying a DAOS cluster using the ```terraform/examples/daos_cluster``` example.
+- Open a tutorial that walks you through the steps to deploy a DAOS cluster using the ```terraform/examples/daos_cluster``` example.
    ```bash
-   cloudshell launch-tutorial ./docs/tutorials/example_daos_cluster.md
+   teachme ./docs/tutorials/example_daos_cluster.md
    ```

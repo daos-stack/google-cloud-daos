@@ -6,9 +6,11 @@ This example Terraform configuration demonstrates how to use the [DAOS Terraform
 
 If you have not completed the [pre-deployment steps](../../../README.md#pre-deployment-steps) please complete those steps before continuing to run this Terraform example.
 
-## Quickstart in Cloudshell
+## Cloudshell Tutorial
 
-Click the button below to run this example in a Cloudshell tutorial.  The tutorial will walk through each of the steps described in this README.md file.
+Click the button below to open a [Cloud Shell](https://cloud.google.com/shell) tutorial that will walk you through the process of deploying a DAOS Cluster in GCP using the example configuration in this `terraform/examples/daos_cluster` directory.
+
+After completing the tutorial you will have a basic understanding of how to use the [DAOS Terraform Modules](../../modules) in your own Terraform configurations as well as how to perform basic administration steps on the DAOS instances after they are deployed.
 
 [![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-114&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
 
@@ -24,7 +26,7 @@ List of Terraform files in this example
 | terraform.tfvars.perf.example | Pre-Configured set of set of variables focused on performance                   |
 | terraform.tfvars.tco.example  | Pre-Configured set of set of variables focused on lower total cost of ownership |
 
-## Deploy a DAOS Cluster With This Example
+## Deploy a DAOS cluster with this example
 
 The following sections describe how to deploy a DAOS cluster with this example Terraform configuration.
 
@@ -36,7 +38,7 @@ The `terraform.tfvars` file will contain the variable values for the configurati
 
 To ensure a successful deployment of a DAOS cluster there are two `terraform.tfvars.*.example` files that you can choose from.
 
-You will need to decide which of these files to copy to `terraform.tfvars`.
+You will need to decide which of these files you will copy to create your `terraform.tfvars` file.
 
 #### The terraform.tfvars.tco.example file
 
@@ -45,7 +47,7 @@ The `terraform.tfvars.tco.example` contains variables for a DAOS cluster deploym
 - 4 DAOS Server instances
   Each server instance has sixteen 375GB NVMe SSDs
 
-To use the `terraform.tfvars.tco.example` file
+To use the `terraform.tfvars.tco.example` file run
 
 ```bash
 cp terraform.tfvars.tco.example terraform.tfvars
@@ -102,9 +104,7 @@ After your DAOS cluster has been deployed you can log into the first DAOS client
 Verify that the daos-client and daos-server instances are running
 
 ```bash
-gcloud compute instances list \
-  --filter="name ~ daos" \
-  --format="value(name,INTERNAL_IP)"
+gcloud compute instances list --filter="name ~ daos" --format="value(name,INTERNAL_IP)"
 ```
 
 Log into the first client instance
@@ -112,7 +112,6 @@ Log into the first client instance
 ```bash
 gcloud compute ssh daos-client-0001
 ```
-
 #### Verify that all daos-server instances have joined
 
 ```bash
@@ -187,24 +186,6 @@ You can now store files in the DAOS container mounted on `/tmp/daos_test1`.
 
 For more information about DFuse see the [DAOS FUSE section of the User Guide](https://docs.daos.io/v2.0/user/filesystem/?h=dfuse#dfuse-daos-fuse).
 
-### Use the Storage
-
-The `cont1` container is now mounted on `/home/${USER}/daos/cont1`
-
-Create a 20GiB file which will be stored in the DAOS filesystem.
-
-```bash
-cd /home/${USER}/daos/cont1
-time LD_PRELOAD=/usr/lib64/libioil.so \
-  dd if=/dev/zero of=./test21G.img bs=1G count=20
-```
-
-### Unmount the container
-
-```bash
-fusermount -u /home/${USER}/daos/cont1
-```
-
 ### Remove DAOS cluster deployment
 
 To destroy the DAOS cluster run
@@ -215,9 +196,10 @@ terraform destroy
 
 This will shut down all DAOS server and client instances.
 
-# Terraform Documentation
 
-Documentation for the `terraform/examples/daos_cluster` Terraform configuration.
+
+
+# Terraform Documentation for this Example
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 Copyright 2022 Intel Corporation
