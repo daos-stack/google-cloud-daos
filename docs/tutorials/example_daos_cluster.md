@@ -16,7 +16,7 @@ Click on **Start**
 
 ## Pre-Deployment Steps
 
-Before continuing, it is assumed that you have completed the [pre-deployment steps](../../README.md#pre-deployment-steps) in your GCP project.
+Before continuing, it is assumed that you have completed the pre-deployment steps in your GCP project.
 
 If you are not sure if you have completed the pre-deployment steps run
 
@@ -252,7 +252,7 @@ Click **Next** to continue
 Create a mount point and mount the `cont1` container
 
 ```bash
-MOUNT_DIR="/home/${USER}/daos/cont1"
+MOUNT_DIR="${HOME}/daos/cont1"
 mkdir -p "${MOUNT_DIR}"
 dfuse --singlethread \
   --pool=pool1 \
@@ -270,12 +270,12 @@ Click **Next** to continue
 
 ## Use DAOS Storage
 
-The `cont1` container is now mounted on `/home/${USER}/daos/cont1`
+The `cont1` container is now mounted on `${HOME}/daos/cont1`
 
 Create a 20GiB file which will be stored in the DAOS filesystem.
 
 ```bash
-pushd /home/${USER}/daos/cont1
+pushd ${HOME}/daos/cont1
 time LD_PRELOAD=/usr/lib64/libioil.so \
 dd if=/dev/zero of=./test20GiB.img iflag=fullblock bs=1G count=20
 ```
@@ -288,7 +288,7 @@ Unmount the container before logging out of the daos-client-0001 instance.
 
 ```bash
 popd
-fusermount -u /home/${USER}/daos/cont1
+fusermount -u ${HOME}/daos/cont1
 logout
 ```
 
@@ -310,13 +310,15 @@ Click **Next** to continue
 
 You have completed a DAOS cluster deployment on GCP!
 
-In this tutorial you used the Terraform example configuration in `terraform/examples/daos_cluster` to deploy a DAOS cluster.
+The following steps were performed in this tutorial:
 
-You then performed the following administration tasks:
-
-1. Created a pool
+1. Used the Terraform example configuration in `terraform/examples/daos_cluster` to deploy a DAOS cluster.
 2. Created a container
 3. Mounted the container
+3. Stored a large file in the container
+4. Unmounted the container
+5. Used terraform to destroy all resources that were created
+
 
 What's next?
 
