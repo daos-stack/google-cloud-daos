@@ -10,7 +10,7 @@ If you have not completed the [pre-deployment steps](../../../README.md#pre-depl
 
 Click the button below to run this example in a Cloudshell tutorial.  The tutorial will walk through each of the steps described in this README.md file.
 
-[![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-114&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
+[![DAOS on GCP Setup](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/daos-stack/google-cloud-daos&cloudshell_git_branch=main&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
 
 ## Terraform Files
 

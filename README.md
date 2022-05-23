@@ -72,7 +72,7 @@ The following pre-deployment steps are required
 
 Click the button below to open a Cloud Shell tutorial which will guide you through the pre-deployment steps listed above. If you lose your Cloud Shell session you can always come back to this README and click the button again.
 
-[![DAOS on GCP Pre-Deployment](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-114&shellonly=true&tutorial=docs/tutorials/pre-deployment.md)
+[![DAOS on GCP Pre-Deployment](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/daos-stack/google-cloud-daos&cloudshell_git_branch=main&shellonly=true&tutorial=docs/tutorials/pre-deployment.md)
 
 ### Deploy a DAOS Cluster with Terraform
 
@@ -84,7 +84,7 @@ The [terraform/examples/daos_cluster](terraform/examples/daos_cluster/README.md)
 
 Click the button below to open a Cloud Shell tutorial that will walk you through using the [terraform/examples/daos_cluster](terraform/examples/daos_cluster/README.md) example to deploy a DAOS cluster.
 
-[![DAOS Cluster Example](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-114&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
+[![DAOS Cluster Example](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/daos-stack/google-cloud-daos&cloudshell_git_branch=main&shellonly=true&tutorial=docs/tutorials/example_daos_cluster.md)
 
 ### Deploy a DAOS Cluster with the Google HPC Toolkit
 
