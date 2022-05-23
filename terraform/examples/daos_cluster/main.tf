@@ -1,3 +1,19 @@
+/**
+ * Copyright 2022 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 provider "google" {
   region = var.region
 }
@@ -7,9 +23,9 @@ module "daos_server" {
   project_id          = var.project_id
   region              = var.region
   zone                = var.zone
-  network             = var.network
+  network_name        = var.network_name
   subnetwork_project  = var.subnetwork_project
-  subnetwork          = var.subnetwork
+  subnetwork_name     = var.subnetwork_name
   number_of_instances = var.server_number_of_instances
   labels              = var.server_labels
   preemptible         = var.server_preemptible
@@ -22,28 +38,37 @@ module "daos_server" {
   os_disk_type        = var.server_os_disk_type
   os_disk_size_gb     = var.server_os_disk_size_gb
   daos_disk_count     = var.server_daos_disk_count
+  daos_disk_type      = var.server_daos_disk_type
   daos_crt_timeout    = var.server_daos_crt_timeout
   daos_scm_size       = var.server_daos_scm_size
+  service_account     = var.server_service_account
+  pools               = var.server_pools
+  gvnic               = var.server_gvnic
+  allow_insecure      = var.allow_insecure
 }
 
 module "daos_client" {
-  source              = "../../modules/daos_client"
-  project_id          = var.project_id
-  region              = var.region
-  zone                = var.zone
-  network             = var.network
-  subnetwork_project  = var.subnetwork_project
-  subnetwork          = var.subnetwork
-  number_of_instances = var.client_number_of_instances
-  labels              = var.client_labels
-  preemptible         = var.client_preemptible
-  mig_name            = var.client_mig_name
-  template_name       = var.client_template_name
-  instance_base_name  = var.client_instance_base_name
-  machine_type        = var.client_machine_type
-  os_family           = var.client_os_family
-  os_project          = var.client_os_project
-  os_disk_type        = var.client_os_disk_type
-  os_disk_size_gb     = var.client_os_disk_size_gb
-  access_points       = module.daos_server.access_points
+  source                = "../../modules/daos_client"
+  project_id            = var.project_id
+  region                = var.region
+  zone                  = var.zone
+  network_name          = var.network_name
+  subnetwork_project    = var.subnetwork_project
+  subnetwork_name       = var.subnetwork_name
+  number_of_instances   = var.client_number_of_instances
+  labels                = var.client_labels
+  preemptible           = var.client_preemptible
+  mig_name              = var.client_mig_name
+  template_name         = var.client_template_name
+  instance_base_name    = var.client_instance_base_name
+  machine_type          = var.client_machine_type
+  os_family             = var.client_os_family
+  os_project            = var.client_os_project
+  os_disk_type          = var.client_os_disk_type
+  os_disk_size_gb       = var.client_os_disk_size_gb
+  service_account       = var.client_service_account
+  gvnic                 = var.client_gvnic
+  daos_agent_yml        = module.daos_server.daos_agent_yml
+  daos_control_yml      = module.daos_server.daos_control_yml
+  certs_install_content = module.daos_server.certs_install_content
 }

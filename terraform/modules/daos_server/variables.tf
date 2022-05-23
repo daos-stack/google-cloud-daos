@@ -16,17 +16,14 @@
 variable "project_id" {
   description = "The GCP project to use "
   type        = string
-  default     = null
 }
 variable "region" {
   description = "The GCP region to create and test resources in"
   type        = string
-  default     = null
 }
 variable "zone" {
   description = "The GCP zone to create and test resources in"
   type        = string
-  default     = null
 }
 
 variable "labels" {
@@ -37,12 +34,12 @@ variable "labels" {
 
 variable "os_family" {
   description = "OS GCP image family"
-  default     = null
   type        = string
+  default     = "daos-server-centos-7"
 }
 
 variable "os_project" {
-  description = "OS GCP image project name"
+  description = "OS GCP image project name. Defaults to project_id if null."
   default     = null
   type        = string
 }
@@ -61,31 +58,31 @@ variable "os_disk_type" {
 
 variable "template_name" {
   description = "MIG template name"
-  default     = null
+  default     = "daos-server"
   type        = string
 }
 
 variable "mig_name" {
   description = "MIG name "
-  default     = null
+  default     = "daos-server"
   type        = string
 }
 
 variable "machine_type" {
   description = "GCP machine type. ie. e2-medium"
-  default     = null
+  default     = "n2-custom-36-215040"
   type        = string
 }
 
-variable "network" {
-  description = "GCP network to use"
-  default     = null
+variable "network_name" {
+  description = "Name of the GCP network to use"
+  default     = "default"
   type        = string
 }
 
-variable "subnetwork" {
-  description = "GCP sub-network to use"
-  default     = null
+variable "subnetwork_name" {
+  description = "Name of the GCP sub-network to use"
+  default     = "default"
   type        = string
 }
 
@@ -97,13 +94,13 @@ variable "subnetwork_project" {
 
 variable "instance_base_name" {
   description = "MIG instance base names to use"
-  default     = null
+  default     = "daos-server"
   type        = string
 }
 
 variable "number_of_instances" {
   description = "Number of daos servers to bring up"
-  default     = null
+  default     = 4
   type        = number
 }
 
@@ -117,18 +114,26 @@ variable "daos_disk_type" {
 
 variable "daos_disk_count" {
   description = "Number of local ssd's to use"
-  default     = null
+  default     = 16
   type        = number
 }
 
-variable "daos_service_account_scopes" {
-  description = "Scopes for the DAOS server service account"
-  default = [
-    "userinfo-email",
-    "compute-ro",
-    "storage-ro"
-  ]
-  type = list(string)
+variable "service_account" {
+  description = "Service account to attach to the instance. See https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#service_account."
+  type = object({
+    email  = string,
+    scopes = set(string)
+  })
+  default = {
+    email = null
+    scopes = ["https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/trace.append",
+    "https://www.googleapis.com/auth/cloud-platform"]
+  }
 }
 
 variable "preemptible" {
@@ -139,12 +144,47 @@ variable "preemptible" {
 
 variable "daos_scm_size" {
   description = "scm_size"
-  default     = null
+  default     = 200
   type        = number
 }
 
 variable "daos_crt_timeout" {
   description = "crt_timeout"
-  default     = null
+  default     = 300
   type        = number
+}
+
+variable "gvnic" {
+  description = "Use Google Virtual NIC (gVNIC) network interface"
+  default     = false
+  type        = bool
+}
+
+variable "allow_insecure" {
+  description = "Sets the allow_insecure setting in the transport_config section of the daos_*.yml files"
+  default     = false
+  type        = bool
+}
+
+variable "pools" {
+  description = "List of pools and containers to be created"
+  default     = []
+  type = list(object({
+    name       = string
+    size       = string
+    tier_ratio = number
+    user       = string
+    group      = string
+    acls       = list(string)
+    properties = map(any)
+    containers = list(object({
+      name            = string
+      type            = string
+      user            = string
+      group           = string
+      acls            = list(string)
+      properties      = map(any)
+      user_attributes = map(any)
+    }))
+  }))
 }

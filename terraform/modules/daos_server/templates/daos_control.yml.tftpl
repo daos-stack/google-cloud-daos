@@ -2,6 +2,12 @@
 # DAOS manager (dmg) configuration file
 #
 
-hostlist: ${jsonencode(access_points)}
+hostlist: ${jsonencode(servers)}
+
 transport_config:
-  allow_insecure: true
+  allow_insecure: ${allow_insecure}
+  %{ if !allow_insecure }
+  ca_cert: /etc/daos/certs/daosCA.crt
+  cert: /etc/daos/certs/admin.crt
+  key: /etc/daos/certs/admin.key
+  %{ endif }

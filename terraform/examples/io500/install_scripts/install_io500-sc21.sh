@@ -1,4 +1,18 @@
 #!/bin/bash
+# Copyright 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #
 # Install IO500 SC21
 #
@@ -94,14 +108,16 @@ cp prepare.sh "prepare.sh.$(date "+%Y-%m-%d_%H%M%S")"
 git checkout prepare.sh
 cat > io500_prepare.patch <<'EOF'
 diff --git a/prepare.sh b/prepare.sh
-index f793dfe..d4cb7e8 100755
+index f793dfe..03e41bb 100755
 --- a/prepare.sh
 +++ b/prepare.sh
-@@ -8,7 +8,7 @@ echo It will output OK at the end if builds succeed
+@@ -7,8 +7,8 @@ echo It will also attempt to build the benchmarks
+ echo It will output OK at the end if builds succeed
  echo
 
- IOR_HASH=14deedfec48ce295dff683d15c1b194652bd6d08
+-IOR_HASH=14deedfec48ce295dff683d15c1b194652bd6d08
 -PFIND_HASH=62c3a7e31
++IOR_HASH=d3574d536643475269d37211e283b49ebd6732d7
 +PFIND_HASH=mfu_integration
 
  INSTALL_DIR=$PWD

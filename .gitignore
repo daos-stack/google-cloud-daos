@@ -20,9 +20,13 @@ terraform.tfvars
 
 # Ignore terraform/examples/io500 active configuration symlink
 terraform/examples/io500/config/active_config.sh
+terraform/examples/io500/login
 
 # Ignore other files
 id_rsa*
 hosts*
 *.flag
 keys.txt
+
+# addlicense binary for pre-commit
+tools/autodoc/addlicense

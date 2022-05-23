@@ -15,45 +15,113 @@
  */
 
 locals {
-  max_aps = var.number_of_instances > 5 ? 5 : (var.number_of_instances % 2) == 1 ? var.number_of_instances : var.number_of_instances - 1
-  access_points = formatlist("%s-%04s", var.instance_base_name, range(1, local.max_aps+1))
-  scm_size = var.daos_scm_size
+  os_project         = var.os_project != null ? var.os_project : var.project_id
+  subnetwork_project = var.subnetwork_project != null ? var.subnetwork_project : var.project_id
+  servers            = var.number_of_instances == 1 ? local.first_server : format("%s-[%04s-%04s]", var.instance_base_name, 1, var.number_of_instances)
+  first_server       = format("%s-%04s", var.instance_base_name, 1)
+  max_aps            = var.number_of_instances > 5 ? 5 : (var.number_of_instances % 2) == 1 ? var.number_of_instances : var.number_of_instances - 1
+  access_points      = formatlist("%s-%04s", var.instance_base_name, range(1, local.max_aps + 1))
+  scm_size           = var.daos_scm_size
   # To get nr_hugepages value: (targets * 1Gib) / hugepagesize
-  huge_pages = (var.daos_disk_count * 1048576) / 2048
-  targets = var.daos_disk_count
-  crt_timeout = var.daos_crt_timeout
+  huge_pages        = (var.daos_disk_count * 1048576) / 2048
+  targets           = var.daos_disk_count
+  crt_timeout       = var.daos_crt_timeout
+  daos_ca_secret_id = basename(google_secret_manager_secret.daos_ca.id)
+  allow_insecure    = var.allow_insecure
+  pools             = var.pools
+
+  # Google Virtual NIC (gVNIC) network interface
+  nic_type                    = var.gvnic ? "GVNIC" : "VIRTIO_NET"
+  total_egress_bandwidth_tier = var.gvnic ? "TIER_1" : "DEFAULT"
+
   daos_server_yaml_content = templatefile(
     "${path.module}/templates/daos_server.yml.tftpl",
     {
-      access_points = local.access_points
-      nr_hugepages = local.huge_pages
-      targets    = local.targets
-      scm_size   = local.scm_size
-      crt_timeout = local.crt_timeout
+      access_points  = local.access_points
+      nr_hugepages   = local.huge_pages
+      targets        = local.targets
+      scm_size       = local.scm_size
+      crt_timeout    = local.crt_timeout
+      allow_insecure = local.allow_insecure
     }
   )
+
   daos_control_yaml_content = templatefile(
     "${path.module}/templates/daos_control.yml.tftpl",
     {
-      access_points = local.access_points
+      servers        = [local.servers]
+      allow_insecure = local.allow_insecure
     }
   )
+
   daos_agent_yaml_content = templatefile(
     "${path.module}/templates/daos_agent.yml.tftpl",
     {
-      access_points = local.access_points
+      access_points  = local.access_points
+      allow_insecure = local.allow_insecure
     }
   )
-  server_startup_script = file(
-    "${path.module}/templates/daos_startup_script.tftpl")
+
+  certs_gen_content = templatefile(
+    "${path.module}/templates/certs_gen.inc.sh.tftpl",
+    {
+      allow_insecure    = local.allow_insecure
+      daos_ca_secret_id = local.daos_ca_secret_id
+    }
+  )
+
+  certs_install_content = templatefile(
+    "${path.module}/templates/certs_install.inc.sh.tftpl",
+    {
+      allow_insecure    = local.allow_insecure
+      daos_ca_secret_id = local.daos_ca_secret_id
+    }
+  )
+
+  client_install_script_content = file(
+  "${path.module}/scripts/client_install.sh")
+
+  client_config_script_content = templatefile(
+    "${path.module}/templates/client_config.sh.tftpl",
+    {
+      certs_install_content = local.certs_install_content
+    }
+  )
+
+  storage_format_content = templatefile(
+    "${path.module}/templates/storage_format.inc.sh.tftpl",
+    {
+      servers = local.servers
+    }
+  )
+
+  pool_cont_create_content = templatefile(
+    "${path.module}/templates/pool_cont_create.inc.sh.tftpl",
+    {
+      servers = local.servers
+      pools   = local.pools
+    }
+  )
+
+  startup_script = templatefile(
+    "${path.module}/templates/startup_script.tftpl",
+    {
+      first_server             = local.first_server
+      certs_gen_content        = local.certs_gen_content
+      certs_install_content    = local.certs_install_content
+      storage_format_content   = local.storage_format_content
+      pool_cont_create_content = local.pool_cont_create_content
+    }
+  )
 }
 
 data "google_compute_image" "os_image" {
   family  = var.os_family
-  project = var.os_project
+  project = local.os_project
 }
 
 resource "google_compute_instance_template" "daos_sig_template" {
+  provider       = google-beta
   name           = var.template_name
   machine_type   = var.machine_type
   can_ip_forward = false
@@ -82,13 +150,22 @@ resource "google_compute_instance_template" "daos_sig_template" {
   }
 
   network_interface {
-    network            = var.network
-    subnetwork         = var.subnetwork
-    subnetwork_project = var.subnetwork_project
+    network            = var.network_name
+    subnetwork         = var.subnetwork_name
+    subnetwork_project = local.subnetwork_project
+    nic_type           = local.nic_type
   }
 
-  service_account {
-    scopes = var.daos_service_account_scopes
+  network_performance_config {
+    total_egress_bandwidth_tier = local.total_egress_bandwidth_tier
+  }
+
+  dynamic "service_account" {
+    for_each = var.service_account == null ? [] : [var.service_account]
+    content {
+      email  = lookup(service_account.value, "email", null)
+      scopes = lookup(service_account.value, "scopes", null)
+    }
   }
 
   scheduling {
@@ -100,6 +177,9 @@ resource "google_compute_instance_template" "daos_sig_template" {
 resource "google_compute_instance_group_manager" "daos_sig" {
   description = "Stateful Instance group for DAOS servers"
   name        = var.mig_name
+  depends_on  = [
+    google_secret_manager_secret.daos_ca
+  ]
 
   version {
     instance_template = google_compute_instance_template.daos_sig_template.self_link
@@ -126,11 +206,55 @@ resource "google_compute_per_instance_config" "named_instances" {
       daos_server_yaml_content  = local.daos_server_yaml_content
       daos_control_yaml_content = local.daos_control_yaml_content
       daos_agent_yaml_content   = local.daos_agent_yaml_content
-      startup-script            = local.server_startup_script
+      startup-script            = local.startup_script
       # Adding a reference to the instance template used causes the stateful instance to update
       # if the instance template changes. Otherwise there is no explicit dependency and template
       # changes may not occur on the stateful instance
       instance_template = google_compute_instance_template.daos_sig_template.self_link
     }
   }
+}
+
+resource "google_secret_manager_secret" "daos_ca" {
+  secret_id = format("%s_ca", var.instance_base_name)
+  project   = var.project_id
+
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+  }
+}
+
+data "google_compute_default_service_account" "default" {
+  project = var.project_id
+}
+
+data "google_iam_policy" "daos_ca_secret_version_manager" {
+  binding {
+    role = "roles/secretmanager.secretVersionManager"
+    members = [
+      format("serviceAccount:%s", var.service_account.email == null ? data.google_compute_default_service_account.default.email : var.service_account.email)
+    ]
+  }
+  binding {
+    role = "roles/secretmanager.viewer"
+    members = [
+      format("serviceAccount:%s", var.service_account.email == null ? data.google_compute_default_service_account.default.email : var.service_account.email)
+    ]
+  }
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      format("serviceAccount:%s", var.service_account.email == null ? data.google_compute_default_service_account.default.email : var.service_account.email)
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "daos_ca_secret_policy" {
+  project     = var.project_id
+  secret_id   = google_secret_manager_secret.daos_ca.secret_id
+  policy_data = data.google_iam_policy.daos_ca_secret_version_manager.policy_data
 }

@@ -1,4 +1,18 @@
 #!/bin/bash
+# Copyright 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 
 set -e
 trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
@@ -55,7 +69,7 @@ source "$(readlink ${ACTIVE_CONFIG})"
 
 log_section "Destroying DAOS Servers & Clients"
 
-pushd "${SCRIPT_DIR}/../full_cluster_setup"
+pushd "${SCRIPT_DIR}/../daos_cluster"
 terraform destroy -auto-approve
 popd
 
@@ -67,4 +81,8 @@ fi
 # Clean up the ./tmp directory
 if [[ -d "${IO500_TMP}" ]]; then
   rm -r "${IO500_TMP}"
+fi
+
+if [[ -f "${SCRIPT_DIR}/login" ]]; then
+  rm -f "${SCRIPT_DIR}/login"
 fi

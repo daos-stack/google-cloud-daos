@@ -1,4 +1,18 @@
 #!/bin/bash
+# Copyright 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #
 # Install DAOS Server or Client packages
 #
@@ -179,40 +193,41 @@ add_repo() {
       ;;
   esac
 
-    echo "Adding DAOS version ${DAOS_VERSION} repo"
-    cat > /etc/yum.repos.d/daos.repo <<EOF
-[daos-packages]
-name=DAOS v${DAOS_VERSION} Packages
-baseurl=${DAOS_REPO_BASE_URL}/v${DAOS_VERSION}/${DAOS_OS_VERSION}/packages/x86_64/
-enabled=1
-gpgcheck=1
-protect=1
-gpgkey=https://packages.daos.io/RPM-GPG-KEY
-EOF
+  echo "Adding DAOS v${DAOS_VERSION} packages repo"
+  curl -s -k --output /etc/yum.repos.d/daos_packages.repo "https://packages.daos.io/v${DAOS_VERSION}/${DAOS_OS_VERSION}/packages/x86_64/daos_packages.repo"
 }
 
 install_epel() {
   # DAOS has dependencies on packages in epel
-  if rpm -qa | grep -q "epel-release"; then
+  if ! rpm -qa | grep -q "epel-release"; then
     yum install -y epel-release
   fi
 }
 
 install_daos() {
+  if [ ! -f $(which wget) ];then
+    yum -y install wget
+  fi
+
   if [[ "${DAOS_INSTALL_TYPE,,}" =~ ^(all|client)$ ]]; then
     echo "Install daos-client and daos-devel packages"
     yum install -y daos-client daos-devel
+    # Disable daos_agent service.
+    # It will be enabled by a startup script after the service has been configured.
+    systemctl disable daos_agent
   fi
 
   if [[ "${DAOS_INSTALL_TYPE,,}" =~ ^(all|server)$ ]]; then
     echo "Install daos-server packages"
     yum install -y daos-server
+    # Disable daos_server service.
+    # It will be enabled by a startup script after the service has been configured.
+    systemctl disable daos_server
   fi
 
   if echo "${DAOS_VERSION}" | grep -q -e '^1\..*'; then
     # Upgrade SPDK to work around the GCP NVMe bug with number of qpairs
     # in DAOS v1.2
-    yum install -y wget
     TMP_DIR="$(mktemp -d)"
     pushd .
     cd "${TMP_DIR}"
@@ -229,7 +244,7 @@ downgrade_libfabric() {
     wget https://packages.daos.io/v1.2/CentOS7/packages/x86_64/libfabric-1.12.0-1.el7.x86_64.rpm
     rpm -i --force ./libfabric-1.12.0-1.el7.x86_64.rpm
     rpm --erase --nodeps  libfabric-1.14.0
-    echo "exclude=libfabric" >> /etc/yum.repos.d/daos.repo
+    echo "exclude=libfabric" >> /etc/yum.repos.d/daos_packages.repo
     rm -f ./libfabric-1.12.0-1.el7.x86_64.rpm
   fi
 }

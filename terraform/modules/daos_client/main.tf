@@ -15,28 +15,28 @@
  */
 
 locals {
-  daos_agent_yaml_content = templatefile(
-    "${path.module}/templates/daos_agent.yml.tftpl",
+  os_project         = var.os_project != null ? var.os_project : var.project_id
+  subnetwork_project = var.subnetwork_project != null ? var.subnetwork_project : var.project_id
+  # Google Virtual NIC (gVNIC) network interface
+  nic_type                    = var.gvnic ? "GVNIC" : "VIRTIO_NET"
+  total_egress_bandwidth_tier = var.gvnic ? "TIER_1" : "DEFAULT"
+  certs_install_content       = var.certs_install_content
+
+  startup_script = templatefile(
+    "${path.module}/templates/daos_startup_script.tftpl",
     {
-      access_points = var.access_points
+      certs_install_content = local.certs_install_content
     }
   )
- daos_control_yaml_content = templatefile(
-    "${path.module}/templates/daos_control.yml.tftpl",
-    {
-      access_points = var.access_points
-    }
-  )
-  client_startup_script = file(
-    "${path.module}/templates/daos_startup_script.tftpl")
 }
 
 data "google_compute_image" "os_image" {
   family  = var.os_family
-  project = var.os_project
+  project = local.os_project
 }
 
 resource "google_compute_instance_template" "daos_sig_template" {
+  provider       = google-beta
   name           = var.template_name
   machine_type   = var.machine_type
   can_ip_forward = false
@@ -44,6 +44,7 @@ resource "google_compute_instance_template" "daos_sig_template" {
   project        = var.project_id
   region         = var.region
   labels         = var.labels
+  count          = var.number_of_instances > 0 ? 1 : 0
 
   disk {
     source_image = data.google_compute_image.os_image.self_link
@@ -54,13 +55,22 @@ resource "google_compute_instance_template" "daos_sig_template" {
   }
 
   network_interface {
-    network            = var.network
-    subnetwork         = var.subnetwork
-    subnetwork_project = var.subnetwork_project
+    network            = var.network_name
+    subnetwork         = var.subnetwork_name
+    subnetwork_project = local.subnetwork_project
+    nic_type           = local.nic_type
   }
 
-  service_account {
-    scopes = var.daos_service_account_scopes
+  network_performance_config {
+    total_egress_bandwidth_tier = local.total_egress_bandwidth_tier
+  }
+
+  dynamic "service_account" {
+    for_each = var.service_account == null ? [] : [var.service_account]
+    content {
+      email  = lookup(service_account.value, "email", null)
+      scopes = lookup(service_account.value, "scopes", null)
+    }
   }
 
   scheduling {
@@ -72,9 +82,9 @@ resource "google_compute_instance_template" "daos_sig_template" {
 resource "google_compute_instance_group_manager" "daos_sig" {
   description = "Stateful Instance group for DAOS clients"
   name        = var.mig_name
-
+  count       = var.number_of_instances > 0 ? 1 : 0
   version {
-    instance_template = google_compute_instance_template.daos_sig_template.self_link
+    instance_template = google_compute_instance_template.daos_sig_template[0].self_link
   }
 
   base_instance_name = var.instance_base_name
@@ -86,20 +96,20 @@ resource "google_compute_instance_group_manager" "daos_sig" {
 resource "google_compute_per_instance_config" "named_instances" {
   zone                   = var.zone
   project                = var.project_id
-  instance_group_manager = google_compute_instance_group_manager.daos_sig.name
+  instance_group_manager = google_compute_instance_group_manager.daos_sig[0].name
   count                  = var.number_of_instances
   name                   = format("%s-%04d", var.instance_base_name, sum([count.index, 1]))
   preserved_state {
     metadata = {
       inst_type                 = "daos-client"
       enable-oslogin            = "true"
-      daos_control_yaml_content = local.daos_control_yaml_content
-      daos_agent_yaml_content   = local.daos_agent_yaml_content
-      startup-script            = local.client_startup_script
+      daos_control_yaml_content = var.daos_control_yml
+      daos_agent_yaml_content   = var.daos_agent_yml
+      startup-script            = local.startup_script
       # Adding a reference to the instance template used causes the stateful instance to update
       # if the instance template changes. Otherwise there is no explicit dependency and template
       # changes may not occur on the stateful instance
-      instance_template = google_compute_instance_template.daos_sig_template.self_link
+      instance_template = google_compute_instance_template.daos_sig_template[0].self_link
     }
   }
 }

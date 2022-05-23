@@ -1,4 +1,18 @@
 #!/bin/bash
+# Copyright 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #
 # Cleans DAOS storage and runs an IO500 benchmark
 #
@@ -91,20 +105,20 @@ cleanup(){
 
 storage_scan() {
   log "Run DAOS storage scan"
-  dmg -i -l ${SERVER_LIST} storage scan --verbose
+  dmg -l ${SERVER_LIST} storage scan --verbose
 }
 
 format_storage() {
 
   log_section "Format DAOS storage"
-  dmg -i -l ${SERVER_LIST} storage format --reformat
+  dmg -l ${SERVER_LIST} storage format --reformat
 
   printf "%s" "Waiting for DAOS storage format to finish"
   while true
   do
-    if [[ $(dmg -i -j system query -v | grep joined | wc -l) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]]; then
+    if [[ $(dmg -j system query -v | grep joined | wc -l) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]]; then
       printf "\n%s\n" "DAOS storage format finished"
-      dmg -i system query -v
+      dmg system query -v
       break
     fi
     printf "%s" "."
@@ -119,10 +133,10 @@ create_pool() {
   log_section "Create pool: label=${DAOS_POOL_LABEL} size=${DAOS_POOL_SIZE}"
 
   # TODO: Don't hardcode tier-ratio to 3 (-t 3)
-  dmg -i pool create -z ${DAOS_POOL_SIZE} -t 3 -u ${USER} --label=${DAOS_POOL_LABEL}
+  dmg pool create -z ${DAOS_POOL_SIZE} -t 3 -u ${USER} --label=${DAOS_POOL_LABEL}
 
   echo "Set pool property: reclaim=disabled"
-  dmg -i pool set-prop ${DAOS_POOL_LABEL} --name=reclaim --value=disabled
+  dmg pool set-prop ${DAOS_POOL_LABEL} --name=reclaim --value=disabled
 
   echo "Pool created successfully"
   dmg pool query "${DAOS_POOL_LABEL}"
