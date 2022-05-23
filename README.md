@@ -103,20 +103,24 @@ If you are just getting started with deploying DAOS on GCP, it is highly recomme
 
 ## Support
 
-DAOS is being distributed under the BSD-2-Clause-Patent open-source license. With that, Intel provides several ways for the users to get technical support:
+Content in the [google-cloud-daos](https://github.com/daos-stack/google-cloud-daos) repository is licensed under the [Apache License Version 2.0](LICENSE) open-source license.
 
-1. Community support is available to everybody through Jira access and via the DAOS channel for the Google Cloud users on Slack.
+[DAOS](https://github.com/daos-stack/daos) is being distributed under the BSD-2-Clause-Patent open-source license.
+
+Intel Corporation provides several ways for the users to get technical support:
+
+1. Community support is available to everybody through Jira and via the DAOS channel for the Google Cloud users on Slack.
 
    To access Jira, please follow these steps:
 
    - Navigate to https://daosio.atlassian.net/jira/software/c/projects/DAOS/issues/
 
-   - You will have to request access to DAOS Jira to be able to create and update tickets. An Atlassian account is required for this type of access. Read-only access is available without an account.
-   - If you do not have an Atlassian account, please create one. Follow these steps https://support.atlassian.com/atlassian-account/docs/create-an-atlassian-account/
+   - You will need to request access to DAOS Jira to be able to create and update tickets. An Atlassian account is required for this type of access. Read-only access is available without an account.
+   - If you do not have an Atlassian account, follow the steps at https://support.atlassian.com/atlassian-account/docs/create-an-atlassian-account/ to create one.
 
-   To access DAOS for the Google Cloud Slack channel, please follow this link https://daos-stack.slack.com/archives/C03GLTLHA59
+   To access the Slack channel for DAOS on Google Cloud, please follow this link https://daos-stack.slack.com/archives/C03GLTLHA59
 
-   This type of support is provided on a best-effort basis, and it does not have any SLA attached.
+   > This type of support is provided on a best-effort basis, and it does not have any SLA attached.
 
 2. Commercial L3 support is available on an on-demand basis. Please get in touch with Intel Corporation to obtain more information.
 
