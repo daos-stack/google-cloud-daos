@@ -116,13 +116,12 @@ gcloud compute ssh daos-client-0001
 #### Verify that all daos-server instances have joined
 
 ```bash
-sudo dmg system query
+sudo dmg system query -v
 ```
 
 The *State* column should display "Joined" for all servers.
 
 ```
-$ sudo dmg system query -v
 Rank UUID                                 Control Address   Fault Domain      State  Reason
 ---- ----                                 ---------------   ------------      -----  ------
 0    0796c576-5651-4e37-aa15-09f333d2d2b8 10.128.0.35:10001 /daos-server-0001 Joined
@@ -153,7 +152,7 @@ daos-server-0004 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
 Create one pool that uses the entire 6.4TB.
 
 ```bash
-sudo dmg pool create -z 6.4TB -t 3 -u ${USER} --label=daos_pool
+sudo dmg pool create -z 6.4TB -t 3 --label=pool1
 ```
 
 For more information about pools see
@@ -167,7 +166,7 @@ For more information about pools see
 Create a container in the pool
 
 ```bash
-daos container create --type=POSIX --properties=rf:0 --label=daos_cont daos_pool
+daos container create --type=POSIX --properties=rf:0 --label=cont1 pool1
 ```
 
 For more information about containers see https://docs.daos.io/latest/overview/storage/#daos-container
@@ -177,24 +176,24 @@ For more information about containers see https://docs.daos.io/latest/overview/s
 Mount the container with `dfuse`
 
 ```bash
-MOUNT_DIR="/tmp/daos_test1"
+MOUNT_DIR="${HOME}/daos/cont1"
 mkdir -p "${MOUNT_DIR}"
-dfuse --singlethread --pool=daos_pool --container=daos_cont --mountpoint="${MOUNT_DIR}"
+dfuse --singlethread --pool=pool1 --container=cont1 --mountpoint="${MOUNT_DIR}"
 df -h -t fuse.daos
 ```
 
-You can now store files in the DAOS container mounted on `/tmp/daos_test1`.
+You can now store files in the DAOS container mounted on `${HOME}/daos/cont1`.
 
 For more information about DFuse see the [DAOS FUSE section of the User Guide](https://docs.daos.io/v2.0/user/filesystem/?h=dfuse#dfuse-daos-fuse).
 
 ### Use the Storage
 
-The `cont1` container is now mounted on `/home/${USER}/daos/cont1`
+The `cont1` container is now mounted on `${HOME}/daos/cont1`
 
 Create a 20GiB file which will be stored in the DAOS filesystem.
 
 ```bash
-cd /home/${USER}/daos/cont1
+cd ${HOME}/daos/cont1
 time LD_PRELOAD=/usr/lib64/libioil.so \
   dd if=/dev/zero of=./test21G.img bs=1G count=20
 ```
@@ -202,7 +201,7 @@ time LD_PRELOAD=/usr/lib64/libioil.so \
 ### Unmount the container
 
 ```bash
-fusermount -u /home/${USER}/daos/cont1
+fusermount -u ${HOME}/daos/cont1
 ```
 
 ### Remove DAOS cluster deployment
