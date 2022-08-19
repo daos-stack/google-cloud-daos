@@ -49,7 +49,9 @@ DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
-IO500_STONEWALL_TIME=60  # Number of seconds to run the benchmark
+IO500_TEST_CONFIG_ID="C-2C-2S16d-NOGVNIC-1"
+IO500_STONEWALL_TIME=30  # Number of seconds to run the benchmark
+IO500_INI="io500-isc22.config-template.daos-rf0.ini"
 
 # ------------------------------------------------------------------------------
 # Modify instance base names if ID variable is set
