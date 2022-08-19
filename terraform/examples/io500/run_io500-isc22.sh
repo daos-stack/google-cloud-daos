@@ -228,7 +228,6 @@ process_results() {
   cp config.sh "${IO500_RESULTS_DIR_TIMESTAMPED}/"
   cp hosts* "${IO500_RESULTS_DIR_TIMESTAMPED}/"
 
-#  echo "${DAOSGCP_TICKET}" > "${IO500_RESULTS_DIR_TIMESTAMPED}/daosgcp_ticket.txt"
   echo "${TIMESTAMP}" > "${IO500_RESULTS_DIR_TIMESTAMPED}/io500_run_timestamp.txt"
 
   FIRST_SERVER=$(echo ${SERVER_LIST} | cut -d, -f1)
@@ -259,7 +258,7 @@ process_results() {
 
   log "Results files located in ${IO500_RESULTS_DIR_TIMESTAMPED}"
 
-  RESULTS_TAR_FILE="${DAOSGCP_TICKET}_${IO500_TEST_CONFIG_ID}_${TIMESTAMP}.tar.gz"
+  RESULTS_TAR_FILE="${IO500_TEST_CONFIG_ID}_${TIMESTAMP}.tar.gz"
 
   log "Creating '${HOME}/${RESULTS_TAR_FILE}' file with contents of ${IO500_RESULTS_DIR_TIMESTAMPED} directory"
   pushd "${IO500_RESULTS_DIR_TIMESTAMPED}"
