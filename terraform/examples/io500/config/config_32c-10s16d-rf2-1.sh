@@ -40,7 +40,7 @@ SSH_USER="daos-user"
 
 
 
-DAOS_SERVER_INSTANCE_COUNT="9"
+DAOS_SERVER_INSTANCE_COUNT="10"
 DAOS_SERVER_MACHINE_TYPE=n2-highmem-32 #n2-highmem-48  #n2-standard-80 #n2-custom-72-262144
 DAOS_SERVER_DISK_COUNT=16
 DAOS_SERVER_CRT_TIMEOUT=300
@@ -57,9 +57,9 @@ DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
-IO500_TEST_CONFIG_ID="C-32C-9S16d-NOGVNIC-rf1-1"
+IO500_TEST_CONFIG_ID="config_32c-10s16d-rf2-1"
 IO500_STONEWALL_TIME=30  # Number of seconds to run the benchmark
-IO500_INI="io500-isc22.config-template.daos-rf1.ini"
+IO500_INI="io500-isc22.config-template.daos-rf2.ini"
 
 # ------------------------------------------------------------------------------
 # Modify instance base names if ID variable is set
