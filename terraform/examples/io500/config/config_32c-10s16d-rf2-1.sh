@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ------------------------------------------------------------------------------
+# Configuration: 32 clients, 10 servers, 16 disks per server
+# IO500 Config:  io500-isc22.config-template.daos-rf2.ini
+# ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-# Configuration: 2 clients, 2 servers each with 16 disks
-# ------------------------------------------------------------------------------
 # Optional identifier to allow multiple DAOS clusters in the same GCP
 # project by using this ID in the DAOS server and client instance names.
 # Typically, this would contain the username of each user who is running
@@ -29,6 +30,7 @@ ID=""
 # Server and client instances
 PREEMPTIBLE_INSTANCES="false"
 SSH_USER="daos-user"
+DAOS_ALLOW_INSECURE="false"
 
 # Server(s)
 # Total disks per server: (16 disks * 375GB)/1000 = 6TB
@@ -41,7 +43,7 @@ SSH_USER="daos-user"
 
 
 DAOS_SERVER_INSTANCE_COUNT="10"
-DAOS_SERVER_MACHINE_TYPE=n2-highmem-32 #n2-highmem-48  #n2-standard-80 #n2-custom-72-262144
+DAOS_SERVER_MACHINE_TYPE=n2-highmem-32
 DAOS_SERVER_DISK_COUNT=16
 DAOS_SERVER_CRT_TIMEOUT=300
 DAOS_SERVER_SCM_SIZE=200
@@ -57,7 +59,7 @@ DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
-IO500_TEST_CONFIG_ID="config_32c-10s16d-rf2-1"
+IO500_TEST_CONFIG_ID="GCP-32C-10S16d-rf2-1"
 IO500_STONEWALL_TIME=30  # Number of seconds to run the benchmark
 IO500_INI="io500-isc22.config-template.daos-rf2.ini"
 
@@ -82,6 +84,7 @@ export TF_VAR_subnetwork="default"
 export TF_VAR_subnetwork_project="${TF_VAR_project_id}"
 export TF_VAR_region="us-central1"
 export TF_VAR_zone="us-central1-f"
+export TF_VAR_allow_insecure="${DAOS_ALLOW_INSECURE}"
 
 # Servers
 export TF_VAR_server_preemptible=${PREEMPTIBLE_INSTANCES}
@@ -98,6 +101,7 @@ export TF_VAR_server_machine_type="${DAOS_SERVER_MACHINE_TYPE}"
 export TF_VAR_server_os_project="${TF_VAR_project_id}"
 export TF_VAR_server_os_family="daos-server-io500-centos-7"
 export TF_VAR_server_gvnic="${DAOS_SERVER_GVNIC}"
+
 # Clients
 export TF_VAR_client_preemptible=${PREEMPTIBLE_INSTANCES}
 export TF_VAR_client_number_of_instances=${DAOS_CLIENT_INSTANCE_COUNT}
