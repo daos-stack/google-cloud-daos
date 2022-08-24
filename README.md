@@ -59,7 +59,7 @@ You may choose from the following deployment paths.
 
     The DAOS Cluster example in [terraform/examples/daos_cluster](terraform/examples/daos_cluster/README.md) is a Terraform configuration that uses the DAOS client and server modules in [terraform/modules](terraform/modules/) to deploy a DAOS cluster.
 
-    The example demonstrates how to use the [terraform/modules](terraform/modules/) in a Terraform configuration.
+    The example demonstrates how to use the [modules](terraform/modules/) in a Terraform configuration.
 
     To deploy the example, see the instructions in [Deploy the DAOS Cluster Example](docs/deploy_daos_cluster_example.md).
 
