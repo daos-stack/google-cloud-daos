@@ -25,6 +25,14 @@ git clone https://github.com/daos-stack/google-cloud-daos.git
 cd ~/google-cloud-daos
 ```
 
+### Set working directory
+
+Change into the example directory
+
+```bash
+cd terraform/examples/daos_cluster
+```
+
 ## Create a `terraform.tfvars` file
 
 Before you run `terraform` you need to create a `terraform.tfvars` file in the `terraform/examples/daos_cluster` directory.

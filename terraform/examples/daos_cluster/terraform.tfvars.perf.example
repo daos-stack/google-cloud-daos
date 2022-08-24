@@ -62,7 +62,7 @@ server_daos_scm_size       = 45
 #   }
 # ]
 
-# client_number_of_instances = 16
+client_number_of_instances = 16
 # client_labels              = {
 #  example = "only_daos_client"
 # }
