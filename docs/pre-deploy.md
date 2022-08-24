@@ -156,6 +156,8 @@ gcloud config configurations list --filter="IS_ACTIVE:True"
 
 ### Authorize the Google Cloud CLI
 
+If you are currently in Cloud Shell, you don't need to run this command.
+
 ```bash
 gcloud auth login
 ```
@@ -198,18 +200,18 @@ These quota limits are based on the machine types that are used in the examples 
     Max size 375GB
     Quota Needed for 1 server: 16disks * 375GB = 6TB
 
-So for the 4 server and 4 client examples in this repo you will need the following quotas
+So for the 4 server, 16 client examples in this repo you will need the following quotas
 
 ```
 Service             Quota                     Limit  Description
 ------------------  ------------------------- ------ ------------------------------------------------------------------
-Compute Engine API  C2 CPUs                   64     4 client instances * 16 = 64
+Compute Engine API  C2 CPUs                   256     16 client instances * 16 = 64
 Compute Engine API  N2 CPUs                   144    4 servers instances * 36 = 144
 Compute Engine API  Persistent Disk SSD (GB)  160GB  (4 client instances * 20GB) + (4 server instances * 20GB) = 160GB
 Compute Engine API  Local SSD (GB)            24TB   4 servers * (16 * 375GB disks) = 24TB
 ```
 
-If your quotas do not at least have these minimum limits you will need to [request an increase](https://cloud.google.com/compute/quotas#requesting_additional_quota).
+If your quotas do not have these minimum limits, you will need to [request an increase](https://cloud.google.com/compute/quotas#requesting_additional_quota) in order to deploy the examples in this repository.
 
 To view your current quotas you can go to https://console.cloud.google.com/iam-admin/quotas
 
@@ -224,6 +226,8 @@ gcloud compute regions describe "${REGION}"
 For more information, see [Quotas and Limits](https://cloud.google.com/compute/quotas)
 
 ## Enable the default Compute Engine service account
+
+The examples in this repository assume that you have enabled the default service account.
 
 Enable the default Compute Engine service account.
 
@@ -255,7 +259,9 @@ gcloud services enable storage-api.googleapis.com
 
 ## Create a Cloud NAT
 
-When deploying DAOS server and client instances external IPs are not added to the instances. The instances need to use services that are not accessible on the internal VPC default network as well as the https://packages.daos.io site for installs from DAOS repos.
+When deploying DAOS server and client instances external IPs are not added to the instances.
+
+The instances need to use services that are not accessible on the internal VPC default network as well as the YUM repos at https://packages.daos.io.
 
 Therefore, it is necessary to create a [Cloud NAT using Cloud Router](https://cloud.google.com/architecture/building-internet-connectivity-for-private-vms#create_a_nat_configuration_using_cloud_router).
 
@@ -328,10 +334,10 @@ pushd images
 popd
 ```
 
-## Next Steps
+## Congratulations!
 
-You have completed the **Pre-Deployment** steps.
+You have completed the **Pre-Deployment** steps!
 
 You are now ready to deploy DAOS on GCP.
 
-For instructions, see [Deployment](deployment.md)
+Refer to the Deployment section of the main [README.md](../README.md) for information on how to deploy DAOS on GCP.
