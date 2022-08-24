@@ -15,22 +15,42 @@ Deployment tasks described in these instructions:
 
 ## Clone the repository
 
-If you are viewing this content in Cloud Shell as a result of clicking on the "Open in Google Cloud Shell" button, you can skip this step since the repo will already be cloned for you.
+---
 
-Clone the [daos-stack/google-cloud-daos](https://github.com/daos-stack/google-cloud-daos) repository.
+**Note about the "Open in Google Cloud Shell" button**
 
-```bash
-cd ~/
-git clone https://github.com/daos-stack/google-cloud-daos.git
-cd ~/google-cloud-daos
+If you are viewing this content in Cloud Shell as a result of clicking on the "Open in Google Cloud Shell" button, you could skip this "Clone the repository" step since the repo will already be cloned for you when Cloud Shell opens.
+
+However, it is not recommended to skip the "Clone the repository" step.
+
+Each time you click on the "Open in Google Cloud Shell" button a new clone of the repo will be placed in the `~/cloudshell_open` directory. So, if you click the "Open in Google Cloud Shell" button three times you will end up with
+
+```
+~/cloudshell_open/
+├── google-cloud-daos/
+├── google-cloud-daos-0/
+└── google-cloud-daos-1/
 ```
 
-### Set working directory
+The DAOS cluster example in `terraform/examples/daos_cluster` does not store Terraform state in a central location such as a GCS bucket. The state will exist in the directory that you were in at the time you ran `terraform init` and `terraform apply`.
 
-Change into the example directory
+If you lose your Cloud Shell session before you are able to run `terraform destroy`, and you attempt to go back to where you were by clicking the "Open in Google Cloud Shell" button again, you will end up in a new clone of the repo that doesn't have the state for your deployed resources. Running `terraform destroy` in that new Cloud Shell session will fail. In order to run `terraform destroy` for the currently deployed resources, you will have to change your working directory to the `terraform/examples/daos_cluster` directory in the clone of the google-cloud-daos repo from your last Cloud Shell session.
+
+This can get very confusing and when it happens it's not clear how to tear down your currently running DAOS cluster.
+
+For this reason, it is recommended that if you are viewing this content as a result of clicking the "Open in Google Cloud Shell" button, it's best to complete this "Clone the repository" step and always run `terraform` from the same clone (`~/google-cloud-daos/terraform/examples/daos_cluster`) each time you open Cloud Shell.
+
+---
+
+Clone the [daos-stack/google-cloud-daos](https://github.com/daos-stack/google-cloud-daos) repository and change your working directory to the DAOS Cluster example directory.
 
 ```bash
-cd terraform/examples/daos_cluster
+if [[ ! -d ~/google-cloud-daos ]]; then
+  cd ~/
+  git clone https://github.com/daos-stack/google-cloud-daos.git
+fi
+
+cd ~/google-cloud-daos/terraform/examples/daos_cluster
 ```
 
 ## Create a `terraform.tfvars` file
@@ -225,4 +245,4 @@ This will shut down all DAOS server and client instances.
 
 ## Congratulations!
 
-You have successfully deployed a DAOS cluster using the example in [terraform/examples/daos_cluster](../terraform/examples/daos_cluster)!
+You have successfully deployed a DAOS cluster using the [terraform/examples/daos_cluster](../terraform/examples/daos_cluster) example!

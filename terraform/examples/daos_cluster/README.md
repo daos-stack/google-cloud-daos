@@ -1,6 +1,6 @@
 # DAOS Cluster Example
 
-This example Terraform configuration demonstrates how to use the [DAOS Terraform Modules](../../modules) to deploy a DAOS cluster with 4 DAOS servers and 4 DAOS clients.
+This Terraform configuration demonstrates how to use the [DAOS Terraform Modules](../../modules) to deploy a DAOS cluster.
 
 ## Terraform Files
 
@@ -16,11 +16,11 @@ List of Terraform files in this example
 
 ## Deployment
 
-For instructions on how to deploy this example, see [Deploy DAOS Cluster Example](../../../docs/deployment_daos_cluster_example.md)
+To deploy this example, see the instructions in [Deploy the DAOS Cluster Example](docs/deploy_daos_cluster_example.md).
 
-To open the instructions in a Cloud Shell tutorial click the button below
+If you would like to open those instructions in Cloud Shell, click the button below.
 
-[![DAOS Cluster Example Instructions](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&tutorial=docs/deploy_daos_cluster_example.md)
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://ssh.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&cloudshell_tutorial=docs/deploy_daos_cluster_example.md)
 
 
 ## Terraform Configuration Documentation

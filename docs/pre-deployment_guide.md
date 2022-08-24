@@ -1,5 +1,4 @@
-# Pre-Deployment Instructions
-
+# Pre-Deployment Guide
 ## Overview
 
 To deploy DAOS on GCP
@@ -11,7 +10,7 @@ To deploy DAOS on GCP
   - You must have a Cloud NAT
   - You must have DAOS server and client images
 
-After completing the following instructions you will be ready to deploy DAOS.
+After completing this guide you will be ready to deploy DAOS.
 
 ## Create a GCP Project
 
@@ -250,6 +249,7 @@ gcloud services enable cloudbuild.googleapis.com
 gcloud services enable cloudresourcemanager.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable iam.googleapis.com
+gcloud services enable iap.googleapis.com
 gcloud services enable networkmanagement.googleapis.com
 gcloud services enable secretmanager.googleapis.com
 gcloud services enable servicemanagement.googleapis.com
@@ -291,17 +291,41 @@ gcloud compute routers nats create nat-config \
   --auto-allocate-nat-external-ips
 ```
 
-## Create Packer Image
+## Create a Packer Image
 
-DAOS images are built using Packer in Cloud Build.
+DAOS images are built using [Packer](https://www.packer.io/) in [Cloud Build](https://cloud.google.com/build).
 
-In order to build DAOS images with Packer in Cloud Build, your GCP project must contain a Packer image.
+In order to build DAOS images, your GCP project must contain a Packer image (an image with Packer installed).
 
-Creating the Packer image only needs to be done once in the GCP project.
+Cloud Build will
 
-The Cloud Build service account requires the editor role.
+1. Deploy an instance from the Packer image
+2. Copy the Packer templates and provisioning scripts from the `images` directory in this repository to the instance
+3. Run Packer in the instance to create the DAOS images
 
-Grant the editor role to the service account
+The DAOS images will then exist in your project so that you can deploy DAOS servers and clients.
+
+### Identity-Aware Proxy (IAP) TCP forwarding
+
+When Cloud Build creates an instance to configure for DAOS images it doesn't assign an external IP address. Cloud Build will use *Identity-Aware Proxy (IAP) TCP forwarding* to run commands on the instance.
+
+In order for IAP TCP Forwarding to work, you need to create a firewall rule
+
+```bash
+gcloud compute firewall-rules create allow-ssh-ingress-from-iap \
+  --direction=INGRESS \
+  --action=allow \
+  --rules=tcp:22 \
+  --source-ranges=35.235.240.0/20
+```
+
+The IP range 35.235.240.0/20 contains all IP addresses that IAP uses for TCP forwarding.
+
+For more information, see [Using IAP for TCP forwarding](https://cloud.google.com/iap/docs/using-tcp-forwarding#gcloud)
+
+### Cloud Build Service Account
+
+Grant the necessary roles to the Cloud Build service account
 
 ```bash
 PROJECT_ID=$(gcloud projects list --filter="$(gcloud config get-value project)" --format="value(PROJECT_ID)")
@@ -311,9 +335,16 @@ CLOUD_BUILD_ACCOUNT=$(gcloud projects get-iam-policy ${PROJECT_ID}  --filter="(b
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member "${CLOUD_BUILD_ACCOUNT}" \
   --role roles/compute.instanceAdmin
+
+gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" --role=roles/compute.instanceAdmin.v1
+
+gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" roles/secretmanager.admin
+
+gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" --role=roles/iap.tunnelResourceAccessor
+
 ```
 
-Build the Packer image
+### Build the Packer image
 
 ```bash
 pushd ~/
@@ -340,4 +371,4 @@ You have completed the **Pre-Deployment** steps!
 
 You are now ready to deploy DAOS on GCP.
 
-Refer to the Deployment section of the main [README](https://github.com/markaolson/google-cloud-daos/blob/DAOSGCP-119/README.md) for information on how to deploy DAOS on GCP.
+Refer to the [Deployment section of the main README](https://github.com/markaolson/google-cloud-daos/tree/DAOSGCP-119#deployment) for information on how to deploy DAOS on GCP.
