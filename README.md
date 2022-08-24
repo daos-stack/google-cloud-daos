@@ -108,7 +108,7 @@ Intel Corporation provides several ways for the users to get technical support:
 
 - [Distributed Asynchronous Object Storage (DAOS)](https://docs.daos.io/)
 - [Google Cloud Platform (GCP)](https://cloud.google.com/)
-- [Google HPC Toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit)
+- [Google Cloud HPC Toolkit](https://cloud.google.com/hpc-toolkit)
 - [Google Cloud CLI (gcloud)](https://cloud.google.com/cli)
 - [Google Cloud Build](https://cloud.google.com/build)
 - [Cloud Shell](https://cloud.google.com/shell)
