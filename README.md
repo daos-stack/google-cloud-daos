@@ -40,10 +40,13 @@ You may choose from the following deployment paths.
     **Prepare to use the Cloud HPC Toolkit**
 
     - **Dependencies**
+
       If you are using Cloud Shell, the dependencies are already installed.
+
       If you are not using Cloud Shell, then you will need to [Install dependencies](https://cloud.google.com/hpc-toolkit/docs/setup/install-dependencies).
 
     - **Configure Environment**
+
       Before you can deploy DAOS with the Cloud HPC Toolkit you will need to [Configure your environment](https://cloud.google.com/hpc-toolkit/docs/setup/configure-environment).
 
     **Deploy DAOS with the Cloud HPC Toolkit**
@@ -51,7 +54,6 @@ You may choose from the following deployment paths.
     For instructions on how to deploy the community examples, see
     - [DAOS Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster)
     - [DAOS Server with Slurm Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-server-with-slurm-cluster)
-
 
  2. **The DAOS Cluster example**
 
