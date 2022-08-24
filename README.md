@@ -5,7 +5,7 @@ Distributed Asynchronous Object Storage ([DAOS](https://docs.daos.io/)) on Googl
 This repository contains:
 
 - [Terraform](https://www.terraform.io/) modules for deploying DAOS Server and Client instances on GCP
-- Scripts used to build DAOS images with [Google Cloud Build](https://cloud.google.com/build) and [Packer](https://www.packer.io/)
+- Scripts used to build DAOS images with [Cloud Build](https://cloud.google.com/build) and [Packer](https://www.packer.io/)
 - Examples that demonstrate how to use the DAOS Terraform modules
 - Documentation for deploying DAOS on GCP
 

@@ -1,14 +1,14 @@
 # Pre-Deployment Guide
 ## Overview
 
-To deploy DAOS on GCP
+To deploy DAOS on GCP there are a few requirements.
 
   - You need a [Google Cloud](https://cloud.google.com/) account and a [project](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
-  - Your GCP project must have enough Compute Engine [quota](https://cloud.google.com/compute/quotas) to run the examples in this repository
-  - If you decide not to use Cloud Shell, you must have a Linux or macOS terminal with the required dependencies installed
-  - You must configure the [Google Cloud CLI (`gcloud`)](https://cloud.google.com/sdk/gcloud) with a default project, region and zone
-  - You must have a Cloud NAT
-  - You must have DAOS server and client images
+  - Your GCP project must have enough Compute Engine [quota](https://cloud.google.com/compute/quotas) to run the examples in this repository.
+  - If you decide not to use Cloud Shell, you must have a Linux or macOS terminal with the required dependencies installed.
+  - You must configure the [Google Cloud CLI (`gcloud`)](https://cloud.google.com/sdk/gcloud) with a default project, region and zone.
+  - You must have a [Cloud NAT](https://cloud.google.com/nat/docs/overview).
+  - You must build DAOS server and client images.
 
 After completing this guide you will be ready to deploy DAOS.
 
