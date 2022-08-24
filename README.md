@@ -17,7 +17,7 @@ For instructions, see the [Pre-Deployment Guide](docs/pre-deployment_guide.md)
 
 To view the Pre-Deployment Guide in [Cloud Shell](https://cloud.google.com/shell) click the button below.
 
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://ssh.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&cloudshell_tutorial=docs/pre-deploy.md)
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://ssh.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&cloudshell_tutorial=docs/pre-deployment_guide.md)
 
 ## Deployment
 
