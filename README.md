@@ -35,7 +35,18 @@ You may choose from the following deployment paths.
 
     Cloud HPC Toolkit is open-source software offered by Google Cloud which makes it easy for you to deploy high performance computing (HPC) environments. It is designed to be highly customizable and extensible, and intends to address the HPC deployment needs of a broad range of use cases.
 
-    For information on how to use the Cloud HPC Toolkit, see [Cloud HPC Toolkit documentation](https://cloud.google.com/hpc-toolkit/docs/)
+    To learn about the Cloud HPC Toolkit, see the [Cloud HPC Toolkit Overview](https://cloud.google.com/hpc-toolkit/docs/overview)
+
+    **Prepare to use the Cloud HPC Toolkit**
+
+    - **Dependencies**
+      If you are using Cloud Shell, the dependencies are already installed.
+      If you are not using Cloud Shell, then you will need to [Install dependencies](https://cloud.google.com/hpc-toolkit/docs/setup/install-dependencies).
+
+    - **Configure Environment**
+      Before you can deploy DAOS with the Cloud HPC Toolkit you will need to [Configure your environment](https://cloud.google.com/hpc-toolkit/docs/setup/configure-environment).
+
+    **Deploy DAOS with the Cloud HPC Toolkit**
 
     For instructions on how to deploy the community examples, see
     - [DAOS Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster)
