@@ -340,4 +340,4 @@ You have completed the **Pre-Deployment** steps!
 
 You are now ready to deploy DAOS on GCP.
 
-Refer to the Deployment section of the main [README.md](../README.md) for information on how to deploy DAOS on GCP.
+Refer to the Deployment section of the main [README](https://github.com/markaolson/google-cloud-daos/blob/DAOSGCP-119/README.md) for information on how to deploy DAOS on GCP.
