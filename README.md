@@ -11,13 +11,7 @@ This repository contains:
 
 ## Pre-Deployment
 
-In order to deploy DAOS on GCP the following pre-deployment steps must be completed.
-
-1. Review the requirements and request quota increases if necessary
-2. Enable service APIs and create a Cloud NAT
-3. Install dependent software if you are not using Cloud Shell
-4. Configure the Google Cloud CLI (`gcloud`)
-5. Build DAOS images
+In order to deploy DAOS on GCP there are several steps that are required to prepare your GCP project.
 
 For instructions, see the [Pre-Deployment Guide](docs/pre-deployment_guide.md)
 
@@ -73,13 +67,15 @@ To deploy DAOS on GCP you may choose one of the following deployment paths.
 
 3. **Create your own Terraform Configurations**
 
-   While this is the most complex deployment path there may be reasons why this path may be necessary.
+   While this is the more complex deployment path, there may be reasons why this path is necessary.
 
-   You may want to add DAOS storage to existing Terraform configurations you can create your own Terraform configurations that use the [modules](terraform/modules/) in this repository.
+   For example, you may have existing Terraform configurations that you would like to modify in order to add DAOS storage to existing cloud infrastructure.
 
-   Refer to the documentation for the modules
-   - [daos_server](terraform/modules/daos_server/README.md)
-   - [daos_client](terraform/modules/daos_client/README.md)
+   When creating your own Terraform configurations you can use the [`terraform/examples/daos_cluster`](terraform/examples/daos_cluster/README.md) example.
+
+   You can also refer to the documentation for the modules:
+   - [daos_server module](terraform/modules/daos_server/README.md)
+   - [daos_client module](terraform/modules/daos_client/README.md)
 
 
 
