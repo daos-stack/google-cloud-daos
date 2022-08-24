@@ -9,7 +9,6 @@ This repository contains:
 - Examples that demonstrate how to use the DAOS Terraform modules
 - Documentation for deploying DAOS on GCP
 
-
 ## Pre-Deployment
 
 In order to deploy DAOS on GCP the following pre-deployment steps must be completed.
@@ -22,21 +21,21 @@ In order to deploy DAOS on GCP the following pre-deployment steps must be comple
 
 For instructions, see [Pre-Deployment](docs/pre-deployment.md)
 
-To view the instructions in Cloud Shell click the button below.
+To view the instructions in [Cloud Shell](https://cloud.google.com/shell) click the button below.
 
-[![DAOS Cluster Example](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&tutorial=docs/pre-deployment.md)
+[![DAOS Cluster Example](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&force_new_clone=false&tutorial=docs/pre-deploy.md)
 
 ## Deployment
 
 After completing the [Pre-Deployment](docs/pre-deployment.md) steps you will be ready to deploy DAOS.
 
-You may choose from the following available deployment paths.
+You may choose from the following deployment paths.
 
  1. **Google [Cloud HPC Toolkit](https://cloud.google.com/hpc-toolkit)**
 
     Cloud HPC Toolkit is open-source software offered by Google Cloud which makes it easy for you to deploy high performance computing (HPC) environments. It is designed to be highly customizable and extensible, and intends to address the HPC deployment needs of a broad range of use cases.
 
-    The Community Examples in the [GoogleCloudPlatform/hpc-toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit) git repository contain example blueprints for deploying
+    The Community Examples in the [GoogleCloudPlatform/hpc-toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit) git repository contain blueprints for deploying
     - [A standalone DAOS cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster) with 4 DAOS server instances and 4 DAOS client instances
     - [SLURM cluster with 4 DAOS server instances](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-server-with-slurm-cluster)
 
@@ -44,7 +43,8 @@ You may choose from the following available deployment paths.
     For information on how to deploy DAOS on GCP using the Cloud HPC Toolkit, see
 
     - [Cloud HPC Toolkit documentation](https://cloud.google.com/hpc-toolkit/docs/)
-    - [Intel Solutions for the HPC Toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel)
+    - [Intel Solutions - DAOS Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster)
+    - [Intel Solutions - DAOS Server with Slurm Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-server-with-slurm-cluster)
 
 
  2. **The [daos_cluster](terraform/examples/daos_cluster/README.md) example**
@@ -62,8 +62,6 @@ You may choose from the following available deployment paths.
     Refer to the documentation for the modules
     - [daos_server](terraform/modules/daos_server/README.md)
     - [daos_client](terraform/modules/daos_client/README.md)
-
-
 
 ## Support
 

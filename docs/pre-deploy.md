@@ -5,7 +5,7 @@
 To deploy DAOS on GCP
 
   - You need a [Google Cloud](https://cloud.google.com/) account and a [project](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
-  - Your GCP project must have enough Compute Engine [quota](https://cloud.google.com/compute/quotas)  to run the examples in this repository
+  - Your GCP project must have enough Compute Engine [quota](https://cloud.google.com/compute/quotas) to run the examples in this repository
   - If you decide not to use Cloud Shell, you must have a Linux or macOS terminal with the required dependencies installed
   - You must configure the [Google Cloud CLI (`gcloud`)](https://cloud.google.com/sdk/gcloud) with a default project, region and zone
   - You must have a Cloud NAT
@@ -66,6 +66,13 @@ Decide which terminal you will use and start a session.
 
   Otherwise, if you would like to open Cloud Shell in your browser, [click here](https://shell.cloud.google.com/?show=terminal&show=ide&environment_deployment=ide)
 
+  ---
+
+  **NOTE**
+  Cloud Shell can run in Ephemeral Mode which does not persist storage. This has caused some confusion to some who are new to Cloud Shell since any changes made are not persisted across sessions. For more info, see  [Choose ephemeral mode](https://cloud.google.com/shell/docs/using-cloud-shell#choosing_ephemeral_mode).
+
+  ---
+
 - **Remote Cloud Shell**
 
   You may be thinking "I don't want to work in a browser!"
@@ -124,31 +131,65 @@ For more information see the various [How-to Guides](https://cloud.google.com/sd
 
 The commands shown in the documentation will work in [Cloud Shell](https://cloud.google.com/shell) or a *local* terminal.
 
-## Check Quotas
+## Quotas
 
-In order to deploy DAOS with the examples in this repository you must have enough [quota](https://cloud.google.com/compute/quotas) for certain resources.
+Google Compute Engine enforces quotas on resources to prevent unforseen spikes in usage.
 
-The following table shows the minimum quota limits required to deploy the examples in this repository.
+In order to deploy DAOS with the examples in this repository or the [community examples in the Google Cloud HPC Toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel) you must have enough [quota](https://cloud.google.com/compute/quotas) for the region in which you are deploying.
+
+Understanding the quota for a single DAOS server and client instance will allow you to calculate the quota needed to deploy DAOS clusters of varying sizes.
+
+**Required quota for a single DAOS client instance**
 
 ```
-| Service            | Quota          | Limit  | Notes                                                     |
-| ------------------ | -------------- | ------ | --------------------------------------------------------- |
-| Compute Engine API | N2_CPUS        | 64     | Enough for 4 servers with the n2-standard-16 machine type |
-| Compute Engine API | C2_CPUS        | 64     | Enough for 4 servers with the c2-standard-16 machine type |
-| Compute Engine API | Local SSD (GB) | 24,000 | Enough for 4 servers with 16x375GB SSDs                   |
+Service             Quota                     Limit
+------------------  ------------------------- ------
+Compute Engine API  C2 CPUs                   16
+Compute Engine API  Persistent Disk SSD (GB)  20GB
+```
+
+**Required quota for a single DAOS server instance**
+
+```
+Service             Quota                     Limit
+------------------  ------------------------- ------
+Compute Engine API  N2 CPUs                   36
+Compute Engine API  Persistent Disk SSD (GB)  20GB
+Compute Engine API  Local SSD (GB)            6TB
+```
+
+These quota limits are based on the machine types that are used in the examples as well as the maximum size and number of disks that can be attached to a server.
+
+- DAOS Client: c2-standard-16 (16 vCPU, 64GB memory)
+- DAOS Server: n2-custom-36-215040 (36 vCPU, 64GB memory)
+- DAOS Server SSDs:
+    Max number that can be attached to an instance = 16.
+    Max size 375GB
+    Quota Needed for 1 server: 16disks * 375GB = 6TB
+
+So for the 4 server and 4 client examples in this repo you will need the following quotas
+
+```
+Service             Quota                     Limit  Description
+------------------  ------------------------- ------ ------------------------------------------------------------------
+Compute Engine API  C2 CPUs                   64     4 client instances * 16 = 64
+Compute Engine API  N2 CPUs                   144    4 servers instances * 36 = 144
+Compute Engine API  Persistent Disk SSD (GB)  160GB  (4 client instances * 20GB) + (4 server instances * 20GB) = 160GB
+Compute Engine API  Local SSD (GB)            24TB   4 servers * (16 * 375GB disks) = 24TB
 ```
 
 If your quotas do not at least have these minimum limits you will need to [request an increase](https://cloud.google.com/compute/quotas#requesting_additional_quota).
 
-For larger DAOS deployments you will need to determine the required quota for the resources you plan to use.
+To view your current quotas you can go to https://console.cloud.google.com/iam-admin/quotas
 
-To view your current quotas run
+You can also run
 
 ```bash
 REGION=$(gcloud config get-value compute/region)
 
 gcloud compute regions describe "${REGION}"
 ```
+
 For more information, see [Quotas and Limits](https://cloud.google.com/compute/quotas)
 
 ## Enable APIs
