@@ -69,7 +69,8 @@ Decide which terminal you will use and start a session.
   ---
 
   **NOTE**
-  Cloud Shell can run in Ephemeral Mode which does not persist storage. This has caused some confusion to some who are new to Cloud Shell since any changes made are not persisted across sessions. For more info, see  [Choose ephemeral mode](https://cloud.google.com/shell/docs/using-cloud-shell#choosing_ephemeral_mode).
+
+  Cloud Shell can run in Ephemeral Mode which does not persist storage. This has caused some confusion to some who are new to Cloud Shell since any changes made are not persisted across sessions. If you are running Cloud Shell in Ephemeral Mode be aware that any changes you make to files in your home directory will not be persisted. For more info, see  [Choose ephemeral mode](https://cloud.google.com/shell/docs/using-cloud-shell#choosing_ephemeral_mode).
 
   ---
 
@@ -101,35 +102,54 @@ Decide which terminal you will use and start a session.
 
 Many of the bash scripts and Terraform configurations in this repository assume that you have set a default project, region and zone in your active `gcloud` configuration.
 
-To configure `gcloud` run
+To configure `gcloud` run the following commands.
+
+Create a named configuration and make it the active config. Replace `<config name>` with the name you would like to give your configuration.
 
 ```bash
-# Create a named configuration and make it the active config
 gcloud config configurations create <config name> --activate
+```
 
-# Initialize it
+Initialize the CLI
+
+```bash
 gcloud init --console-only
+```
 
-# Set your default project
-gcloud config set core/project <project name>
+Follow the instructions provided in the output of the command.
 
-# Set your default region
+Set your default project. Replace `<project name>` with the the name of your project.
+
+```bash
+gcloud config set core/project <project id>
+```
+
+Set your default region. Replace `<region>` with the the name of the region you would like to use.
+
+```bash
 gcloud config set compute/region <region>
+```
 
-# Set your default zone
+Set your default zone. Replace `<zone>` with the the name of the region you would like to use.
+
+```bash
 gcloud config set compute/zone <zone>
+```
 
-# Verify
+Verify your configuration defaults
+
+```bash
 gcloud config list
-gcloud config configurations list --filter="IS_ACTIVE=True"
+gcloud config configurations list --filter="IS_ACTIVE:True"
+```
 
-# Authorize
+Authorize the Google Cloud CLI
+
+```bash
 gcloud auth login
 ```
 
 For more information see the various [How-to Guides](https://cloud.google.com/sdk/docs/how-to) for the Google Cloud CLI.
-
-The commands shown in the documentation will work in [Cloud Shell](https://cloud.google.com/shell) or a *local* terminal.
 
 ## Quotas
 
