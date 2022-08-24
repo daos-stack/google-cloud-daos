@@ -43,7 +43,7 @@ You may choose from the following deployment paths.
 
       If you are using Cloud Shell, the dependencies are already installed.
 
-      If you are not using Cloud Shell, then you will need to [Install dependencies](https://cloud.google.com/hpc-toolkit/docs/setup/install-dependencies).
+      If you are not using Cloud Shell, you will need to [Install dependencies](https://cloud.google.com/hpc-toolkit/docs/setup/install-dependencies).
 
     - **Configure Environment**
 
