@@ -91,13 +91,18 @@ cp terraform.tfvars.perf.example terraform.tfvars
 
 ### Update `terraform.tfvars` with your project id
 
-Now that you have a `terraform.tfvars` file you need to replace the `<project_id>` placeholder in the file with your GCP project id.
+Now that you have a `terraform.tfvars` file you need to replace the variable placeholders in the file with the values from your active `gcloud` configuration.
 
-To update the project id in `terraform.tfvars` run
+To update the variables in `terraform.tfvars` run
 
 ```bash
 PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+REGION=$(gcloud config list --format 'value(compute.region)')
+ZONE=$(gcloud config list --format 'value(compute.zone)')
+
 sed -i "s/<project_id>/${PROJECT_ID}/g" terraform.tfvars
+sed -i "s/<region>/${REGION}/g" terraform.tfvars
+sed -i "s/<zone>/${ZONE}/g" terraform.tfvars
 ```
 
 ## Deploy the DAOS cluster
