@@ -104,13 +104,17 @@ Many of the bash scripts and Terraform configurations in this repository assume 
 
 To configure `gcloud` run the following commands.
 
-Create a named configuration and make it the active config. Replace `<config name>` with the name you would like to give your configuration.
+### Create a named configuration
+
+Create a named configuration and make it the active config.
+
+Replace `<config name>` with the name you would like to give your configuration.
 
 ```bash
 gcloud config configurations create <config name> --activate
 ```
 
-Initialize the CLI
+### Initialize the CLI
 
 ```bash
 gcloud init --console-only
@@ -118,38 +122,45 @@ gcloud init --console-only
 
 Follow the instructions provided in the output of the command.
 
-Set your default project. Replace `<project name>` with the the name of your project.
+
+### Set the default project
+
+Replace `<project name>` with the the name of your project.
 
 ```bash
 gcloud config set core/project <project id>
 ```
 
-Set your default region. Replace `<region>` with the the name of the region you would like to use.
+### Set the default region
+
+Replace `<region>` with the the name of the region you would like to use.
 
 ```bash
 gcloud config set compute/region <region>
 ```
 
-Set your default zone. Replace `<zone>` with the the name of the region you would like to use.
+### Set the default zone
+
+Replace `<zone>` with the the name of the region you would like to use.
 
 ```bash
 gcloud config set compute/zone <zone>
 ```
 
-Verify your configuration defaults
+### Verify the configuration defaults
 
 ```bash
 gcloud config list
 gcloud config configurations list --filter="IS_ACTIVE:True"
 ```
 
-Authorize the Google Cloud CLI
+### Authorize the Google Cloud CLI
 
 ```bash
 gcloud auth login
 ```
 
-For more information see the various [How-to Guides](https://cloud.google.com/sdk/docs/how-to) for the Google Cloud CLI.
+To learn more about using the Google Cloud CLI see the various [How-to Guides](https://cloud.google.com/sdk/docs/how-to).
 
 ## Quotas
 
