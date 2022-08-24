@@ -23,7 +23,7 @@ For instructions, see [Pre-Deployment](docs/pre-deployment.md)
 
 To view the instructions in [Cloud Shell](https://cloud.google.com/shell) click the button below.
 
-[![DAOS Cluster Example](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&force_new_clone=false&tutorial=docs/pre-deploy.md)
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://ssh.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&cloudshell_tutorial=docs/pre-deploy.md)
 
 ## Deployment
 
@@ -35,25 +35,24 @@ You may choose from the following deployment paths.
 
     Cloud HPC Toolkit is open-source software offered by Google Cloud which makes it easy for you to deploy high performance computing (HPC) environments. It is designed to be highly customizable and extensible, and intends to address the HPC deployment needs of a broad range of use cases.
 
-    The Community Examples in the [GoogleCloudPlatform/hpc-toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit) git repository contain blueprints for deploying
-    - [A standalone DAOS cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster) with 4 DAOS server instances and 4 DAOS client instances
-    - [SLURM cluster with 4 DAOS server instances](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-server-with-slurm-cluster)
+    For information on how to use the Cloud HPC Toolkit, see [Cloud HPC Toolkit documentation](https://cloud.google.com/hpc-toolkit/docs/)
+
+    For instructions on how to deploy the community examples, see
+    - [DAOS Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster)
+    - [DAOS Server with Slurm Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-server-with-slurm-cluster)
 
 
-    For information on how to deploy DAOS on GCP using the Cloud HPC Toolkit, see
+ 2. **The DAOS Cluster example**
 
-    - [Cloud HPC Toolkit documentation](https://cloud.google.com/hpc-toolkit/docs/)
-    - [Intel Solutions - DAOS Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-cluster)
-    - [Intel Solutions - DAOS Server with Slurm Cluster](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel#daos-server-with-slurm-cluster)
+    The DAOS Cluster example in [terraform/examples/daos_cluster](terraform/examples/daos_cluster/README.md) is a Terraform configuration that uses the DAOS client and server modules in [terraform/modules](terraform/modules/) to deploy a DAOS cluster.
 
+    The example demonstrates how to use the [terraform/modules](terraform/modules/) in a Terraform configuration.
 
- 2. **The [daos_cluster](terraform/examples/daos_cluster/README.md) example**
+    To deploy the example, see the instructions in [Deploy the DAOS Cluster Example](docs/deploy_daos_cluster_example.md).
 
-    The [terraform/examples/daos_cluster](terraform/examples/daos_cluster/README.md) example is a Terraform configuration that uses the DAOS client and server modules in [terraform/modules](terraform/modules/) to deploy a DAOS cluster with 4 servers and 4 clients.
+    If you would like to open those instructions in Cloud Shell, click the button below.
 
-    The example demonstrates how to use the [terraform/modules](terraform/modules/) in your own Terraform configurations.
-
-    For instructions, see the [README.md](terraform/examples/daos_cluster/README.md)
+    [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://ssh.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&cloudshell_tutorial=docs/deploy_daos_cluster_example.md)
 
  3. **Create your own Terraform Configurations**
 

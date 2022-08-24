@@ -192,6 +192,20 @@ gcloud compute regions describe "${REGION}"
 
 For more information, see [Quotas and Limits](https://cloud.google.com/compute/quotas)
 
+## Enable the default Compute Engine service account
+
+Enable the default Compute Engine service account.
+
+```bash
+PROJECT_ID=$(gcloud projects list --filter="$(gcloud config get-value project)" --format="value(PROJECT_ID)")
+
+PROJECT_NUMBER=$(gcloud projects list --filter="$(gcloud config get-value project)" --format="value(PROJECT_NUMBER)")
+
+gcloud iam service-accounts enable \
+     --project="${PROJECT_ID}" \
+     "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+```
+
 ## Enable APIs
 
 Enable the service APIs which are used in a DAOS deployment.
@@ -253,8 +267,9 @@ The Cloud Build service account requires the editor role.
 Grant the editor role to the service account
 
 ```bash
-PROJECT_ID=$(gcloud config get-value core/project)
-CLOUD_BUILD_ACCOUNT=$(gcloud projects get-iam-policy
+PROJECT_ID=$(gcloud projects list --filter="$(gcloud config get-value project)" --format="value(PROJECT_ID)")
+
+CLOUD_BUILD_ACCOUNT=$(gcloud projects get-iam-policy ${PROJECT_ID}  --filter="(bindings.role:roles/cloudbuild.builds.builder)" --flatten="bindings[].members" --format="value(bindings.members[])")
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member "${CLOUD_BUILD_ACCOUNT}" \
