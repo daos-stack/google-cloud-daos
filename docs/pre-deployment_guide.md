@@ -116,19 +116,12 @@ gcloud config configurations create <config name> --activate
 ### Initialize the CLI
 
 ```bash
-gcloud init --console-only
+gcloud init --no-browser
 ```
 
-Follow the instructions provided in the output of the command.
+Follow the instructions to Re-initialize the currently active configuration.
 
-
-### Set the default project
-
-Replace `<project name>` with the the name of your project.
-
-```bash
-gcloud config set core/project <project id>
-```
+This will prompt you to set the default Project ID and User for the configuration.
 
 ### Set the default region
 
@@ -338,7 +331,7 @@ gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" --role=roles/compute.instanceAdmin.v1
 
-gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" roles/secretmanager.admin
+gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" --role=roles/secretmanager.admin
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}"  --member "${CLOUD_BUILD_ACCOUNT}" --role=roles/iap.tunnelResourceAccessor
 
