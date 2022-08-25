@@ -11,7 +11,7 @@ This repository contains:
 
 ## Pre-Deployment
 
-In order to deploy DAOS on GCP there are several steps that are required to prepare your GCP project.
+In order to deploy DAOS on GCP there are several steps that are required to prepare your project.
 
 For instructions, see the [Pre-Deployment Guide](docs/pre-deployment_guide.md)
 
