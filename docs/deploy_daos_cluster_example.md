@@ -106,13 +106,19 @@ sed -i "s/<zone>/${ZONE}/g" terraform.tfvars
 
 ## Deploy the DAOS cluster
 
-> **Billing Notification!**
->
-> Running this example will incur charges in your project.
->
-> To avoid surprises, be sure to monitor your costs associated with running this example.
->
-> Don't forget to shut down the DAOS cluster with `terraform destroy` when you are finished.
+---
+
+**Billing Notification!**
+
+Running this example will incur charges in your project.
+
+To avoid surprises, be sure to monitor your costs associated with running this example.
+
+Don't forget to shut down the DAOS cluster with `terraform destroy` when you are finished.
+
+---
+
+### Deploy with Terraform
 
 To deploy the DAOS cluster
 
@@ -121,6 +127,12 @@ terraform init
 terraform plan -out=tfplan
 terraform apply tfplan
 ```
+
+### List the instances
+
+Terraform will create 2 [managed instance groups (MIGs)](https://cloud.google.com/compute/docs/instance-groups) that will create the DAOS server and client instances.
+
+It may take some time for the instances to become available.
 
 Verify that the daos-client and daos-server instances are running.
 
@@ -161,6 +173,12 @@ gcloud compute ssh daos-client-0001
 
 ### Verify that all daos-server instances have joined
 
+The DAOS Management Tool `dmg` is meant to be used by administrators to manage the DAOS storage system and pools.
+
+You will need to run `dmg` with `sudo`.
+
+Use `dmg` to verify that the DAOS storage system is ready.
+
 ```bash
 sudo dmg system query -v
 ```
@@ -178,13 +196,13 @@ Rank UUID                                 Control Address   Fault Domain      St
 
 ### Create a Pool
 
-Check free NVMe storage.
+View free NVMe storage.
 
 ```bash
 sudo dmg storage query usage
 ```
 
-From the output you can see there are 4 servers each with 1.6TB free. That means there is a total of 6.4TB free.
+The output looks similar to
 
 ```
 Hosts            SCM-Total SCM-Free SCM-Used NVMe-Total NVMe-Free NVMe-Used
@@ -195,11 +213,37 @@ daos-server-0003 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
 daos-server-0004 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
 ```
 
-Create one pool that uses the entire 6.4TB.
+In the example output shown above there are 4 servers each with 1.6TB free and total of 6.4TB free.
+
+Create a pool named `pool1` that uses all available space.
 
 ```bash
 sudo dmg pool create -z 6.4TB -t 3 --label=pool1
 ```
+
+View the ACLs on *pool1*
+
+```bash
+sudo dmg pool get-acl pool1
+```
+
+```text
+# Owner: root@
+# Owner Group: root@
+# Entries:
+A::OWNER@:rw
+A:G:GROUP@:rw
+```
+
+Here we see that root owns the pool.
+
+Add an [ACE](https://docs.daos.io/v2.0/admin/pool_operations/#adding-and-updating-aces) that will allow any user to create a container in the pool
+
+```bash
+sudo dmg pool update-acl -e A::EVERYONE@:rcta pool1
+```
+
+This completes the administration tasks for the pool.
 
 For more information about pools see
 
@@ -247,11 +291,12 @@ time LD_PRELOAD=/usr/lib64/libioil.so \
   dd if=/dev/zero of=./test21G.img bs=1G count=20
 ```
 
-## Unmount the container
+## Unmount the container and logout of the first client
 
 ```bash
 cd ~/
-fusermount -u ${HOME}/daos/cont1
+fusermount -u "${HOME}/daos/cont1"
+logout
 ```
 
 ## Remove DAOS cluster deployment
