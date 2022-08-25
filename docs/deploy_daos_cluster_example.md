@@ -130,7 +130,7 @@ terraform apply tfplan
 
 ### List the instances
 
-Terraform will create 2 [managed instance groups (MIGs)](https://cloud.google.com/compute/docs/instance-groups) that will create the DAOS server and client instances.
+Terraform will create 2 [Managed Instance Groups (MIGs)](https://cloud.google.com/compute/docs/instance-groups) that will create the DAOS server and client instances.
 
 It may take some time for the instances to become available.
 
@@ -142,17 +142,19 @@ gcloud compute instances list \
   --format="value(name,INTERNAL_IP)"
 ```
 
-Verify that the [Managed Instance Groups (MIGs)](https://cloud.google.com/compute/docs/instance-groups) are stable.
+Verify that the [MIGs](https://cloud.google.com/compute/docs/instance-groups) are stable.
 
 ```bash
 PROJECT_ID=$(gcloud config list --format 'value(core.project)')
-ZONE=$(gcloud config list --format 'value(compute.zone)'
+ZONE=$(gcloud config list --format 'value(compute.zone)')
 
+echo "Checking daos-client MIG"
 gcloud compute instance-groups managed wait-until 'daos-client' \
     --stable \
     --project="${PROJECT_ID}" \
     --zone="${ZONE}"
 
+echo "Checking daos-server MIG"
 gcloud compute instance-groups managed wait-until 'daos-server' \
     --stable \
     --project="${PROJECT_ID}" \
