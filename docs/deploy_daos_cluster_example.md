@@ -198,13 +198,15 @@ Rank UUID                                 Control Address   Fault Domain      St
 
 ### Create a Pool
 
-View free NVMe storage.
+View the amount of free NVMe storage.
 
 ```bash
 sudo dmg storage query usage
 ```
 
-The output looks similar to
+The output will look different depending on which `terraform.tfvars.*.example` file you copied to create the `terraform.tfvars` file.
+
+The output will look similar to this
 
 ```
 Hosts            SCM-Total SCM-Free SCM-Used NVMe-Total NVMe-Free NVMe-Used
@@ -215,12 +217,14 @@ daos-server-0003 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
 daos-server-0004 48 GB     48 GB    0 %      1.6 TB     1.6 TB    0 %
 ```
 
-In the example output shown above there are 4 servers each with 1.6TB free and total of 6.4TB free.
+This shows how much NVMe-Free space is available for each server.
 
-Create a pool named `pool1` that uses all available space.
+Create a pool named `pool1` that uses the total NVMe-Free for all servers.
 
 ```bash
-sudo dmg pool create -z 6.4TB -t 3 --label=pool1
+TOTAL_NVME_FREE="$(sudo dmg storage query usage | awk '{split($0,a," "); sum += a[10]} END {print sum}')TB"
+echo "Total NVMe-Free: ${TOTAL_NVME_FREE}"
+sudo dmg pool create --size="${TOTAL_NVME_FREE}" --tier-ratio=3 --label=pool1
 ```
 
 View the ACLs on *pool1*
