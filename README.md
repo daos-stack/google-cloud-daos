@@ -77,7 +77,7 @@ To deploy DAOS on GCP you may choose one of the following deployment paths.
    - [daos_server module](terraform/modules/daos_server/README.md)
    - [daos_client module](terraform/modules/daos_client/README.md)
 
-   You can also use the [`terraform/examples/daos_cluster`](terraform/examples/daos_cluster/README.md) as a reference.
+   You can also use the [`terraform/examples/daos_cluster`](terraform/examples/daos_cluster/README.md) example as a reference.
 
    Note that DAOS servers and clients should be deployed in the same Terraform configuration. This is because there are variables in the daos_client module that must get their values from the daos_server module.
 
