@@ -45,11 +45,8 @@ For this reason, it is recommended that if you are viewing this content as a res
 Clone the [daos-stack/google-cloud-daos](https://github.com/daos-stack/google-cloud-daos) repository and change your working directory to the DAOS Cluster example directory.
 
 ```bash
-if [[ ! -d ~/google-cloud-daos ]]; then
-  cd ~/
-  git clone https://github.com/daos-stack/google-cloud-daos.git
-fi
-
+cd ~/
+git clone https://github.com/daos-stack/google-cloud-daos.git
 cd ~/google-cloud-daos/terraform/examples/daos_cluster
 ```
 
