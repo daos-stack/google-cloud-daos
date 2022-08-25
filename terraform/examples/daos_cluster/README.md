@@ -18,7 +18,7 @@ List of Terraform files in this example
 
 To deploy this example, see the instructions in [Deploy the DAOS Cluster Example](docs/deploy_daos_cluster_example.md).
 
-If you would like to open those instructions in Cloud Shell, click the button below.
+To open the instructions in Cloud Shell, click the button below.
 
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.png)](https://ssh.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/markaolson/google-cloud-daos&cloudshell_git_branch=DAOSGCP-119&shellonly=true&cloudshell_tutorial=docs/deploy_daos_cluster_example.md)
 
