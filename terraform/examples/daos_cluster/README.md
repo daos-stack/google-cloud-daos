@@ -16,7 +16,7 @@ List of Terraform files in this example
 
 ## Deployment
 
-To deploy this example, see the instructions in [Deploy the DAOS Cluster Example](docs/deploy_daos_cluster_example.md).
+To deploy this example, see the instructions in [Deploy the DAOS Cluster Example](../../../docs/deploy_daos_cluster_example.md).
 
 To open the instructions in Cloud Shell, click the button below.
 
