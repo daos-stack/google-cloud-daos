@@ -65,6 +65,7 @@ You will need to decide which of these files to copy to `terraform.tfvars`.
 The `terraform.tfvars.tco.example` contains variables for a DAOS cluster deployment with
 - 16 DAOS Client instances
 - 4 DAOS Server instances
+
   Each server instance has sixteen 375GB NVMe SSDs
 
 To use the `terraform.tfvars.tco.example` file
@@ -78,6 +79,7 @@ cp terraform.tfvars.tco.example terraform.tfvars
 The `terraform.tfvars.perf.example` contains variables for a DAOS cluster deployment with
 - 16 DAOS Client instances
 - 4 DAOS Server instances
+
   Each server instances has four 375GB NVMe SSDs
 
 To use the ```terraform.tfvars.perf.example``` file run
@@ -86,7 +88,7 @@ To use the ```terraform.tfvars.perf.example``` file run
 cp terraform.tfvars.perf.example terraform.tfvars
 ```
 
-### Update `terraform.tfvars` with your project id
+### Update variables in `terraform.tfvars`
 
 Now that you have a `terraform.tfvars` file you need to replace the variable placeholders in the file with the values from your active `gcloud` configuration.
 
@@ -120,12 +122,29 @@ terraform plan -out=tfplan
 terraform apply tfplan
 ```
 
-Verify that the daos-client and daos-server instances are running
+Verify that the daos-client and daos-server instances are running.
 
 ```bash
 gcloud compute instances list \
   --filter="name ~ daos" \
   --format="value(name,INTERNAL_IP)"
+```
+
+Verify that the [Managed Instance Groups (MIGs)](https://cloud.google.com/compute/docs/instance-groups) are stable.
+
+```bash
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+ZONE=$(gcloud config list --format 'value(compute.zone)'
+
+gcloud compute instance-groups managed wait-until 'daos-client' \
+    --stable \
+    --project="${PROJECT_ID}" \
+    --zone="${ZONE}"
+
+gcloud compute instance-groups managed wait-until 'daos-server' \
+    --stable \
+    --project="${PROJECT_ID}" \
+    --zone="${ZONE}"
 ```
 
 ## Perform DAOS administration tasks
