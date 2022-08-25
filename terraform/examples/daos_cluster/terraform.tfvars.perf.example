@@ -1,3 +1,11 @@
+# file: terraform.tfvars.perf.example
+#
+# This file can be copied to terraform.tfvars
+# Replace the values in <> brackets with the values for your deployment
+#
+# See variables.tf for all available variables and their default values
+#
+
 project_id                 = "<project_id>"
 region                     = "<region>"
 zone                       = "<zone>"
