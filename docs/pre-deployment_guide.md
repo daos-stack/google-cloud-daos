@@ -197,9 +197,9 @@ So for the 4 server, 16 client examples in this repo you will need the following
 ```
 Service             Quota                     Limit  Description
 ------------------  ------------------------- ------ ------------------------------------------------------------------
-Compute Engine API  C2 CPUs                   256     16 client instances * 16 = 64
+Compute Engine API  C2 CPUs                   256    16 client instances * 16 = 64
 Compute Engine API  N2 CPUs                   144    4 servers instances * 36 = 144
-Compute Engine API  Persistent Disk SSD (GB)  160GB  (4 client instances * 20GB) + (4 server instances * 20GB) = 160GB
+Compute Engine API  Persistent Disk SSD (GB)  400GB  (16 client instances * 20GB) + (4 server instances * 20GB) = 400GB
 Compute Engine API  Local SSD (GB)            24TB   4 servers * (16 * 375GB disks) = 24TB
 ```
 
