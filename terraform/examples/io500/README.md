@@ -27,7 +27,7 @@ Once logged into the first DAOS client instance you can run the IO500 benchmark.
 ./run_io500-sc22.sh
 ```
 
-### Shutting Down the DAOS Cluster
+### Destroying the DAOS Cluster
 
 To destroy the DAOS instances
 
