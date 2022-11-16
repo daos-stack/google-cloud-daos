@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright 2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,19 +28,6 @@ log() {
   if [[ -t 1 ]]; then tput sgr0; fi
 }
 
-wait_for_yum_lock() {
-  # Wait if another app is currently holding the yum lock
-  loop_count=0
-  yum_proc_count=$(ps -ef | grep bash | grep -v "grep" | wc -l)
-  while [[ ${loop_count} -lt 5 ]] || [[ numProcess -gt 0 ]]
-  do
-    printf "%s\n" "Waiting for another process to release yum lock"
-    sleep 5;
-    yum_proc_count=$(ps -ef | grep bash | grep -v "grep" | wc -l)
-    loop_count=$((loop_count+1))
-  done
-}
-
 install() {
   # Install Intel MPI from Intel oneAPI package
   cat > /etc/yum.repos.d/oneAPI.repo <<EOF
@@ -62,7 +49,6 @@ EOF
 
 main() {
   log "Installing Intel oneAPI MPI"
-  #wait_for_yum_lock
   install
 }
 
