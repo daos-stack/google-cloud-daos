@@ -233,7 +233,7 @@ install_misc_pkgs() {
   "${PKG_MGR}" install -y ${pkgs}
 }
 
-add_repo() {
+add_daos_repo() {
   local repo_file="${REPO_PATH}/daos.repo"
   log.info "Adding DAOS v${DAOS_VERSION} packages repo"
   curl -s -k --output "${repo_file}" "https://packages.daos.io/v${DAOS_VERSION}/${DAOS_OS_VERSION}/packages/x86_64/daos_packages.repo"
@@ -273,7 +273,7 @@ main() {
   verify_version
   install_epel
   install_misc_pkgs
-  add_repo
+  add_daos_repo
   install_daos
   log.info "DONE! DAOS v${DAOS_VERSION} installed"
 }

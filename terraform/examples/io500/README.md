@@ -13,7 +13,7 @@ cd terraform/examples/io500
 ./start.sh
 ```
 
-`start.sh`  will use the default configuration [terraform/examples/io500/config/config.sh](config/config.sh) to run deploy a DAOS cluster using the `terraform/examples/daos_cluster` example.
+`start.sh`  will use the default configuration [terraform/examples/io500/config/config.sh](config/config.sh) to deploy a DAOS cluster using the `terraform/examples/daos_cluster` example.
 
 When the `start.sh` script finishes you can log into the first DAOS client instance.
 
