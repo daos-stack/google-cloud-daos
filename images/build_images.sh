@@ -17,7 +17,7 @@
 # Build DAOS server and client images using Packer in Google Cloud Build
 #
 
-set -e
+set -eo pipefail
 trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -342,16 +342,18 @@ build_images() {
   # Increase timeout to 1hr to make sure we don't time out
   if [[ "${DAOS_INSTALL_TYPE}" =~ ^(all|server)$ ]]; then
     log "Building server image"
+    # shellcheck disable=SC2086
     gcloud builds submit --timeout=1800s \
     --substitutions="_PROJECT_ID=${GCP_PROJECT},_ZONE=${GCP_ZONE},_DAOS_VERSION=${DAOS_VERSION},_DAOS_REPO_BASE_URL=${DAOS_REPO_BASE_URL},_USE_IAP=${USE_IAP}" \
-    --config=packer_cloudbuild-server.yaml "${BUILD_OPTIONAL_ARGS}" .
+    --config=packer_cloudbuild-server.yaml ${BUILD_OPTIONAL_ARGS} .
   fi
 
   if [[ "${DAOS_INSTALL_TYPE}" =~ ^(all|client)$ ]]; then
     log "Building client image"
+    # shellcheck disable=SC2086
     gcloud builds submit --timeout=1800s \
     --substitutions="_PROJECT_ID=${GCP_PROJECT},_ZONE=${GCP_ZONE},_DAOS_VERSION=${DAOS_VERSION},_DAOS_REPO_BASE_URL=${DAOS_REPO_BASE_URL},_USE_IAP=${USE_IAP}" \
-    --config=packer_cloudbuild-client.yaml "${BUILD_OPTIONAL_ARGS}" .
+    --config=packer_cloudbuild-client.yaml ${BUILD_OPTIONAL_ARGS} .
   fi
 }
 

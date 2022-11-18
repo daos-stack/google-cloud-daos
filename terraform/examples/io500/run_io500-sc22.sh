@@ -20,7 +20,7 @@
 # https://daosio.atlassian.net/wiki/spaces/DC/pages/11167301633/IO-500+SC22
 #
 
-set -e
+set -eo pipefail
 trap 'echo "Hit an unexpected and unchecked error. Unmounting and exiting."; unmount' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -93,27 +93,34 @@ cleanup(){
 
 storage_scan() {
   log.info "Run DAOS storage scan"
+  log.debug "COMMAND: dmg -l \"${SERVER_LIST}\" storage scan --verbose"
   dmg -l "${SERVER_LIST}" storage scan --verbose
 }
 
 format_storage() {
   log.info "Format DAOS storage"
-  sudo dmg -l "${SERVER_LIST}" storage format
+  log.debug "COMMAND: dmg -l \"${SERVER_LIST}\" storage format"
+  dmg -l "${SERVER_LIST}" storage format
 
-  printf "%s" "Waiting for DAOS storage format to finish"
+  log.info "Waiting for DAOS storage format to finish"
+  echo "Formatting"
   while true
   do
-    if [[ $(dmg -j system query -v | grep -c joined) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]]; then
-      printf "\n%s\n" "DAOS storage format finished"
+    if [[ $(dmg system query -v | grep -c -i joined) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]]; then
+      printf "\n"
+      log.info "DAOS storage format finished"
       dmg system query -v
       break
     fi
     printf "%s" "."
     sleep 5
   done
+}
 
+show_storage_usage() {
+  log.info "Display storage usage"
+  log.debug "COMMAND: dmg storage query usage"
   dmg storage query usage
-
 }
 
 create_pool() {
@@ -127,11 +134,15 @@ create_pool() {
 
   echo "Pool created successfully"
   dmg pool query "${DAOS_POOL_LABEL}"
+}
 
+create_container() {
   log.info "Create container: label=${DAOS_CONT_LABEL}"
+  log.debug "COMMAND: daos container create --type=POSIX --properties=\"${DAOS_CONT_REPLICATION_FACTOR}\" --label=\"${DAOS_CONT_LABEL}\" \"${DAOS_POOL_LABEL}\""
   daos container create --type=POSIX --properties="${DAOS_CONT_REPLICATION_FACTOR}" --label="${DAOS_CONT_LABEL}" "${DAOS_POOL_LABEL}"
 
-  #  Show container properties
+  log.info "Show container properties"
+  log.debug "COMMAND: daos cont get-prop \"${DAOS_POOL_LABEL}\" \"${DAOS_CONT_LABEL}\""
   daos cont get-prop "${DAOS_POOL_LABEL}" "${DAOS_CONT_LABEL}"
 }
 
@@ -233,9 +244,9 @@ process_results() {
   rsync -avh "${IO500_RESULTS_DFUSE_DIR}/" "${IO500_RESULTS_DIR_TIMESTAMPED}/"
   cp temp.ini "${IO500_RESULTS_DIR_TIMESTAMPED}/"
 
-  # Save output from "sudo dmg pool query"
+  # Save output from "dmg pool query"
   # shellcheck disable=SC2024
-  sudo dmg pool query "${DAOS_POOL_LABEL}" > \
+  dmg pool query "${DAOS_POOL_LABEL}" > \
     "${IO500_RESULTS_DIR_TIMESTAMPED}/dmg_pool_query_${DAOS_POOL_LABEL}.txt"
 
   log.info "Results files located in ${IO500_RESULTS_DIR_TIMESTAMPED}"
@@ -251,12 +262,13 @@ process_results() {
 
 main() {
   log.section "Prepare for IO500 run"
-  log.debug "before fix_admin_cert_permissions"
   fix_admin_cert_permissions
   cleanup
   storage_scan
   format_storage
+  show_storage_usage
   create_pool
+  create_container
   mount_dfuse
   io500_prepare
 

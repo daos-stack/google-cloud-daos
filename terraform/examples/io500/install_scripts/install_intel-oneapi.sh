@@ -17,7 +17,7 @@
 # Install Intel OneAPI
 #
 
-set -e
+set -eo pipefail
 trap 'echo "An unexpected error occurred. Exiting."' ERR
 
 log() {

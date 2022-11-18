@@ -17,7 +17,7 @@
 # Build daos-server and daos-client images.
 # The daos-client image will have IO500 pre-installed.
 #
-set -e
+set -eo pipefail
 
 trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
@@ -355,7 +355,7 @@ opts() {
       ;;
     esac
   done
-  set -e
+  set -eo pipefail
 
   # Before we attempt to do lookups for project, region, and zone show the
   # errors and exit if there are any errors at this point.

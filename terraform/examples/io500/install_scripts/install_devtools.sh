@@ -16,7 +16,7 @@
 #
 # Install development tools and other packages needed for IO500
 #
-set -e
+set -eo pipefail
 trap 'echo "An unexpected error occurred. Exiting."' ERR
 
 # BEGIN: Logging variables and functions

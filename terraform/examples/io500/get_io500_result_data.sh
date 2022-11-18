@@ -19,7 +19,7 @@
 # Log out of the client and then in your cloud shell or local system
 # run ./get_io500_result_data.sh
 
-set -e
+set -eo pipefail
 trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)

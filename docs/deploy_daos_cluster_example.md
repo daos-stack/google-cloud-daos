@@ -233,9 +233,13 @@ For more information about pools see
 
 Now that the administrative tasks have been completed, you may log out of the first server instance.
 
-You will log into the first client instance to perform user specific tasks.
+```bash
+logout
+```
 
 ## Create a Container
+
+User tasks such as creating and mounting a container will be done on the first client
 
 ### Log into the first DAOS client instance
 

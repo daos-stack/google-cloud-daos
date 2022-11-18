@@ -17,7 +17,7 @@
 # Install DAOS Server or Client packages
 #
 
-set -e
+set -eo pipefail
 trap "echo 'An unexpected error occurred. Exiting.'" ERR
 
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
@@ -144,7 +144,7 @@ opts() {
       ;;
     esac
   done
-  set -e
+  set -eo pipefail
 
   if [[ -z ${DAOS_INSTALL_TYPE} ]]; then
     log.error "-t INSTALL_TYPE required"
@@ -214,18 +214,23 @@ verify_version(){
 
 install_epel() {
   # DAOS has dependencies on packages in epel
-  if [[ "${OS_MAJOR_VERSION_ID}" != "opensuse-leap_15" ]]; then
-    if ! rpm -qa | grep -q "epel-release"; then
+  if [[ "${ID}" != "opensuse-leap" ]]; then
+    if rpm -qa | grep -q "epel-release"; then
+      log.info "epel-release already installed"
+    else
+      log.info "Installing epel-release"
       $PKG_MGR install -y "https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OS_MAJOR_VERSION}.noarch.rpm"
       $PKG_MGR upgrade -y epel-release
     fi
+    $PKG_MGR update -y
   fi
 }
 
 install_misc_pkgs() {
   local pkgs="clustershell curl git jq patch pdsh rsync wget"
   log.info "Installing packages: ${pkgs}"
-  "${PKG_MGR}" install -y "${pkgs}"
+  # shellcheck disable=SC2086
+  "${PKG_MGR}" install -y ${pkgs}
 }
 
 add_repo() {

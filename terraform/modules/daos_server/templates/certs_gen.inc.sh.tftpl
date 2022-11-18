@@ -8,6 +8,7 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
     exit 1
   fi
   echo "Generating DAOS certificates"
+  mkdir -p /var/daos
   /usr/lib64/daos/certgen/gen_certificates.sh /var/daos
   pushd /var/daos
   tar -cvzf /var/daos/daosCA.tar.gz ./daosCA

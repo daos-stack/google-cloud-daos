@@ -23,7 +23,7 @@
 # is used as a bastion host.
 #
 
-set -eu
+set -eo pipefail
 trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -184,7 +184,7 @@ opts() {
       ;;
     esac
   done
-  set -e
+  set -eo pipefail
 
   show_errors
 }

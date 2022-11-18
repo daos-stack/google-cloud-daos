@@ -16,7 +16,7 @@
 
 # ------------------------------------------------------------------------------
 # Configuration: 32 clients, 10 servers, 16 disks per server
-# IO500 Config:  io500-sc22.config-template.daos-rf1.ini
+# IO500 Config:  io500-sc22.config-template.daos-rf2.ini
 # ------------------------------------------------------------------------------
 
 # Optional identifier to allow multiple DAOS clusters in the same GCP
