@@ -31,7 +31,8 @@ log() {
   local lvl=${2:-INFO}
   if [[ ${LOG_LEVELS[$LOG_LEVEL]} -le ${LOG_LEVELS[$lvl]} ]]; then
     if [[ -t 1 ]]; then tput setaf "${LOG_COLORS[$lvl]}"; fi
-    printf "[%-5s] %s\n" "$lvl" "${msg}" 1>&2
+    printf "[%-5s] " "$lvl" 1>&2
+    echo -e "${msg}" 1>&2
     if [[ -t 1 ]]; then tput sgr0; fi
   fi
 }
@@ -64,7 +65,7 @@ log.section() {
   if [[ ${LOG_LEVELS[$LOG_LEVEL]} -le ${LOG_LEVELS[OFF]} ]]; then
     log.line "${line_char}" "${line_width}" "${fg_color}"
     if [[ -t 1 ]];then tput setaf "${fg_color}"; fi
-    printf "%s\n" "${msg}" 1>&2
+    echo -e "${msg}" 1>&2
     log.line "${line_char}" "${line_width}" "${fg_color}"
     if [[ -t 1 ]]; then tput sgr0; fi
   fi

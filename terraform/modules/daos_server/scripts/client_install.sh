@@ -55,16 +55,19 @@ set_vars() {
 
 install_epel() {
   # DAOS has dependencies on packages in epel
-  echo "Adding epel-release repo"
-  if [[ "${OS_MAJOR_VERSION_ID}" != "opensuse-leap_15" ]]; then
-    if ! rpm -qa | grep -q "epel-release"; then
+  if [[ "${ID}" != "opensuse-leap" ]]; then
+    if rpm -qa | grep -q "epel-release"; then
+      echo "epel-release already installed"
+    else
+      echo "Installing epel-release"
       $PKG_MGR install -y "https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OS_MAJOR_VERSION}.noarch.rpm"
       $PKG_MGR upgrade -y epel-release
     fi
+    $PKG_MGR update -y
   fi
 }
 
-add_repo() {
+add_daos_repo() {
   local repo_file="${REPO_PATH}/daos.repo"
   rm -f "${repo_file}"
   echo "Adding DAOS v${DAOS_VERSION} packages repo"
@@ -84,7 +87,7 @@ install_daos_client() {
 main() {
   set_vars
   install_epel
-  add_repo
+  add_daos_repo
   install_daos_client
 }
 

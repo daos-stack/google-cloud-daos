@@ -69,7 +69,7 @@ fix_admin_cert_permissions() {
 
 unmount_defuse() {
   log.info "Attempting to unmount DFuse mountpoint ${IO500_DFUSE_DIR}"
-  if [[ -d "${IO500_DFUSE_DIR}" ]]; then
+  if findmnt --target "${IO500_DFUSE_DIR}" > /dev/null; then
     log.info "Unmount DFuse mountpoint ${IO500_DFUSE_DIR}"
 
     clush --hostfile=hosts_clients --dsh \
@@ -229,10 +229,10 @@ process_results() {
   for server in $(cat hosts_servers);do
     SERVER_FILES_DIR="${RESULT_SERVER_FILES_DIR}/${server}"
     mkdir -p "${SERVER_FILES_DIR}/etc/daos"
-    scp "${server}":/etc/daos/*.yaml "${SERVER_FILES_DIR}/etc/daos/"
-    scp "${server}":/etc/daos/*.yml "${SERVER_FILES_DIR}/etc/daos/"
+    scp "${server}:/etc/daos/*.yaml" "${SERVER_FILES_DIR}/etc/daos/"
+    scp "${server}:/etc/daos/*.yml" "${SERVER_FILES_DIR}/etc/daos/"
     mkdir -p "${SERVER_FILES_DIR}/var/daos"
-    scp "${server}":/var/daos/*.log* "${SERVER_FILES_DIR}/var/daos/"
+    scp "${server}:/var/daos/*.log*" "${SERVER_FILES_DIR}/var/daos/"
     ssh "${server}" 'daos_server version' > "${SERVER_FILES_DIR}/daos_server_version.txt"
   done
 
