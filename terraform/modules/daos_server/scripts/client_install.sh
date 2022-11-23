@@ -1,4 +1,4 @@
-#!/usr/env/bin bash
+#!/usr/bin/env bash
 # shellcheck shell=bash
 # Copyright 2022 Intel Corporation
 #
