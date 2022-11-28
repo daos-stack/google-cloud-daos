@@ -63,7 +63,6 @@ install_epel() {
       $PKG_MGR install -y "https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OS_MAJOR_VERSION}.noarch.rpm"
       $PKG_MGR upgrade -y epel-release
     fi
-    $PKG_MGR update -y
   fi
 }
 
