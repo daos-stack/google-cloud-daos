@@ -35,23 +35,39 @@ data "google_compute_image" "os_image" {
   project = local.os_project
 }
 
-resource "google_compute_instance_template" "daos_sig_template" {
+resource "google_compute_disk" "boot_disk" {
+  project = var.project_id
+  count = var.number_of_instances
+  name = format("%s-%04d-boot-disk", var.instance_base_name, sum([count.index, 1]))
+  image  = data.google_compute_image.os_image.self_link
+  type   = var.os_disk_type
+  size   = var.os_disk_size_gb
+  zone   = var.zone
+}
+
+resource "google_compute_instance" "named_instances" {
   provider       = google-beta
-  name           = var.template_name
-  machine_type   = var.machine_type
+  zone                   = var.zone
+  project                = var.project_id
+  labels                 = var.labels
+  count                  = var.number_of_instances
+  name                   = format("%s-%04d", var.instance_base_name, count.index+1)
   can_ip_forward = false
   tags           = ["daos-client"]
-  project        = var.project_id
-  region         = var.region
-  labels         = var.labels
-  count          = var.number_of_instances > 0 ? 1 : 0
+  machine_type   = var.machine_type
 
-  disk {
-    source_image = data.google_compute_image.os_image.self_link
+  metadata = {
+    inst_type                 = "daos-client"
+    enable-oslogin            = "true"
+    daos_control_yaml_content = var.daos_control_yml
+    daos_agent_yaml_content   = var.daos_agent_yml
+    startup-script            = local.startup_script
+  }
+
+
+  boot_disk {
+    source      = google_compute_disk.boot_disk[count.index].self_link
     auto_delete  = true
-    boot         = true
-    disk_type    = var.os_disk_type
-    disk_size_gb = var.os_disk_size_gb
   }
 
   network_interface {
@@ -76,40 +92,5 @@ resource "google_compute_instance_template" "daos_sig_template" {
   scheduling {
     preemptible       = var.preemptible
     automatic_restart = false
-  }
-}
-
-resource "google_compute_instance_group_manager" "daos_sig" {
-  description = "Stateful Instance group for DAOS clients"
-  name        = var.mig_name
-  count       = var.number_of_instances > 0 ? 1 : 0
-  version {
-    instance_template = google_compute_instance_template.daos_sig_template[0].self_link
-  }
-
-  base_instance_name = var.instance_base_name
-  zone               = var.zone
-  project            = var.project_id
-}
-
-
-resource "google_compute_per_instance_config" "named_instances" {
-  zone                   = var.zone
-  project                = var.project_id
-  instance_group_manager = google_compute_instance_group_manager.daos_sig[0].name
-  count                  = var.number_of_instances
-  name                   = format("%s-%04d", var.instance_base_name, sum([count.index, 1]))
-  preserved_state {
-    metadata = {
-      inst_type                 = "daos-client"
-      enable-oslogin            = "true"
-      daos_control_yaml_content = var.daos_control_yml
-      daos_agent_yaml_content   = var.daos_agent_yml
-      startup-script            = local.startup_script
-      # Adding a reference to the instance template used causes the stateful instance to update
-      # if the instance template changes. Otherwise there is no explicit dependency and template
-      # changes may not occur on the stateful instance
-      instance_template = google_compute_instance_template.daos_sig_template[0].self_link
-    }
   }
 }
