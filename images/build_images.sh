@@ -328,7 +328,7 @@ build_images() {
     # When worker pool is specified then region needs to match the one of the pool.
     # Need to parse the correct region to use it instead of the default one "global".
     # Format: projects/{project}/locations/{region}/workerPools/{workerPool}
-    BUILD_WORKER_POOL_ARRAY=("${BUILD_WORKER_POOL//// }")
+    BUILD_WORKER_POOL_ARRAY=(${BUILD_WORKER_POOL//// })
     BUILD_REGION="${BUILD_WORKER_POOL_ARRAY[3]}"
     BUILD_OPTIONAL_ARGS+=" --worker-pool=${BUILD_WORKER_POOL}"
 
