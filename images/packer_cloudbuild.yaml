@@ -19,4 +19,4 @@ steps:
   - '-c'
   - |
     /usr/bin/packer init ${_PACKER_TEMPLATE} && \
-    /usr/bin/packer build -var-file=${_PACKER_VARS_FILE} ${_PACKER_TEMPLATE}
+    /usr/bin/packer build -var-file=daos_image.pkrvars.hcl ${_PACKER_TEMPLATE}
