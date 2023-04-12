@@ -22,6 +22,7 @@ trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 : "${DAOS_PACKER_TEMPLATE:="daos_image.pkr.hcl"}"
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
 START_TIMESTAMP="${START_TIMESTAMP:-$(date "+%FT%T")}"
 
 # BEGIN: Logging variables and functions
@@ -45,6 +46,81 @@ log.warn() { log "${1}" "WARN"; }
 log.error() { log "${1}" "ERROR"; }
 log.fatal() { log "${1}" "FATAL"; }
 # END: Logging variables and functions
+
+show_help() {
+
+  cat <<EOF
+
+Usage:
+
+  ${SCRIPT_FILENAME} [<options>]
+
+  Build DAOS Server and Client images
+
+  Without options this script will build DAOS v${DAOS_VERSION}
+  server and client images using packer in Google Cloud Build.
+
+  For detailed information and descriptions of the environment
+  variables see ${SCRIPT_DIR}/README.md
+
+Options:
+
+  [ -h --help ]  Show this help
+
+Environment Variables:
+
+  Environment Variable          Current Value
+  ----------------------------  ---------------------------------------------
+  GCP_PROJECT                   ${GCP_PROJECT}
+  GCP_ZONE                      ${GCP_ZONE}
+  GCP_BUILD_WORKER_POOL         ${GCP_BUILD_WORKER_POOL}
+  GCP_USE_IAP                   ${GCP_USE_IAP}
+  GCP_ENABLE_OSLOGIN            ${GCP_ENABLE_OSLOGIN}
+  GCP_USE_CLOUDBUILD            ${GCP_USE_CLOUDBUILD}
+  GCP_CONFIGURE_PROJECT         ${GCP_CONFIGURE_PROJECT}
+  DAOS_VERSION                  ${DAOS_VERSION}
+  DAOS_REPO_BASE_URL            ${DAOS_REPO_BASE_URL}
+  DAOS_MACHINE_TYPE             ${DAOS_MACHINE_TYPE}
+  DAOS_SOURCE_IMAGE_FAMILY      ${DAOS_SOURCE_IMAGE_FAMILY}
+  DAOS_SOURCE_IMAGE_PROJECT_ID  ${DAOS_SOURCE_IMAGE_PROJECT_ID}
+  DAOS_SERVER_IMAGE_FAMILY      ${DAOS_SERVER_IMAGE_FAMILY}
+  DAOS_CLIENT_IMAGE_FAMILY      ${DAOS_CLIENT_IMAGE_FAMILY}
+  DAOS_BUILD_SERVER_IMAGE       ${DAOS_BUILD_SERVER_IMAGE}
+  DAOS_BUILD_CLIENT_IMAGE       ${DAOS_BUILD_CLIENT_IMAGE}
+  DAOS_PACKER_TEMPLATE          ${DAOS_PACKER_TEMPLATE}
+
+  prior to running ${SCRIPT_FILENAME}
+
+EOF
+}
+
+opts() {
+  # shift will cause the script to exit if attempting to shift beyond the
+  # max args.  So set +e to continue processing when shift errors.
+  set +e
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --help | -h)
+      show_help
+      exit 0
+      ;;
+    --)
+      break
+      ;;
+    --* | -*)
+      log.error "Unrecognized option '${1}'"
+      show_help
+      exit 1
+      ;;
+    *)
+      log.error "Unrecognized option '${1}'"
+      shift
+      break
+      ;;
+    esac
+  done
+  set -e
+}
 
 verify_gcloud() {
   if ! gcloud -v &>/dev/null; then
@@ -224,9 +300,12 @@ list_images() {
 
 main() {
   init
-  build_server_image
-  build_client_image
-  list_images
+  log.debug "AFTER init"
+  opts "$@"
+  # build_server_image
+  # build_client_image
+  # list_images
+  log.debug "END"
 }
 
-main
+main "$@"
