@@ -183,6 +183,7 @@ submit_build() {
     BUILD_OPTIONAL_ARGS+=" --region=${BUILD_REGION}"
   fi
 
+  # shellcheck disable=SC2086
   gcloud builds submit --timeout=1800s \
     --substitutions="_PACKER_TEMPLATE=${DAOS_PACKER_TEMPLATE}" \
     --config=packer_cloudbuild.yaml ${BUILD_OPTIONAL_ARGS} .
