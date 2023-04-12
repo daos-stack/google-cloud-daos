@@ -1,34 +1,165 @@
 # Images
 
-This directory contains Cloud Build configuration files, Packer templates and scripts used for building DAOS images with [Cloud Build](https://cloud.google.com/build).
+This directory contains files necessary for building DAOS images using [Cloud Build](https://cloud.google.com/build) and [Packer](https://developer.hashicorp.com/packer/downloads).
 
 ## Pre-Deployment steps required
 
 If you have not done so yet, please complete the steps in [Pre-Deployment Guide](../docs/pre-deployment_guide.md).
 
+The pre-deployment steps will have you run the `images/build.sh` script once in order to build a DAOS server image and a DAOS client image with the configured default settings.
+
+That should be all you need to run the Terraform examples in the `terraform/examples` directory or to run the [DAOS examples in the Google HPC Toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel).
+
+The information in this document is provided in case you need to build custom images with non-default settings.
+
 ## Building DAOS images
 
-The [Pre-Deployment Guide](../docs/pre-deployment_guide.md) includes instructions for building DAOS images.
-
-You can re-build your images with the following commands.
-
-Build both DAOS server and client images
+To rebuild the images with the default settings run:
 
 ```bash
-cd images/
-./build_images.sh --type all
+cd images
+./build.sh
 ```
 
-Build a DAOS server image
+## The Packer HCL template file
+
+A single Packer HCL template file `daos_image.pkr.hcl` is used to build either a DAOS server or DAOS client image.
+
+The `daos_image.pkr.hcl` file does not build both server and client images in a single `packer build` run. This is by design since there are use cases in which only one type of image is needed. If both types of images are needed, then `packer build` must be run twice with different variable values.
+
+### Source Block
+
+Within the `daos_image.pkr.hcl` template there is a single `source` block. Most of the settings for the block are set by variable values.
+
+### Build Block
+
+The `build` block consists of provisioners that do the following:
+
+1. Install Ansible
+2. Run the `ansible_playbooks/tune.yml` playbook
+3. Run the `ansible_playbooks/daos.yml` playbook
+
+These provisioners are the same for building both DAOS server and DAOS client images.
+
+The `daos_install_type` variable in the `daos_image.pkr.hcl` template is passed in the `--extra-vars` parameter when running the `daos.yml` ansible playbook.
+
+If `daos_install_type=server`, then the `daos.yml` playbook will install the DAOS server packages.
+
+If `daos_install_type=client`, then the `daos.yml` playbook will install the DAOS client packages.
+
+## `build.sh` environment variables
+
+The `images/build.sh` script uses the following environment variables.
+
+| Environment Variable         | Description                                                | Default                                            |
+| ---------------------------- | ---------------------------------------------------------- | -------------------------------------------------- |
+| GCP_PROJECT                  | Google Cloud Project ID                                    | Value retreived from `gcloud` active configuration |
+| GCP_ZONE                     | Zone where images will be deployed                         | Value retreived from `gcloud` active configuration |
+| GCP_BUILD_WORKER_POOL        | Google Cloud Build Worker Pool                             | ""                                                 |
+| GCP_USE_IAP                  | Use Identity Aware Proxy                                   | true                                               |
+| GCP_ENABLE_OSLOGIN           | Enable os-login                                            | false                                              |
+| GCP_USE_CLOUDBUILD           | Run packer in a Cloud Build job                            | true                                               |
+| GCP_CONFIGURE_PROJECT        | Configure default service acct for Cloud Build             | true                                               |
+| DAOS_VERSION                 | Version of DAOS to install                                 | See DEFAULT_DAOS_VERSION in build.sh               |
+| DAOS_REPO_BASE_URL           | Base URL of DAOS Repository                                | https://packages.daos.io                           |
+| DAOS_MACHINE_TYPE            | The machine type to use for the image                      | n2-standard-32                                     |
+| DAOS_SOURCE_IMAGE_FAMILY     | Source image family that Packer will use as the base image | rocky-linux-8-optimized-gcp                        |
+| DAOS_SOURCE_IMAGE_PROJECT_ID | Source project id that contains the source image           | rocky-linux-cloud                                  |
+| DAOS_SERVER_IMAGE_FAMILY     | Name of the image family for the DAOS Server image         | daos-server-rocky-8                                |
+| DAOS_CLIENT_IMAGE_FAMILY     | Name of the image family for the DAOS Client image         | daos-client-rocky-8                                |
+| DAOS_BUILD_SERVER_IMAGE      | Whether or not build the DAOS Server image                 | true                                               |
+| DAOS_BUILD_CLIENT_IMAGE      | Whether or not build the DAOS Client image                 | true                                               |
+| DAOS_PACKER_TEMPLATE         | Name of the Packer template                                | daos_image.pkr.hcl                                 |
+
+
+## Building only the DAOS Server or the DAOS Client image
+
+If you do not want to build one of the images, you must set the appropriate environment variable.
+
+For example,
+
+To build only the DAOS Server image
 
 ```bash
-cd images/
-./build_images.sh --type server
+cd images
+export DAOS_BUILD_CLIENT_IMAGE="false"  # Do not run the job to build the DAOS client image
+./build.sh
 ```
 
-Build a DAOS client image
+To build only the DAOS Client image
 
 ```bash
-cd images/
-./build_images.sh --type client
+cd images
+export DAOS_BUILD_SERVER_IMAGE="false" # Do not run the job to build the DAOS server image
+./build.sh
 ```
+
+## Custom image builds
+
+To create images that do not use the default settings, export one or more of the environment variables listed above before running `build.sh`
+
+### Change the name of the image family
+
+```bash
+cd images
+export DAOS_SERVER_IMAGE_FAMILY="my-daos-server"
+export DAOS_CLIENT_IMAGE_FAMILY="my-daos-client"
+./build.sh
+```
+
+### Use a different source image
+
+For the source image, use the `rocky-linux-8` community image instead of the Google optimized `rocky-linux-8-optimized-gcp` image.
+
+```bash
+cd images
+export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8"
+./build.sh
+```
+
+### Other Scenarios
+
+Say you want to make the following customizations to the images:
+
+1. Change the image family names of the DAOS Server and DAOS Client images
+2. Use the `rocky-linux-8-optimized-gcp` source image for the DAOS server image.
+3. Use the `rocky-linux-8` source image for the DAOS client image.
+
+In this scenario since you want to use a different source image for the server and client images, it will be necessary to run `build.sh` twice with different environment variables.
+
+**Build Server Image**
+
+No need to set the `DAOS_SOURCE_IMAGE_FAMILY` since we want the default value `rocky-linux-8-optimized-gcp` for the server image.
+
+```bash
+cd images
+export DAOS_BUILD_CLIENT_IMAGE="false"            # Do not build client image
+export DAOS_SERVER_IMAGE_FAMILY="my-daos-server"  # Change image family name
+./build.sh
+```
+
+**Build Client Image**
+
+Set `DAOS_SOURCE_IMAGE_FAMILY` since we want to specify a non-default value for the client image.
+
+```bash
+cd images
+export DAOS_BUILD_SERVER_IMAGE="false"            # Do not build server image
+export DAOS_CLIENT_IMAGE_FAMILY="my-daos-client"  # Change image family name
+export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8"   # Use the community Rocky 8 image for the source
+./build.sh
+```
+
+## Running packer locally (Do not use Cloud Build)
+
+Set `GCP_USE_CLOUDBUILD="false"` to run `packer` locally instead of running it in a Cloud Build job.
+
+```bash
+cd images
+export GCP_USE_CLOUDBUILD="false" # Do not run packer in Cloud Build
+./build.sh
+```
+
+When running `build.sh` this way, all project configuration steps are skipped.
+
+When `GCP_USE_CLOUDBUILD="true"` the `build.sh` will check your GCP project to ensure the default service account has the proper permissions needed for the Cloud Build job to run packer and create the images in your project.  Setting `GCP_USE_CLOUDBUILD="true"` will skip the project configuration steps. In this case, it's up to you to make sure the proper permissions are configured for you to run packer locally to build the images.

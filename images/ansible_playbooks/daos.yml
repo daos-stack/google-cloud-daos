@@ -1,0 +1,58 @@
+---
+# daos.yml
+# This playbook requires the daos_install_type variable be set in extra-vars.
+# ansible-playbook daos.yml -e "daos_install_type=server"
+
+- name: Install DAOS
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    daos_install_type: ""
+    daos_version: "2.2.0"
+    daos_repo_baseurl: "https://packages.daos.io"
+    daos_repo_file_url: "{{ daos_repo_baseurl }}/v{{ daos_version }}/EL8/packages/x86_64/daos_packages.repo"
+    daos_packages:
+      client: ["daos-admin", "daos-client", "daos-devel"]
+      server: ["daos-admin", "daos-server", "daos-devel"]
+
+    packages:
+      - clustershell
+      - curl
+      - git
+      - jq
+      - patch
+      - pdsh
+      - rsync
+      - wget
+
+  tasks:
+    - name: Check daos_install_type variable contains value
+      ansible.builtin.assert:
+        that:
+          - daos_install_type in ["server", "client"]
+        fail_msg: "'daos_install_type' must be either 'client' or 'server'"
+
+    - name: Install Packages
+      ansible.builtin.package:
+        name: "{{ packages }}"
+        state: present
+
+    - name: Add DAOS repo
+      ansible.builtin.get_url:
+        url: "{{ daos_repo_file_url }}"
+        dest: /etc/yum.repos.d/daos_packages.repo
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: List of DAOS packages to be installed
+      debug:
+        var: item
+      with_items: "{{ daos_packages[daos_install_type] }}"
+
+    - name: Install DAOS packages
+      ansible.builtin.package:
+        name: "{{ daos_packages[daos_install_type] }}"
+        state: present
