@@ -23,13 +23,13 @@ cd images
 
 ## The Packer HCL template file
 
-A single Packer HCL template file `daos_image.pkr.hcl` is used to build either a DAOS server or DAOS client image.
+A single Packer HCL template file `daos.pkr.hcl` is used to build either a DAOS server or DAOS client image.
 
-The `daos_image.pkr.hcl` file does not build both server and client images in a single `packer build` run. This is by design since there are use cases in which only one type of image is needed. If both types of images are needed, then `packer build` must be run twice with different variable values.
+The `daos.pkr.hcl` file does not build both server and client images in a single `packer build` run. This is by design since there are use cases in which only one type of image is needed. If both types of images are needed, then `packer build` must be run twice with different variable values.
 
 ### Source Block
 
-Within the `daos_image.pkr.hcl` template there is a single `source` block. Most of the settings for the block are set by variable values.
+Within the `daos.pkr.hcl` template there is a single `source` block. Most of the settings for the block are set by variable values.
 
 ### Build Block
 
@@ -41,7 +41,7 @@ The `build` block consists of provisioners that do the following:
 
 These provisioners are the same for building both DAOS server and DAOS client images.
 
-The `daos_install_type` variable in the `daos_image.pkr.hcl` template is passed in the `--extra-vars` parameter when running the `daos.yml` ansible playbook.
+The `daos_install_type` variable in the `daos.pkr.hcl` template is passed in the `--extra-vars` parameter when running the `daos.yml` ansible playbook.
 
 If `daos_install_type=server`, then the `daos.yml` playbook will install the DAOS server packages.
 
@@ -69,7 +69,7 @@ The `images/build.sh` script uses the following environment variables.
 | DAOS_CLIENT_IMAGE_FAMILY     | Name of the image family for the DAOS Client image         | daos-client-rocky-8                                |
 | DAOS_BUILD_SERVER_IMAGE      | Whether or not build the DAOS Server image                 | true                                               |
 | DAOS_BUILD_CLIENT_IMAGE      | Whether or not build the DAOS Client image                 | true                                               |
-| DAOS_PACKER_TEMPLATE         | Name of the Packer template                                | daos_image.pkr.hcl                                 |
+| DAOS_PACKER_TEMPLATE         | Name of the Packer template                                | daos.pkr.hcl                                       |
 
 
 ## Building only the DAOS Server or the DAOS Client image
