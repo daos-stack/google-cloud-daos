@@ -5,9 +5,9 @@ trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
 : "${DAOS_VERSION:="2.2.0"}"
 : "${DAOS_REPO_BASE_URL:="https://packages.daos.io"}"
-: "${GCP_PROJECT:=""}"
-: "${GCP_ZONE:=""}"
-: "${GCP_BUILD_WORKER_POOL:=""}"
+: "${GCP_PROJECT:=}"
+: "${GCP_ZONE:=}"
+: "${GCP_BUILD_WORKER_POOL:=}"
 : "${GCP_USE_IAP:=true}"
 : "${GCP_ENABLE_OSLOGIN:=false}"
 : "${GCP_USE_CLOUDBUILD:=true}"
@@ -19,7 +19,9 @@ trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 : "${DAOS_CLIENT_IMAGE_FAMILY:="daos-client-rocky-8"}"
 : "${DAOS_BUILD_SERVER_IMAGE:=true}"
 : "${DAOS_BUILD_CLIENT_IMAGE:=true}"
-: "${DAOS_PACKER_TEMPLATE:="daos_image.pkr.hcl"}"
+: "${DAOS_PACKER_TEMPLATE:="daos.pkr.hcl"}"
+: "${DAOS_PACKER_VARS_FILE:="daos.pkrvars.hcl"}"
+: "${LOG_LEVEL:=INFO}"
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
@@ -28,7 +30,6 @@ START_TIMESTAMP="${START_TIMESTAMP:-$(date "+%FT%T")}"
 # BEGIN: Logging variables and functions
 declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3 [FATAL]=4 [OFF]=5)
 declare -A LOG_COLORS=([DEBUG]=2 [INFO]=12 [WARN]=3 [ERROR]=1 [FATAL]=9 [OFF]=0 [OTHER]=15)
-LOG_LEVEL=DEBUG
 
 log() {
   local msg="$1"
@@ -61,7 +62,8 @@ Usage:
   server and client images using packer in Google Cloud Build.
 
   For detailed information and descriptions of the environment
-  variables see ${SCRIPT_DIR}/README.md
+  variables see the README.md in the same directory as
+  ${SCRIPT_FILENAME}
 
 Options:
 
@@ -70,7 +72,7 @@ Options:
 Environment Variables:
 
   Environment Variable          Current Value
-  ----------------------------  ---------------------------------------------
+  ----------------------------  --------------------------------
   GCP_PROJECT                   ${GCP_PROJECT}
   GCP_ZONE                      ${GCP_ZONE}
   GCP_BUILD_WORKER_POOL         ${GCP_BUILD_WORKER_POOL}
@@ -88,8 +90,7 @@ Environment Variables:
   DAOS_BUILD_SERVER_IMAGE       ${DAOS_BUILD_SERVER_IMAGE}
   DAOS_BUILD_CLIENT_IMAGE       ${DAOS_BUILD_CLIENT_IMAGE}
   DAOS_PACKER_TEMPLATE          ${DAOS_PACKER_TEMPLATE}
-
-  prior to running ${SCRIPT_FILENAME}
+  DAOS_PACKER_VARS_FILE         ${DAOS_PACKER_VARS_FILE}
 
 EOF
 }
@@ -144,15 +145,15 @@ init() {
   if [ -z "$GCP_ZONE" ]; then
     verify_gcloud
     GCP_ZONE=$(gcloud config list --format='value(compute.zone)')
-    if [ -z "$GCP_PROJECT" ]; then
-      log.error "Unable to set GCP_PROJECT from active gcloud configuration"
+    if [ -z "$GCP_ZONE" ]; then
+      log.error "Unable to set GCP_ZONE from active gcloud configuration"
       exit 1
     fi
   fi
 }
 
 create_pkrvars_file() {
-  cat >"${SCRIPT_DIR}/daos_image.pkrvars.hcl" <<EOF
+  cat >"${SCRIPT_DIR}/${DAOS_PACKER_VARS_FILE}" <<EOF
 daos_version="${DAOS_VERSION}"
 daos_repo_base_url="${DAOS_REPO_BASE_URL}"
 project_id="${GCP_PROJECT}"
@@ -174,15 +175,13 @@ EOF
 }
 
 cleanup_pkrvars_file() {
-  local vars_file="${SCRIPT_DIR}/daos_image.pkrvars.hcl"
-  if [[ -f "${vars_file}" ]]; then
-    rm -f "${vars_file}"
-  fi
+  local vars_file="${SCRIPT_DIR}/${DAOS_PACKER_VARS_FILE}"
+  [[ -f "${vars_file}" ]] && rm -f "${vars_file}"
 }
 
 run_packer() {
-  packer init -var-file=daos_image.pkrvars.hcl daos_image.pkr.hcl
-  packer build -var-file=daos_image.pkrvars.hcl daos_image.pkr.hcl
+  packer init -var-file="${DAOS_PACKER_VARS_FILE}" "${DAOS_PACKER_TEMPLATE}"
+  packer build -var-file="${DAOS_PACKER_VARS_FILE}" "${DAOS_PACKER_TEMPLATE}"
 }
 
 configure_gcp_project() {
@@ -240,28 +239,32 @@ configure_gcp_project() {
 }
 
 submit_build() {
-  DAOS_PACKER_TEMPLATE="daos_image.pkr.hcl"
   BUILD_OPTIONAL_ARGS=""
 
   configure_gcp_project
 
-  if [[ -z "${GCP_BUILD_WORKER_POOL}" ]]; then
+  if [[ -n "${GCP_BUILD_WORKER_POOL}" ]]; then
     # When worker pool is specified then region needs to match the one of the pool.
     # Need to parse the correct region to use it instead of the default one "global".
     # Format: projects/{project}/locations/{region}/workerPools/{workerPool}
     local locations="${GCP_BUILD_WORKER_POOL#*locations/}"
     BUILD_REGION="${locations%%/*}"
+    log.debug "Adding --worker-pool to BUILD_OPTIONAL_ARGS"
     BUILD_OPTIONAL_ARGS+=" --worker-pool=${GCP_BUILD_WORKER_POOL}"
-    echo "Using build worker pool ${GCP_BUILD_WORKER_POOL}, region ${BUILD_REGION}"
+    log.info "Using build worker pool ${GCP_BUILD_WORKER_POOL}, region ${BUILD_REGION}"
   fi
 
-  if [[ -z "${BUILD_REGION}" ]]; then
+  if [[ -n "${BUILD_REGION}" ]]; then
     BUILD_OPTIONAL_ARGS+=" --region=${BUILD_REGION}"
   fi
 
+  log.debug "GCP_BUILD_WORKER_POOL=${GCP_BUILD_WORKER_POOL}"
+  log.debug "BUILD_REGION=${BUILD_REGION}"
+  log.debug "BUILD_OPTIONAL_ARGS=${BUILD_OPTIONAL_ARGS}"
+
   # shellcheck disable=SC2086
   gcloud builds submit --timeout=1800s \
-    --substitutions="_PACKER_TEMPLATE=${DAOS_PACKER_TEMPLATE}" \
+    --substitutions="_PACKER_VARS_FILE=${DAOS_PACKER_VARS_FILE},_PACKER_TEMPLATE=${DAOS_PACKER_TEMPLATE}" \
     --config=packer_cloudbuild.yaml ${BUILD_OPTIONAL_ARGS} .
 }
 
@@ -298,14 +301,34 @@ list_images() {
     --sort-by="creationTimestamp"
 }
 
+show_vars() {
+  log.debug "GCP_PROJECT                   ${GCP_PROJECT}"
+  log.debug "GCP_ZONE                      ${GCP_ZONE}"
+  log.debug "GCP_BUILD_WORKER_POOL         ${GCP_BUILD_WORKER_POOL}"
+  log.debug "GCP_USE_IAP                   ${GCP_USE_IAP}"
+  log.debug "GCP_ENABLE_OSLOGIN            ${GCP_ENABLE_OSLOGIN}"
+  log.debug "GCP_USE_CLOUDBUILD            ${GCP_USE_CLOUDBUILD}"
+  log.debug "GCP_CONFIGURE_PROJECT         ${GCP_CONFIGURE_PROJECT}"
+  log.debug "DAOS_VERSION                  ${DAOS_VERSION}"
+  log.debug "DAOS_REPO_BASE_URL            ${DAOS_REPO_BASE_URL}"
+  log.debug "DAOS_MACHINE_TYPE             ${DAOS_MACHINE_TYPE}"
+  log.debug "DAOS_SOURCE_IMAGE_FAMILY      ${DAOS_SOURCE_IMAGE_FAMILY}"
+  log.debug "DAOS_SOURCE_IMAGE_PROJECT_ID  ${DAOS_SOURCE_IMAGE_PROJECT_ID}"
+  log.debug "DAOS_SERVER_IMAGE_FAMILY      ${DAOS_SERVER_IMAGE_FAMILY}"
+  log.debug "DAOS_CLIENT_IMAGE_FAMILY      ${DAOS_CLIENT_IMAGE_FAMILY}"
+  log.debug "DAOS_BUILD_SERVER_IMAGE       ${DAOS_BUILD_SERVER_IMAGE}"
+  log.debug "DAOS_BUILD_CLIENT_IMAGE       ${DAOS_BUILD_CLIENT_IMAGE}"
+  log.debug "DAOS_PACKER_TEMPLATE          ${DAOS_PACKER_TEMPLATE}"
+  log.debug "DAOS_PACKER_VARS_FILE         ${DAOS_PACKER_VARS_FILE}"
+}
+
 main() {
   init
-  log.debug "AFTER init"
   opts "$@"
-  # build_server_image
-  # build_client_image
-  # list_images
-  log.debug "END"
+  show_vars
+  build_server_image
+  build_client_image
+  list_images
 }
 
 main "$@"
