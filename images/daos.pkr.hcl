@@ -15,6 +15,10 @@ variable "daos_repo_base_url" {
   type = string
 }
 
+variable "daos_packages_repo_file" {
+  type = string
+}
+
 variable "daos_install_type" {
   type = string
 }
@@ -129,7 +133,7 @@ build {
     playbook_file = "./ansible_playbooks/daos.yml"
     extra_arguments = [
       "--extra-vars",
-      "\"daos_version=${var.daos_version} daos_repo_baseurl=${var.daos_repo_base_url} daos_install_type=${var.daos_install_type}\""
+      "\"daos_version=${var.daos_version} daos_repo_base_url=${var.daos_repo_base_url} daos_packages_repo_file=${var.daos_packages_repo_file} daos_install_type=${var.daos_install_type}\""
     ]
   }
 }

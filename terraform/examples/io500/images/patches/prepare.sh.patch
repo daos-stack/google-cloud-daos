@@ -1,0 +1,31 @@
+diff --git a/prepare.sh b/prepare.sh
+index da39346..2198147 100755
+--- a/prepare.sh
++++ b/prepare.sh
+@@ -8,7 +8,7 @@ echo It will output OK at the end if builds succeed
+ echo
+
+ IOR_HASH=06fc08e147600f4e5896a5b9b2bf8f1c4a79121f
+-PFIND_HASH=62c3a7e31
++PFIND_HASH=dfs_find
+
+ INSTALL_DIR=$PWD
+ BIN=$INSTALL_DIR/bin
+@@ -59,7 +59,7 @@ function get_ior {
+
+ function get_pfind {
+   echo "Preparing parallel find"
+-  git_co https://github.com/VI4IO/pfind.git pfind $PFIND_HASH
++  git_co https://github.com/mchaarawi/pfind pfind $PFIND_HASH
+ }
+
+ function get_schema_tools {
+@@ -73,7 +73,7 @@ function build_ior {
+   pushd "$BUILD"/ior
+   ./bootstrap
+   # Add here extra flags
+-  ./configure --prefix="$INSTALL_DIR"
++  ./configure --prefix="$INSTALL_DIR" --with-daos=/usr
+   cd src
+   $MAKE clean
+   $MAKE install

@@ -5,6 +5,7 @@ trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
 : "${DAOS_VERSION:="2.2.0"}"
 : "${DAOS_REPO_BASE_URL:="https://packages.daos.io"}"
+: "${DAOS_PACKAGES_REPO_FILE:="EL8/packages/x86_64/daos_packages.repo"}"
 : "${GCP_PROJECT:=}"
 : "${GCP_ZONE:=}"
 : "${GCP_BUILD_WORKER_POOL:=}"
@@ -58,10 +59,7 @@ Usage:
 
   Build DAOS Server and Client images
 
-  Without options this script will build DAOS v${DAOS_VERSION}
-  server and client images using packer in Google Cloud Build.
-
-  For detailed information and descriptions of the environment
+  For more information and descriptions of the environment
   variables see the README.md in the same directory as
   ${SCRIPT_FILENAME}
 
@@ -82,6 +80,7 @@ Environment Variables:
   GCP_CONFIGURE_PROJECT         ${GCP_CONFIGURE_PROJECT}
   DAOS_VERSION                  ${DAOS_VERSION}
   DAOS_REPO_BASE_URL            ${DAOS_REPO_BASE_URL}
+  DAOS_PACKAGES_REPO_FILE       ${DAOS_PACKAGES_REPO_FILE}
   DAOS_MACHINE_TYPE             ${DAOS_MACHINE_TYPE}
   DAOS_SOURCE_IMAGE_FAMILY      ${DAOS_SOURCE_IMAGE_FAMILY}
   DAOS_SOURCE_IMAGE_PROJECT_ID  ${DAOS_SOURCE_IMAGE_PROJECT_ID}
@@ -156,6 +155,7 @@ create_pkrvars_file() {
   cat >"${SCRIPT_DIR}/${DAOS_PACKER_VARS_FILE}" <<EOF
 daos_version="${DAOS_VERSION}"
 daos_repo_base_url="${DAOS_REPO_BASE_URL}"
+daos_packages_repo_file="${DAOS_PACKAGES_REPO_FILE}"
 project_id="${GCP_PROJECT}"
 zone="${GCP_ZONE}"
 use_iap="${GCP_USE_IAP}"

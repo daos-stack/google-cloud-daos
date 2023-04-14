@@ -52,7 +52,7 @@ DAOS_CONT_REPLICATION_FACTOR="rf:0"
 
 # IO500
 IO500_TEST_CONFIG_ID="GCP-32C-10S16d-NOGVNIC-rf2"
-IO500_STONEWALL_TIME=60  # Number of seconds to run the benchmark
+IO500_STONEWALL_TIME=60 # Number of seconds to run the benchmark
 IO500_INI="io500-sc22.config-template.daos-rf2.ini"
 
 # ------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ export TF_VAR_server_template_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_mig_name="${DAOS_SERVER_BASE_NAME}"
 export TF_VAR_server_machine_type="${DAOS_SERVER_MACHINE_TYPE}"
 export TF_VAR_server_os_project="${TF_VAR_project_id}"
-export TF_VAR_server_os_family="daos-server-io500-centos-7"
+export TF_VAR_server_os_family="daos-server-io500-rocky-8"
 export TF_VAR_server_gvnic="${DAOS_SERVER_GVNIC}"
 
 # Clients
@@ -104,5 +104,5 @@ export TF_VAR_client_template_name="${DAOS_CLIENT_BASE_NAME}"
 export TF_VAR_client_mig_name="${DAOS_CLIENT_BASE_NAME}"
 export TF_VAR_client_machine_type="${DAOS_CLIENT_MACHINE_TYPE}"
 export TF_VAR_client_os_project="${TF_VAR_project_id}"
-export TF_VAR_client_os_family="daos-client-io500-hpc-centos-7"
+export TF_VAR_client_os_family="daos-client-io500-rocky-8"
 export TF_VAR_client_gvnic="${DAOS_CLIENT_GVNIC}"

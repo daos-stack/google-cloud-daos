@@ -107,14 +107,14 @@ show_errors() {
 
 check_dependencies() {
   # Exit if gcloud command not found
-  if ! gcloud -v &> /dev/null; then
+  if ! gcloud -v &>/dev/null; then
     log.error "'gcloud' command not found
        Is the Google Cloud Platform SDK installed?
        See https://cloud.google.com/sdk/docs/install"
     exit 1
   fi
   # Exit if terraform command not found
-  if ! terraform -v &> /dev/null; then
+  if ! terraform -v &>/dev/null; then
     log.error "'terraform' command not found
        Is Terraform installed?"
     exit 1
@@ -128,59 +128,59 @@ opts() {
   set +e
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --config|-c)
-        CONFIG_FILE="$2"
-        if [[ "${CONFIG_FILE}" == -* ]] || [[ "${CONFIG_FILE}" == "" ]] || [[ -z ${CONFIG_FILE} ]]; then
-          ERROR_MSGS+=("ERROR: Missing CONFIG_FILE value for -c or --config")
-          break
-        elif [[ ! -f "${CONFIG_FILE}" ]]; then
-          ERROR_MSGS+=("ERROR: Configuration file '${CONFIG_FILE}' not found.")
-        fi
-        export CONFIG_FILE
-        shift 2
+    --config | -c)
+      CONFIG_FILE="$2"
+      if [[ "${CONFIG_FILE}" == -* ]] || [[ "${CONFIG_FILE}" == "" ]] || [[ -z ${CONFIG_FILE} ]]; then
+        ERROR_MSGS+=("ERROR: Missing CONFIG_FILE value for -c or --config")
+        break
+      elif [[ ! -f "${CONFIG_FILE}" ]]; then
+        ERROR_MSGS+=("ERROR: Configuration file '${CONFIG_FILE}' not found.")
+      fi
+      export CONFIG_FILE
+      shift 2
       ;;
-      --internal-ip|-i)
-        USE_INTERNAL_IP=1
-        shift
+    --internal-ip | -i)
+      USE_INTERNAL_IP=1
+      shift
       ;;
-      --version|-v)
-        DAOS_VERSION="${2}"
-        if [[ "${DAOS_VERSION}" == -* ]] || [[ "${DAOS_VERSION}" = "" ]] || [[ -z ${DAOS_VERSION} ]]; then
-          log.error "Missing DAOS_VERSION value for -v or --version"
-          show_help
-          exit 1
-        fi
-        export DAOS_VERSION
-        shift 2
-      ;;
-      --repo-baseurl|-u)
-        DAOS_REPO_BASE_URL="${2}"
-        if [[ "${DAOS_REPO_BASE_URL}" == -* ]] || [[ "${DAOS_REPO_BASE_URL}" = "" ]] || [[ -z ${DAOS_REPO_BASE_URL} ]]; then
-          log.error "Missing URL value for -u or --repo-baseurl"
-          show_help
-          exit 1
-        fi
-        export DAOS_REPO_BASE_URL
-        shift 2
-      ;;
-      --force|-f)
-        FORCE_REBUILD=1
-        export FORCE_REBUILD
-        shift
-      ;;
-      --help|-h)
+    --version | -v)
+      DAOS_VERSION="${2}"
+      if [[ "${DAOS_VERSION}" == -* ]] || [[ "${DAOS_VERSION}" = "" ]] || [[ -z ${DAOS_VERSION} ]]; then
+        log.error "Missing DAOS_VERSION value for -v or --version"
         show_help
-        exit 0
+        exit 1
+      fi
+      export DAOS_VERSION
+      shift 2
       ;;
-	    --*|-*)
-        ERROR_MSGS+=("ERROR: Unrecognized option '${1}'")
-        shift
-        break
+    --repo-baseurl | -u)
+      DAOS_REPO_BASE_URL="${2}"
+      if [[ "${DAOS_REPO_BASE_URL}" == -* ]] || [[ "${DAOS_REPO_BASE_URL}" = "" ]] || [[ -z ${DAOS_REPO_BASE_URL} ]]; then
+        log.error "Missing URL value for -u or --repo-baseurl"
+        show_help
+        exit 1
+      fi
+      export DAOS_REPO_BASE_URL
+      shift 2
       ;;
-	    *)
-        ERROR_MSGS+=("ERROR: Unrecognized option '${1}'")
-        shift
-        break
+    --force | -f)
+      DAOS_FORCE_REBUILD=1
+      export DAOS_FORCE_REBUILD
+      shift
+      ;;
+    --help | -h)
+      show_help
+      exit 0
+      ;;
+    --* | -*)
+      ERROR_MSGS+=("ERROR: Unrecognized option '${1}'")
+      shift
+      break
+      ;;
+    *)
+      ERROR_MSGS+=("ERROR: Unrecognized option '${1}'")
+      shift
+      break
       ;;
     esac
   done
@@ -196,7 +196,7 @@ create_active_config_symlink() {
   if [[ -L "${ACTIVE_CONFIG}" ]]; then
     current_config=$(readlink "${ACTIVE_CONFIG}")
     if [[ "$(basename "${CONFIG_FILE}")" != $(basename "${current_config}") ]]; then
-       read -r -d '' err_msg <<EOF || true
+      read -r -d '' err_msg <<EOF || true
 ERROR
 Cannot use configuration: ${CONFIG_FILE}
 An active configuration already exists: ${current_config}
@@ -247,18 +247,16 @@ create_hosts_files() {
 
   rm -f "${HOSTS_CLIENTS_FILE}" "${HOSTS_SERVERS_FILE}" "${HOSTS_ALL_FILE}"
 
-  for ((i=1; i<=DAOS_CLIENT_INSTANCE_COUNT; i++))
-  do
-      CLIENTS+="${DAOS_CLIENT_BASE_NAME}-$(printf "%04d" "${i}") "
-      echo "${DAOS_CLIENT_BASE_NAME}-$(printf "%04d" "${i}")" >> "${HOSTS_CLIENTS_FILE}"
-      echo "${DAOS_CLIENT_BASE_NAME}-$(printf "%04d" "${i}")" >> "${HOSTS_ALL_FILE}"
+  for ((i = 1; i <= DAOS_CLIENT_INSTANCE_COUNT; i++)); do
+    CLIENTS+="${DAOS_CLIENT_BASE_NAME}-$(printf "%04d" "${i}") "
+    echo "${DAOS_CLIENT_BASE_NAME}-$(printf "%04d" "${i}")" >>"${HOSTS_CLIENTS_FILE}"
+    echo "${DAOS_CLIENT_BASE_NAME}-$(printf "%04d" "${i}")" >>"${HOSTS_ALL_FILE}"
   done
 
-  for ((i=1; i<=DAOS_SERVER_INSTANCE_COUNT; i++))
-  do
-      SERVERS+="${DAOS_SERVER_BASE_NAME}-$(printf "%04d" "${i}") "
-      echo "${DAOS_SERVER_BASE_NAME}-$(printf "%04d" "${i}")" >> "${HOSTS_SERVERS_FILE}"
-      echo "${DAOS_SERVER_BASE_NAME}-$(printf "%04d" "${i}")" >> "${HOSTS_ALL_FILE}"
+  for ((i = 1; i <= DAOS_SERVER_INSTANCE_COUNT; i++)); do
+    SERVERS+="${DAOS_SERVER_BASE_NAME}-$(printf "%04d" "${i}") "
+    echo "${DAOS_SERVER_BASE_NAME}-$(printf "%04d" "${i}")" >>"${HOSTS_SERVERS_FILE}"
+    echo "${DAOS_SERVER_BASE_NAME}-$(printf "%04d" "${i}")" >>"${HOSTS_ALL_FILE}"
   done
 
   DAOS_FIRST_CLIENT=$(echo "${CLIENTS}" | awk '{print $1}')
@@ -278,7 +276,7 @@ create_hosts_files() {
 build_disk_images() {
   # Build the DAOS disk images
   log.section "IO500 Disk Images"
-  "${SCRIPT_DIR}/build_daos_io500_images.sh" --type all
+  "${SCRIPT_DIR}/images/build_io500_images.sh"
 }
 
 run_terraform() {
@@ -317,8 +315,8 @@ configure_first_client_ip() {
 
       gcloud compute instances add-access-config "${DAOS_FIRST_CLIENT}" \
         --project="${TF_VAR_project_id}" \
-        --zone="${TF_VAR_zone}" \
-        && sleep 10
+        --zone="${TF_VAR_zone}" &&
+        sleep 10
 
       FIRST_CLIENT_IP=$(gcloud compute instances describe "${DAOS_FIRST_CLIENT}" \
         --project="${TF_VAR_project_id}" \
@@ -357,7 +355,7 @@ configure_ssh() {
   fi
 
   # Generate file containing keys which will be added to the metadata of all nodes.
-  echo "${SSH_USER}:$(cat "${IO500_TMP}/id_rsa.pub")" > "${IO500_TMP}/keys.txt"
+  echo "${SSH_USER}:$(cat "${IO500_TMP}/id_rsa.pub")" >"${IO500_TMP}/keys.txt"
 
   # Only update instance meta-data once
   if ! gcloud compute instances describe "${DAOS_FIRST_CLIENT}" \
@@ -372,19 +370,19 @@ configure_ssh() {
       gcloud compute instances add-metadata "${node}" \
         --project="${TF_VAR_project_id}" \
         --zone="${TF_VAR_zone}" \
-        --metadata enable-oslogin=FALSE && \
-      # Upload SSH key to instance, so that you can log into instance via SSH
-      gcloud compute instances add-metadata "${node}" \
-        --project="${TF_VAR_project_id}" \
-        --zone="${TF_VAR_zone}" \
-        --metadata-from-file ssh-keys="${IO500_TMP}/keys.txt" &
+        --metadata enable-oslogin=FALSE &&
+        # Upload SSH key to instance, so that you can log into instance via SSH
+        gcloud compute instances add-metadata "${node}" \
+          --project="${TF_VAR_project_id}" \
+          --zone="${TF_VAR_zone}" \
+          --metadata-from-file ssh-keys="${IO500_TMP}/keys.txt" &
     done
     # Wait for instance meta-data updates to finish
     wait
   fi
 
   # Create ssh config for all instances
-  cat > "${IO500_TMP}/instance_ssh_config" <<EOF
+  cat >"${IO500_TMP}/instance_ssh_config" <<EOF
 Host *
     CheckHostIp no
     UserKnownHostsFile /dev/null
@@ -396,7 +394,7 @@ EOF
   chmod 600 "${IO500_TMP}/instance_ssh_config"
 
   # Create local ssh config
-  cat > "${SSH_CONFIG_FILE}" <<EOF
+  cat >"${SSH_CONFIG_FILE}" <<EOF
 Include ~/.ssh/config
 Include ~/.ssh/config.d/*
 
@@ -432,7 +430,7 @@ EOF
     "chmod -R 600 ~/.ssh/*"
 
   echo "#!/usr/bin/env bash
-  ssh -F ./tmp/ssh_config ${FIRST_CLIENT_IP}" > "${SCRIPT_DIR}/login"
+  ssh -F ./tmp/ssh_config ${FIRST_CLIENT_IP}" >"${SCRIPT_DIR}/login"
   chmod +x "${SCRIPT_DIR}/login"
 }
 
@@ -464,7 +462,7 @@ copy_files_to_first_client() {
 
 }
 
-copy_ssh_keys_to_all_nodes () {
+copy_ssh_keys_to_all_nodes() {
   # Clear ~/.ssh/known_hosts so we don't run into any issues
   ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
     "clush --hostfile=hosts_all --dsh 'rm -f ~/.ssh/known_hosts'"
@@ -474,7 +472,7 @@ copy_ssh_keys_to_all_nodes () {
     "clush --hostfile=hosts_all --dsh --copy ~/.ssh --dest ~/"
 }
 
-wait_for_startup_script_to_finish () {
+wait_for_startup_script_to_finish() {
   ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
     "printf 'Waiting for startup script to finish\n'
      until sudo journalctl -u google-startup-scripts.service --no-pager | grep 'Finished running startup scripts.'
@@ -486,7 +484,7 @@ wait_for_startup_script_to_finish () {
     "
 }
 
-set_permissions_on_cert_files () {
+set_permissions_on_cert_files() {
   if [[ "${DAOS_ALLOW_INSECURE}" == "false" ]]; then
     ssh -q -F "${SSH_CONFIG_FILE}" "${FIRST_CLIENT_IP}" \
       "clush --hostfile=hosts_clients --dsh sudo chown ${SSH_USER}:${SSH_USER} /etc/daos/certs/daosCA.crt"
@@ -515,9 +513,9 @@ check_gvnic() {
 
 show_run_steps() {
 
- log.section "DAOS Server and Client instances are ready for IO500 run"
+  log.section "DAOS Server and Client instances are ready for IO500 run"
 
- cat <<EOF
+  cat <<EOF
 
 To run the IO500 benchmark:
 
