@@ -42,10 +42,10 @@ limitations under the License.
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name                                                                      | Version   |
+| ------------------------------------------------------------------------- | --------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.5 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | >= 3.54.0 |
+| <a name="requirement_google"></a> [google](#requirement\_google)          | >= 3.54.0 |
 
 ## Providers
 
@@ -53,10 +53,10 @@ No providers.
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_daos_client"></a> [daos\_client](#module\_daos\_client) | ../../modules/daos_client | n/a |
-| <a name="module_daos_server"></a> [daos\_server](#module\_daos\_server) | ../../modules/daos_server | n/a |
+| Name                                                                    | Source                    | Version |
+| ----------------------------------------------------------------------- | ------------------------- | ------- |
+| <a name="module_daos_client"></a> [daos\_client](#module\_daos\_client) | ../../modules/daos_client | n/a     |
+| <a name="module_daos_server"></a> [daos\_server](#module\_daos\_server) | ../../modules/daos_server | n/a     |
 
 ## Resources
 

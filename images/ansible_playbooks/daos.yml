@@ -1,7 +1,5 @@
 ---
 # daos.yml
-# This playbook requires the daos_install_type variable be set in extra-vars.
-# ansible-playbook daos.yml -e "daos_install_type=server"
 
 - name: Install DAOS
   hosts: 127.0.0.1
@@ -9,11 +7,12 @@
   become: true
 
   vars:
-    daos_install_type: ""
+    daos_install_type: "all"
     daos_version: "2.2.0"
-    daos_repo_baseurl: "https://packages.daos.io"
-    daos_repo_file_url: "{{ daos_repo_baseurl }}/v{{ daos_version }}/EL8/packages/x86_64/daos_packages.repo"
+    daos_repo_base_url: "https://packages.daos.io"
+    daos_packages_repo_file: "EL8/packages/x86_64/daos_packages.repo"
     daos_packages:
+      all: ["daos-admin", "daos-client", "daos-server", "daos-devel"]
       client: ["daos-admin", "daos-client", "daos-devel"]
       server: ["daos-admin", "daos-server", "daos-devel"]
 
@@ -41,7 +40,7 @@
 
     - name: Add DAOS repo
       ansible.builtin.get_url:
-        url: "{{ daos_repo_file_url }}"
+        url: "{{ daos_repo_base_url }}/v{{ daos_version }}/{{ daos_packages_repo_file }}"
         dest: /etc/yum.repos.d/daos_packages.repo
         owner: root
         group: root

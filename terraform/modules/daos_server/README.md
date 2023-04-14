@@ -25,17 +25,17 @@ limitations under the License.
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.5 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | >= 3.54.0 |
+| Name                                                                            | Version   |
+| ------------------------------------------------------------------------------- | --------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform)       | >= 0.14.5 |
+| <a name="requirement_google"></a> [google](#requirement\_google)                | >= 3.54.0 |
 | <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | >= 4.16.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | >= 3.54.0 |
+| Name                                                                      | Version   |
+| ------------------------------------------------------------------------- | --------- |
+| <a name="provider_google"></a> [google](#provider\_google)                | >= 3.54.0 |
 | <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 4.16.0 |
 
 ## Modules
@@ -83,13 +83,13 @@ No modules.
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_access_points"></a> [access\_points](#output\_access\_points) | List of DAOS servers to use as access points |
-| <a name="output_certs_install_content"></a> [certs\_install\_content](#output\_certs\_install\_content) | Cert installation content to include in the daos\_client startup script |
-| <a name="output_daos_agent_yml"></a> [daos\_agent\_yml](#output\_daos\_agent\_yml) | YAML to configure the daos agent. This is typically saved in /etc/daos/daos\_agent.yml |
-| <a name="output_daos_client_config_script"></a> [daos\_client\_config\_script](#output\_daos\_client\_config\_script) | Script to configure the DAOS system. This will format the sytem with dmg -l and optionally create the specified pools. |
-| <a name="output_daos_client_install_script"></a> [daos\_client\_install\_script](#output\_daos\_client\_install\_script) | Script to install the DAOS client package. |
-| <a name="output_daos_control_yml"></a> [daos\_control\_yml](#output\_daos\_control\_yml) | YAML configuring DAOS control. This is typically saved in /etc/daos/daos\_control.yml |
-| <a name="output_daos_pools"></a> [daos\_pools](#output\_daos\_pools) | Specification of pools and containers to create |
+| Name                                                                                                                     | Description                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| <a name="output_access_points"></a> [access\_points](#output\_access\_points)                                            | List of DAOS servers to use as access points                                                                           |
+| <a name="output_certs_install_content"></a> [certs\_install\_content](#output\_certs\_install\_content)                  | Cert installation content to include in the daos\_client startup script                                                |
+| <a name="output_daos_agent_yml"></a> [daos\_agent\_yml](#output\_daos\_agent\_yml)                                       | YAML to configure the daos agent. This is typically saved in /etc/daos/daos\_agent.yml                                 |
+| <a name="output_daos_client_config_script"></a> [daos\_client\_config\_script](#output\_daos\_client\_config\_script)    | Script to configure the DAOS system. This will format the sytem with dmg -l and optionally create the specified pools. |
+| <a name="output_daos_client_install_script"></a> [daos\_client\_install\_script](#output\_daos\_client\_install\_script) | Script to install the DAOS client package.                                                                             |
+| <a name="output_daos_control_yml"></a> [daos\_control\_yml](#output\_daos\_control\_yml)                                 | YAML configuring DAOS control. This is typically saved in /etc/daos/daos\_control.yml                                  |
+| <a name="output_daos_pools"></a> [daos\_pools](#output\_daos\_pools)                                                     | Specification of pools and containers to create                                                                        |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

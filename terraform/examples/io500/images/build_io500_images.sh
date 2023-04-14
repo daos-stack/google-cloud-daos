@@ -1,17 +1,4 @@
 #!/usr/bin/env bash
-# Copyright 2023 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 set -eo pipefail
 trap 'echo "Unexpected and unchecked error. Exiting." && cleanup' ERR
@@ -24,8 +11,6 @@ trap cleanup INT
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
-
-# shellcheck disable=SC2034
 START_TIMESTAMP=$(date "+%FT%T")
 
 REPO_ROOT_DIR=$(realpath "${SCRIPT_DIR}/../../../../")
@@ -33,10 +18,9 @@ IMAGES_DIR="${REPO_ROOT_DIR}/images"
 
 # Get the name of the Packer template from the build.sh script.
 # This way we don't have that variable declared in 2 different locations.
-# shellcheck disable=SC2016
 DAOS_SRC_PACKER_TEMPLATE=$(grep ': "${DAOS_PACKER_TEMPLATE:="' "${IMAGES_DIR}/build.sh" | sed -e 's/^.*="\([^"]*\)".*$/\1/')
 DAOS_IO500_PACKER_TEMPLATE="i500-${DAOS_SRC_PACKER_TEMPLATE}"
-DAOS_IO500_PACKER_VARS_FILE="${DAOS_IO500_PACKER_TEMPLATE//pkr/pkrvars}"
+DAOS_IO500_PACKER_VARS_FILE=$(echo "${DAOS_IO500_PACKER_TEMPLATE}" | sed -e 's/pkr/pkrvars/g')
 
 # BEGIN: Logging variables and functions
 declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3 [FATAL]=4 [OFF]=5)
@@ -170,7 +154,6 @@ load_env() {
     log.error "File not found: ${SCRIPT_DIR}/${DAOS_ENV_FILE}"
     exit 1
   else
-    # shellcheck disable=SC1090
     source "${SCRIPT_DIR}/${DAOS_ENV_FILE}"
   fi
 }
@@ -178,7 +161,7 @@ load_env() {
 copy_playbooks() {
   cp -f "${SCRIPT_DIR}/ansible_playbooks/io500.yml" "${IMAGES_DIR}/ansible_playbooks/io500.yml"
   mkdir -p "${IMAGES_DIR}/patches"
-  for pf in "${SCRIPT_DIR}"/patches/*; do
+  for pf in ${SCRIPT_DIR}/patches/*; do
     cp -f "${pf}" "${IMAGES_DIR}/patches/"
   done
 }
@@ -194,21 +177,11 @@ create_pkr_template() {
 
 cleanup() {
   local pkr_template="${IMAGES_DIR}/${DAOS_IO500_PACKER_TEMPLATE}"
-  if [[ -f "${pkr_template}" ]]; then
-    rm -f "${pkr_template}"
-  fi
-
+  [[ -f "${pkr_template}" ]] && rm -f "${pkr_template}" || true
   local pkrvars_file="${IMAGES_DIR}/${DAOS_IO500_PACKER_VARS_FILE}"
-  if [[ -f "${pkrvars_file}" ]]; then
-    rm -f "${pkrvars_file}"
-  fi
-
-  local patches_dir="${IMAGES_DIR}/patches"
-  if [[ -d "${patches_dir}" ]]; then
-    rm -rf "${patches_dir}"
-  fi
-
+  [[ -f "${pkrvars_file}" ]] && rm -f "${pkrvars_file}" || true
   rm -f "${IMAGES_DIR}/ansible_playbooks/io500.yml"
+  [[ -d "${IMAGES_DIR}/patches" ]] && rm -rf "${IMAGES_DIR}/patches" || true
 }
 
 build() {
@@ -225,7 +198,7 @@ build() {
     export DAOS_BUILD_SERVER_IMAGE="true"
     export DAOS_PACKER_TEMPLATE="${DAOS_SRC_PACKER_TEMPLATE}"
     export DAOS_PACKER_VARS_FILE="${DAOS_IO500_PACKER_VARS_FILE}"
-    "${IMAGES_DIR}"/build.sh
+    ${IMAGES_DIR}/build.sh
   else
     log.info "Skipping image build. ${DAOS_SERVER_IMAGE_FAMILY} image exists."
   fi
@@ -239,7 +212,7 @@ build() {
     export DAOS_BUILD_SERVER_IMAGE="false"
     export DAOS_PACKER_TEMPLATE="${DAOS_IO500_PACKER_TEMPLATE}"
     export DAOS_PACKER_VARS_FILE="${DAOS_IO500_PACKER_VARS_FILE}"
-    "${IMAGES_DIR}"/build.sh
+    ${IMAGES_DIR}/build.sh
   else
     log.info "Skipping image build. ${DAOS_CLIENT_IMAGE_FAMILY} image exists."
   fi
