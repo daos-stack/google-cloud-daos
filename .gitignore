@@ -21,6 +21,7 @@ terraform.tfvars
 # Ignore terraform/examples/io500 active configuration symlink
 terraform/examples/io500/config/active_config.sh
 terraform/examples/io500/login
+terraform/examples/io500_*
 
 # Ignore other files
 id_rsa*
