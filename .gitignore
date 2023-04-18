@@ -29,7 +29,7 @@ hosts*
 *.flag
 keys.txt
 results/
-module.json
+**module.json
 
 # addlicense binary for pre-commit
 tools/autodoc/addlicense
