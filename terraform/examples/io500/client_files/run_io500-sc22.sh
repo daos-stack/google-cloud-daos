@@ -59,8 +59,8 @@ fix_admin_cert_permissions() {
   # In order to run dmg you must run it with a key which is owned by you
   # This is a hack to allow daos-user to run dmg
   log.debug "BEGIN: fix_admin_cert_permissions()"
-  if [[ -f /etc/daos/certs/admin.key ]];then
-    clush --hostfile="${SCRIPT_DIR}/hosts_clients" --dsh sudo chown "${SSH_USER}":"${SSH_USER}" /etc/daos/certs/admin*
+  if [[ -f /etc/daos/certs/admin.key ]]; then
+    clush --hostfile="${SCRIPT_DIR}/hosts_clients" --dsh sudo chown "${DAOS_SSH_USER}":"${DAOS_SSH_USER}" /etc/daos/certs/admin*
   else
     log.error "Unable to fix admin cert permissions. admin.key does not exist."
   fi
@@ -69,7 +69,7 @@ fix_admin_cert_permissions() {
 
 unmount_defuse() {
   log.info "Attempting to unmount DFuse mountpoint ${IO500_DFUSE_DIR}"
-  if findmnt --target "${IO500_DFUSE_DIR}" > /dev/null; then
+  if findmnt --target "${IO500_DFUSE_DIR}" >/dev/null; then
     log.info "Unmount DFuse mountpoint ${IO500_DFUSE_DIR}"
 
     clush --hostfile=hosts_clients --dsh \
@@ -85,7 +85,7 @@ unmount_defuse() {
   fi
 }
 
-cleanup(){
+cleanup() {
   log.info "Clean up DAOS storage"
   unmount_defuse
   "${SCRIPT_DIR}/clean_storage.sh"
@@ -104,8 +104,7 @@ format_storage() {
 
   log.info "Waiting for DAOS storage format to finish"
   echo "Formatting"
-  while true
-  do
+  while true; do
     if [[ $(dmg system query -v | grep -c -i joined) -eq ${DAOS_SERVER_INSTANCE_COUNT} ]]; then
       printf "\n"
       log.info "DAOS storage format finished"
@@ -182,10 +181,10 @@ io500_prepare() {
   export DAOS_POOL="${DAOS_POOL_LABEL}"
   export DAOS_CONT="${DAOS_CONT_LABEL}"
   export MFU_POSIX_TS=1
-  export IO500_NP=$(( DAOS_CLIENT_INSTANCE_COUNT * $(nproc --all) ))
+  export IO500_NP=$((DAOS_CLIENT_INSTANCE_COUNT * $(nproc --all)))
 
   # shellcheck disable=SC2153
-  envsubst < "${IO500_INI}" > temp.ini
+  envsubst <"${IO500_INI}" >temp.ini
   sed -i "s|^datadir.*|datadir = ${IO500_DATAFILES_DFUSE_DIR}|g" temp.ini
   sed -i "s|^resultdir.*|resultdir = ${IO500_RESULTS_DFUSE_DIR}|g" temp.ini
   sed -i "s/^stonewall-time.*/stonewall-time = ${IO500_STONEWALL_TIME}/g" temp.ini
@@ -218,7 +217,7 @@ process_results() {
   cp config.sh "${IO500_RESULTS_DIR_TIMESTAMPED}/"
   cp hosts* "${IO500_RESULTS_DIR_TIMESTAMPED}/"
 
-  echo "${TIMESTAMP}" > "${IO500_RESULTS_DIR_TIMESTAMPED}/io500_run_timestamp.txt"
+  echo "${TIMESTAMP}" >"${IO500_RESULTS_DIR_TIMESTAMPED}/io500_run_timestamp.txt"
 
   FIRST_SERVER=$(echo "${SERVER_LIST}" | cut -d, -f1)
   ssh "${FIRST_SERVER}" 'daos_server version' > \
@@ -226,18 +225,18 @@ process_results() {
 
   RESULT_SERVER_FILES_DIR="${IO500_RESULTS_DIR_TIMESTAMPED}/server_files"
   # shellcheck disable=SC2013
-  for server in $(cat hosts_servers);do
+  for server in $(cat hosts_servers); do
     SERVER_FILES_DIR="${RESULT_SERVER_FILES_DIR}/${server}"
     mkdir -p "${SERVER_FILES_DIR}/etc/daos"
     scp "${server}:/etc/daos/*.yaml" "${SERVER_FILES_DIR}/etc/daos/"
     scp "${server}:/etc/daos/*.yml" "${SERVER_FILES_DIR}/etc/daos/"
     mkdir -p "${SERVER_FILES_DIR}/var/daos"
     scp "${server}:/var/daos/*.log*" "${SERVER_FILES_DIR}/var/daos/"
-    ssh "${server}" 'daos_server version' > "${SERVER_FILES_DIR}/daos_server_version.txt"
+    ssh "${server}" 'daos_server version' >"${SERVER_FILES_DIR}/daos_server_version.txt"
   done
 
   # Save a copy of the environment variables for the IO500 run
-  printenv | sort > "${IO500_RESULTS_DIR_TIMESTAMPED}/env.sh"
+  printenv | sort >"${IO500_RESULTS_DIR_TIMESTAMPED}/env.sh"
 
   # Copy results from dfuse mount to another directory so we don't lose them
   # when the dfuse mount is removed
@@ -271,7 +270,6 @@ main() {
   create_container
   mount_dfuse
   io500_prepare
-
   log.section "Run IO500"
   run_io500
   process_results

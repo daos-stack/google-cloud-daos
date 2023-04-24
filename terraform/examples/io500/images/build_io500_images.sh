@@ -22,7 +22,7 @@ trap cleanup INT
 : "${DAOS_ENV_FILE:="build.env"}"
 : "${LOG_LEVEL:=INFO}"
 
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd -P)
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
 
 # shellcheck disable=SC2034
@@ -221,6 +221,7 @@ build() {
   if [[ "${DAOS_FORCE_REBUILD}" -eq 1 ]] || [[ -z ${SERVER_IMAGE} ]]; then
     log.info "Building ${DAOS_SERVER_IMAGE_FAMILY} image"
     # Use the default packer template that does not run the io500 playbook
+    export DAOS_INSTALL_TYPE="server"
     export DAOS_BUILD_CLIENT_IMAGE="false"
     export DAOS_BUILD_SERVER_IMAGE="true"
     export DAOS_PACKER_TEMPLATE="${DAOS_SRC_PACKER_TEMPLATE}"
@@ -235,6 +236,7 @@ build() {
   if [[ "${DAOS_FORCE_REBUILD}" -eq 1 ]] || [[ -z ${CLIENT_IMAGE} ]]; then
     log.info "Building ${DAOS_CLIENT_IMAGE_FAMILY} image"
     # Use the modified packer template that runs the io500 playbook
+    export DAOS_INSTALL_TYPE="client"
     export DAOS_BUILD_CLIENT_IMAGE="true"
     export DAOS_BUILD_SERVER_IMAGE="false"
     export DAOS_PACKER_TEMPLATE="${DAOS_IO500_PACKER_TEMPLATE}"
