@@ -353,9 +353,8 @@ popd
 Build the DAOS Server and Client images
 
 ```bash
-pushd images
-./build_images.sh --type all
-popd
+cd images
+./build.sh
 ```
 
 ## Congratulations!

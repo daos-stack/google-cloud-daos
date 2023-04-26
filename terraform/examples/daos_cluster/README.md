@@ -6,12 +6,12 @@ This Terraform configuration demonstrates how to use the [DAOS Terraform Modules
 
 List of Terraform files in this example
 
-| Filename                      | Description                                                                     |
-| ----------------------------- | ------------------------------------------------------------------------------- |
-| main.tf                       | Main Terrform configuration file containing resource definitions                |
-| variables.tf                  | Variable definitions for variables used in main.tf                              |
-| versions.tf                   | Provider definitions                                                            |
-| terraform.tfvars.perf.example | Pre-Configured variables for a cluster that is optimized for performance                   |
+| Filename                      | Description                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| main.tf                       | Main Terrform configuration file containing resource definitions                     |
+| variables.tf                  | Variable definitions for variables used in main.tf                                   |
+| versions.tf                   | Provider definitions                                                                 |
+| terraform.tfvars.perf.example | Pre-Configured variables for a cluster that is optimized for performance             |
 | terraform.tfvars.tco.example  | Pre-Configured variables for a cluster that is optimized for lower cost of ownership |
 
 ## Deployment
@@ -95,7 +95,7 @@ No resources.
 | <a name="input_server_number_of_instances"></a> [server\_number\_of\_instances](#input\_server\_number\_of\_instances) | Number of daos servers to bring up | `number` | `4` | no |
 | <a name="input_server_os_disk_size_gb"></a> [server\_os\_disk\_size\_gb](#input\_server\_os\_disk\_size\_gb) | OS disk size in GB | `number` | `20` | no |
 | <a name="input_server_os_disk_type"></a> [server\_os\_disk\_type](#input\_server\_os\_disk\_type) | OS disk type ie. pd-ssd, pd-standard | `string` | `"pd-ssd"` | no |
-| <a name="input_server_os_family"></a> [server\_os\_family](#input\_server\_os\_family) | OS GCP image family | `string` | `"daos-server-centos-7"` | no |
+| <a name="input_server_os_family"></a> [server\_os\_family](#input\_server\_os\_family) | OS GCP image family | `string` | `"daos-server-rocky-8"` | no |
 | <a name="input_server_os_project"></a> [server\_os\_project](#input\_server\_os\_project) | OS GCP image project name. Defaults to project\_id if null. | `string` | `null` | no |
 | <a name="input_server_pools"></a> [server\_pools](#input\_server\_pools) | List of pools and containers to be created | <pre>list(object({<br>    name       = string<br>    size       = string<br>    tier_ratio = number<br>    user       = string<br>    group      = string<br>    acls       = list(string)<br>    properties = map(any)<br>    containers = list(object({<br>      name            = string<br>      type            = string<br>      user            = string<br>      group           = string<br>      acls            = list(string)<br>      properties      = map(any)<br>      user_attributes = map(any)<br>    }))<br>  }))</pre> | `[]` | no |
 | <a name="input_server_preemptible"></a> [server\_preemptible](#input\_server\_preemptible) | If preemptible instances | `string` | `false` | no |

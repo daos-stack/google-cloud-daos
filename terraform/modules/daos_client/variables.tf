@@ -34,7 +34,7 @@ variable "labels" {
 
 variable "os_family" {
   description = "OS GCP image family"
-  default     = "daos-client-hpc-centos-7"
+  default     = "daos-client-rocky-8"
   type        = string
 }
 

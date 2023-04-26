@@ -62,7 +62,7 @@ variable "server_labels" {
 variable "server_os_family" {
   description = "OS GCP image family"
   type        = string
-  default     = "daos-server-centos-7"
+  default     = "daos-server-rocky-8"
 }
 
 variable "server_os_project" {

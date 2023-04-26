@@ -73,7 +73,7 @@ No modules.
 | <a name="input_number_of_instances"></a> [number\_of\_instances](#input\_number\_of\_instances) | Number of daos servers to bring up | `number` | `4` | no |
 | <a name="input_os_disk_size_gb"></a> [os\_disk\_size\_gb](#input\_os\_disk\_size\_gb) | OS disk size in GB | `number` | `20` | no |
 | <a name="input_os_disk_type"></a> [os\_disk\_type](#input\_os\_disk\_type) | OS disk type ie. pd-ssd, pd-standard | `string` | `"pd-ssd"` | no |
-| <a name="input_os_family"></a> [os\_family](#input\_os\_family) | OS GCP image family | `string` | `"daos-server-centos-7"` | no |
+| <a name="input_os_family"></a> [os\_family](#input\_os\_family) | OS GCP image family | `string` | `"daos-server-rocky-8"` | no |
 | <a name="input_os_project"></a> [os\_project](#input\_os\_project) | OS GCP image project name. Defaults to project\_id if null. | `string` | `null` | no |
 | <a name="input_pools"></a> [pools](#input\_pools) | List of pools and containers to be created | <pre>list(object({<br>    name       = string<br>    size       = string<br>    tier_ratio = number<br>    user       = string<br>    group      = string<br>    acls       = list(string)<br>    properties = map(any)<br>    containers = list(object({<br>      name            = string<br>      type            = string<br>      user            = string<br>      group           = string<br>      acls            = list(string)<br>      properties      = map(any)<br>      user_attributes = map(any)<br>    }))<br>  }))</pre> | `[]` | no |
 | <a name="input_preemptible"></a> [preemptible](#input\_preemptible) | If preemptible instances | `string` | `false` | no |
