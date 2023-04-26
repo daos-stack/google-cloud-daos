@@ -15,28 +15,28 @@
  */
 
 variable "project_id" {
-  description = "The GCP project to use "
+  description = "The GCP project"
   type        = string
 }
 
 variable "region" {
-  description = "The GCP region to create and test resources in"
+  description = "The GCP region"
   type        = string
 }
 
 variable "zone" {
-  description = "The GCP zone to create and test resources in"
+  description = "The GCP zone"
   type        = string
 }
 
 variable "network_name" {
-  description = "Name of the GCP network to use"
+  description = "Name of the GCP network"
   default     = "default"
   type        = string
 }
 
 variable "subnetwork_name" {
-  description = "Name of the GCP sub-network to use"
+  description = "Name of the GCP sub-network"
   default     = "default"
   type        = string
 }
@@ -83,18 +83,6 @@ variable "server_os_disk_type" {
   type        = string
 }
 
-variable "server_template_name" {
-  description = "MIG template name"
-  default     = "daos-server"
-  type        = string
-}
-
-variable "server_mig_name" {
-  description = "MIG name "
-  default     = "daos-server"
-  type        = string
-}
-
 variable "server_machine_type" {
   description = "GCP machine type. ie. e2-medium"
   default     = "n2-custom-36-215040"
@@ -111,14 +99,6 @@ variable "server_number_of_instances" {
   description = "Number of daos servers to bring up"
   default     = 4
   type        = number
-}
-
-variable "server_daos_disk_type" {
-  #TODO: At some point we will support more than local-ssd with NVME
-  # interface.  This variable will be useful then. For now its just this.
-  description = "Daos disk type to use. For now only suported one is local-ssd"
-  default     = "local-ssd"
-  type        = string
 }
 
 variable "server_daos_disk_count" {
@@ -220,18 +200,6 @@ variable "client_os_disk_size_gb" {
 variable "client_os_disk_type" {
   description = "OS disk type ie. pd-ssd, pd-standard"
   default     = "pd-ssd"
-  type        = string
-}
-
-variable "client_template_name" {
-  description = "MIG template name"
-  default     = "daos-client"
-  type        = string
-}
-
-variable "client_mig_name" {
-  description = "MIG name "
-  default     = "daos-client"
   type        = string
 }
 

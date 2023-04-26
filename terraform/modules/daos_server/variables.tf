@@ -17,10 +17,12 @@ variable "project_id" {
   description = "The GCP project to use "
   type        = string
 }
+
 variable "region" {
   description = "The GCP region to create and test resources in"
   type        = string
 }
+
 variable "zone" {
   description = "The GCP zone to create and test resources in"
   type        = string
@@ -53,18 +55,6 @@ variable "os_disk_size_gb" {
 variable "os_disk_type" {
   description = "OS disk type ie. pd-ssd, pd-standard"
   default     = "pd-ssd"
-  type        = string
-}
-
-variable "template_name" {
-  description = "MIG template name"
-  default     = "daos-server"
-  type        = string
-}
-
-variable "mig_name" {
-  description = "MIG name "
-  default     = "daos-server"
   type        = string
 }
 
@@ -102,14 +92,6 @@ variable "number_of_instances" {
   description = "Number of daos servers to bring up"
   default     = 4
   type        = number
-}
-
-variable "daos_disk_type" {
-  #TODO: At some point we will support more than local-ssd with NVME
-  # interface.  This variable will be useful then. For now its just this.
-  description = "Daos disk type to use. For now only suported one is local-ssd"
-  default     = "local-ssd"
-  type        = string
 }
 
 variable "daos_disk_count" {
