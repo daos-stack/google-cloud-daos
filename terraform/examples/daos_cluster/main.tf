@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Intel Corporation
+ * Copyright 2023 Intel Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ module "daos_server" {
   number_of_instances = var.server_number_of_instances
   labels              = var.server_labels
   preemptible         = var.server_preemptible
-  mig_name            = var.server_mig_name
-  template_name       = var.server_template_name
   instance_base_name  = var.server_instance_base_name
   machine_type        = var.server_machine_type
   os_family           = var.server_os_family
@@ -38,7 +36,6 @@ module "daos_server" {
   os_disk_type        = var.server_os_disk_type
   os_disk_size_gb     = var.server_os_disk_size_gb
   daos_disk_count     = var.server_daos_disk_count
-  daos_disk_type      = var.server_daos_disk_type
   daos_crt_timeout    = var.server_daos_crt_timeout
   daos_scm_size       = var.server_daos_scm_size
   service_account     = var.server_service_account
@@ -50,7 +47,6 @@ module "daos_server" {
 module "daos_client" {
   source                = "../../modules/daos_client"
   project_id            = var.project_id
-  region                = var.region
   zone                  = var.zone
   network_name          = var.network_name
   subnetwork_project    = var.subnetwork_project
@@ -58,8 +54,6 @@ module "daos_client" {
   number_of_instances   = var.client_number_of_instances
   labels                = var.client_labels
   preemptible           = var.client_preemptible
-  mig_name              = var.client_mig_name
-  template_name         = var.client_template_name
   instance_base_name    = var.client_instance_base_name
   machine_type          = var.client_machine_type
   os_family             = var.client_os_family

@@ -290,14 +290,9 @@ run_terraform() {
 
 configure_first_client_ip() {
 
-  log.info "Wait for DAOS client instances"
   # shellcheck disable=SC2154
-  gcloud compute instance-groups managed wait-until "${TF_VAR_client_template_name}" \
-    --stable \
-    --project="${TF_VAR_project_id}" \
-    --zone="${TF_VAR_zone}"
-
   if [[ "${USE_INTERNAL_IP}" -eq 1 ]]; then
+    # shellcheck disable=SC2154
     FIRST_CLIENT_IP=$(gcloud compute instances describe "${DAOS_FIRST_CLIENT}" \
       --project="${TF_VAR_project_id}" \
       --zone="${TF_VAR_zone}" \

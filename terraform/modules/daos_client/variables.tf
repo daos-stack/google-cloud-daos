@@ -17,10 +17,7 @@ variable "project_id" {
   description = "The GCP project to use "
   type        = string
 }
-variable "region" {
-  description = "The GCP region to create and test resources in"
-  type        = string
-}
+
 variable "zone" {
   description = "The GCP zone to create and test resources in"
   type        = string
@@ -53,18 +50,6 @@ variable "os_disk_size_gb" {
 variable "os_disk_type" {
   description = "OS disk type ie. pd-ssd, pd-standard"
   default     = "pd-ssd"
-  type        = string
-}
-
-variable "template_name" {
-  description = "MIG template name"
-  default     = "daos-client"
-  type        = string
-}
-
-variable "mig_name" {
-  description = "MIG name "
-  default     = "daos-client"
   type        = string
 }
 
