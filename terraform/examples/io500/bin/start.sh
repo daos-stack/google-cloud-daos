@@ -40,10 +40,10 @@ CONFIG_FILE="GCP-1C-1S8d-rf0.sh"
 source "${SCRIPT_DIR}/_log.sh"
 
 # shellcheck disable=SC2034
-LOG_LEVEL="DEBUG"
+: "${LOG_LEVEL:="INFO"}"
 
-################ active_config.sh is a symlink to the last config file used by start.sh
-################ ACTIVE_CONFIG="${CONFIG_DIR}/active_config.sh"
+# active_config.sh is a symlink to the last config file used by start.sh
+# ACTIVE_CONFIG="${CONFIG_DIR}/active_config.sh"
 
 # Use internal IP for SSH connection with the first daos client
 USE_INTERNAL_IP=0
