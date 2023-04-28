@@ -581,8 +581,8 @@ main() {
   # check_dependencies
   opts "$@"
   load_config
-  build_disk_images
   create_tfvars
+  build_disk_images
   run_terraform
   create_hosts_files
   configure_first_client_ip
