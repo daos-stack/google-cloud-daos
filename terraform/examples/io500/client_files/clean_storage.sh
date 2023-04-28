@@ -23,6 +23,7 @@ trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 CONFIG_FILE="${SCRIPT_DIR}/config.sh"
 SERVER_HOSTS_FILE="${SCRIPT_DIR}/hosts_servers"
+CLIENT_HOSTS_FILE="${SCRIPT_DIR}/hosts_clients"
 
 # shellcheck source=_log.sh
 source "${SCRIPT_DIR}/_log.sh"
@@ -32,13 +33,15 @@ source "${SCRIPT_DIR}/_log.sh"
 source "${CONFIG_FILE}"
 
 log.info "Start cleaning storage on DAOS servers"
-
 clush --hostfile="${SERVER_HOSTS_FILE}" --dsh 'sudo systemctl stop daos_server'
 clush --hostfile="${SERVER_HOSTS_FILE}" --dsh 'sudo rm -rf /var/daos/ram/*'
+clush --hostfile="${SERVER_HOSTS_FILE}" --dsh 'sudo rm -rf /var/daos/*.log'
 clush --hostfile="${SERVER_HOSTS_FILE}" --dsh '[[ -d /var/daos/ram ]] && sudo umount /var/daos/ram/ || echo "/var/daos/ram/ unmounted"'
 clush --hostfile="${SERVER_HOSTS_FILE}" --dsh 'sudo systemctl start daos_server'
-
 # shellcheck disable=SC2016
 clush --hostfile="${SERVER_HOSTS_FILE}" --dsh 'while /bin/netstat -an | /bin/grep \:10001 | /bin/grep -q LISTEN; [ $? -ne 0 ]; do let TRIES-=1; if [ $TRIES -gt 1 ]; then echo "waiting ${TRIES}"; sleep $WAIT;else echo "Timed out";break; fi;done'
-
 log.info "Finished cleaning storage on DAOS servers"
+
+log.info "Restarting daos_agent service on DAOS client instances"
+clush --hostfile="${CLIENT_HOSTS_FILE}" --dsh 'sudo systemctl restart daos_agent'
+log.info "Finished restarting daos_agent service on DAOS client instances"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 2022 Intel Corporation
+# Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ IO500_RESULTS_DIR="${IO500_RESULTS_DIR:-"${HOME}/${IO500_VERSION_TAG}/results"}"
 
 DAOS_POOL_LABEL="${DAOS_POOL_LABEL:-io500_pool}"
 DAOS_CONT_LABEL="${DAOS_CONT_LABEL:-io500_cont}"
+DAOS_TIER_RATIO="${DAOS_TIER_RATIO:-3}"
 
 fix_admin_cert_permissions() {
   # In order to run dmg you must run it with a key which is owned by you
@@ -69,11 +70,11 @@ fix_admin_cert_permissions() {
 
 unmount_defuse() {
   log.info "Attempting to unmount DFuse mountpoint ${IO500_DFUSE_DIR}"
-  if findmnt --target "${IO500_DFUSE_DIR}" >/dev/null; then
+  if findmnt --target "${IO500_DFUSE_DIR}" > /dev/null; then
     log.info "Unmount DFuse mountpoint ${IO500_DFUSE_DIR}"
 
     clush --hostfile=hosts_clients --dsh \
-      "sudo fusermount3 -u '${IO500_DFUSE_DIR}'"
+      "if findmnt --target \"${IO500_DFUSE_DIR}\" > /dev/null; then sudo fusermount3 -u '${IO500_DFUSE_DIR}'; fi"
 
     clush --hostfile=hosts_clients --dsh \
       "rm -r '${IO500_DFUSE_DIR}'"
@@ -125,8 +126,7 @@ show_storage_usage() {
 create_pool() {
   log.info "Create pool: label=${DAOS_POOL_LABEL} size=${DAOS_POOL_SIZE}"
 
-  # TODO: Don't hardcode tier-ratio to 3 (-t 3)
-  dmg pool create -z "${DAOS_POOL_SIZE}" -t 3 -u "${USER}" --label="${DAOS_POOL_LABEL}"
+  dmg pool create -z "${DAOS_POOL_SIZE}" -t "${DAOS_TIER_RATIO}" -u "${USER}" --label="${DAOS_POOL_LABEL}"
 
   echo "Set pool property: reclaim=disabled"
   dmg pool set-prop "${DAOS_POOL_LABEL}" --name=reclaim --value=disabled
@@ -147,22 +147,32 @@ create_container() {
 
 mount_dfuse() {
   if [[ -d "${IO500_DFUSE_DIR}" ]]; then
-    log.error "DFuse dir ${IO500_DFUSE_DIR} already exists."
+    log.warn "DFuse dir ${IO500_DFUSE_DIR} already exists."
   else
     log.info "Use dfuse to mount ${DAOS_CONT_LABEL} on ${IO500_DFUSE_DIR}"
 
-    clush --hostfile=hosts_clients --dsh \
-      "mkdir -p '${IO500_DFUSE_DIR}'"
+    clush --hostfile=hosts_clients --dsh "mkdir -p '${IO500_DFUSE_DIR}'"
 
     clush --hostfile=hosts_clients --dsh \
       "dfuse -S --pool='${DAOS_POOL_LABEL}' --container='${DAOS_CONT_LABEL}' --mountpoint='${IO500_DFUSE_DIR}'"
 
-    sleep 10
+    local counter=0
+    local max_tries=120
+    while ! findmnt --target "${IO500_DFUSE_DIR}"; do
+      sleep 1
+      if [[ $counter -lt $max_tries ]]; then
+        counter=$((counter + 1))
+      else
+        log.error "Failed to mount '${IO500_DFUSE_DIR}' with dfuse"
+        exit 1
+      fi
+    done
 
-    clush --hostfile=hosts_clients --dsh \
-      "mkdir -p '${IO500_DATAFILES_DFUSE_DIR}' '${IO500_RESULTS_DFUSE_DIR}'"
+    log.info "DFuse mount complete!"
 
-    echo "DFuse mount complete!"
+    # Create directories for io500 data on dfuse mount
+    mkdir -p "${IO500_DATAFILES_DFUSE_DIR}"
+    mkdir -p "${IO500_RESULTS_DFUSE_DIR}"
   fi
 }
 
