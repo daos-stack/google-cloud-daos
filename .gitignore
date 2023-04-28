@@ -20,7 +20,7 @@ terraform.tfvars
 
 # io500 example generated files
 terraform/examples/io500/config/active_config.sh
-terraform/examples/io500/bin/login
+terraform/examples/io500/bin/login*
 terraform/examples/io500/client_files/hosts*
 terraform/examples/io500/.tmp
 terraform/examples/io500/results
