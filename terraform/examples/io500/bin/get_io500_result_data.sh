@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 2022 Intel Corporation
+# Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 # Each time the run_io500-sc22.sh script is run on the first DAOS client
 # it generates a tar.gz file that contains the result files from the run.
 # This script will download the tar.gz files for all runs and store them in
@@ -20,26 +21,30 @@
 # If the terraform/examples/io500/results directory doesn't exsist, it will be
 # created.
 #
-# After running the run_io500-sc22.sh script on the first DAOS client node, log
-# out and run this script before running `terraform destroy`. This will save
-# the results locally so that you can view them after the cluster is destroyed.
+# After running the run_io500-sc22.sh script on the first DAOS client instance, log
+# out of the first client instance and run this script before
+# running stop.sh. This will save the results locally so that you can view
+# them after the cluster is destroyed.
 #
 
 set -eo pipefail
 trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-LOCAL_RESULTS_DIR="${SCRIPT_DIR}/results"
-ACTIVE_CONFIG="${SCRIPT_DIR}/config/active_config.sh"
+LOCAL_RESULTS_DIR=$(realpath "${SCRIPT_DIR}/../results")
+TMP_DIR=$(realpath "${SCRIPT_DIR}/../.tmp")
+ACTIVE_CONFIG="${SCRIPT_DIR}/../config/active_config.sh"
 
-source "${SCRIPT_DIR}/_log.sh"
 # shellcheck disable=SC2034
-LOG_LEVEL=INFO
+source "${SCRIPT_DIR}/_log.sh"
+
+# shellcheck disable=SC2034
+LOG_LEVEL="INFO"
 
 load_active_config() {
   if [[ -L ${ACTIVE_CONFIG} ]]; then
     # shellcheck source=/dev/null
-    source "$(readlink "${ACTIVE_CONFIG}")"
+    source "$(realpath "${ACTIVE_CONFIG}")"
   else
     log.error "No active config exists in ${ACTIVE_CONFIG}. Exiting..."
     exit 1
@@ -47,14 +52,8 @@ load_active_config() {
 }
 
 get_first_client_ip() {
-  FIRST_CLIENT_IP=$(grep ssh "${SCRIPT_DIR}/login" | awk '{print $4}')
+  FIRST_CLIENT_IP=$(grep ssh "${SCRIPT_DIR}/login.sh" | awk '{print $4}')
   log.debug "FIRST_CLIENT_IP=${FIRST_CLIENT_IP}"
-}
-
-download_results_archive() {
-  local src="$1"
-  log.debug "Downloading ${FIRST_CLIENT_IP}:${src} to ${LOCAL_RESULTS_DIR}/"
-  scp -F tmp/ssh_config "${FIRST_CLIENT_IP}":"${src}" "${LOCAL_RESULTS_DIR}/"
 }
 
 print_result_value() {
@@ -105,17 +104,17 @@ print_results() {
 
 process_results_file() {
   local results_file="$1"
-  local tmp_dir="${LOCAL_RESULTS_DIR}/tmp/${timestamp}"
+  local results_tmp_dir="${LOCAL_RESULTS_DIR}/tmp/${timestamp}"
   local timestamp
   timestamp=$(tar --to-stdout -xzf "${results_file}" io500_run_timestamp.txt)
 
   log.info "Processing results file: $(basename "${results_file}")" 1
-  mkdir -p "${tmp_dir}"
-  log.debug "Extracting ${results_file} to ${tmp_dir}"
-  tar -xzf "${results_file}" -C "${tmp_dir}"
+  mkdir -p "${results_tmp_dir}"
+  log.debug "Extracting ${results_file} to ${results_tmp_dir}"
+  tar -xzf "${results_file}" -C "${results_tmp_dir}"
 
   local result_summary_file
-  result_summary_file=$(find "${tmp_dir}" -type f -name result_summary.txt)
+  result_summary_file=$(find "${results_tmp_dir}" -type f -name result_summary.txt)
 
   print_results "${result_summary_file}" "${timestamp}"
 
@@ -128,28 +127,28 @@ process_results_file() {
 get_results_tar_files() {
   log.info "Getting results files for ${IO500_TEST_CONFIG_ID}"
 
-  if [[ ! -f ./tmp/ssh_config ]]; then
-    log.error "Missing ./tmp/ssh_config file. Exiting."
+  if [[ ! -f "${TMP_DIR}/ssh_config" ]]; then
+    log.error "Missing ${TMP_DIR}/ssh_config file. Exiting."
     exit 1
   fi
 
   log.debug "Getting list of results *.tar.gz files"
-  ssh -F ./tmp/ssh_config "${FIRST_CLIENT_IP}" \
+  ssh -F "${TMP_DIR}/ssh_config" "${FIRST_CLIENT_IP}" \
     "find \"\$(pwd)\" -type f -name '${IO500_TEST_CONFIG_ID}*.tar.gz'" \
-    > ./tmp/results_tar_files_list.txt
+    > "${TMP_DIR}/results_tar_files_list.txt"
 
   mkdir -p "${LOCAL_RESULTS_DIR}"
   while read -r result_file; do
     if [[ ! -f "${LOCAL_RESULTS_DIR}/${result_file##*/}" ]]; then
       log.info "Downloading results file: ${result_file##*/}"
       log.debug "Downloading ${FIRST_CLIENT_IP}:${result_file} to ${LOCAL_RESULTS_DIR}/"
-      scp -q -F tmp/ssh_config "${FIRST_CLIENT_IP}":"${result_file}" "${LOCAL_RESULTS_DIR}/"
+      scp -q -F "${TMP_DIR}/ssh_config" "${FIRST_CLIENT_IP}":"${result_file}" "${LOCAL_RESULTS_DIR}/"
       process_results_file "${LOCAL_RESULTS_DIR}/${result_file##*/}"
       printf "\n"
     else
       log.info "File already downloaded: ${result_file##*/}"
     fi
-  done < ./tmp/results_tar_files_list.txt
+  done < "${TMP_DIR}/results_tar_files_list.txt"
 }
 
 main() {

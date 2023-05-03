@@ -17,7 +17,7 @@
 # BEGIN: Logging variables and functions
 LOG_LEVEL=INFO
 
-declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2   [ERROR]=3 [FATAL]=4 [OFF]=5)
+declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2 [ERROR]=3 [FATAL]=4 [OFF]=5)
 declare -A LOG_COLORS=([DEBUG]=2 [INFO]=12 [WARN]=3 [ERROR]=1 [FATAL]=9 [OFF]=0 [OTHER]=15)
 LOG_LINE_CHAR="-"
 if [[ -t 1 ]]; then
