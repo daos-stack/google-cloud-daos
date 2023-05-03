@@ -90,7 +90,7 @@ variable "server_machine_type" {
 }
 
 variable "server_instance_base_name" {
-  description = "MIG instance base names to use"
+  description = "Base name for DAOS server instances"
   default     = "daos-server"
   type        = string
 }
@@ -210,7 +210,7 @@ variable "client_machine_type" {
 }
 
 variable "client_instance_base_name" {
-  description = "MIG instance base names to use"
+  description = "Base name for DAOS client instances"
   default     = "daos-client"
   type        = string
 }

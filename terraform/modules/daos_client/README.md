@@ -1,12 +1,8 @@
 # DAOS Client module
 
-This module creates a managed instance group of DAOS clients on GCP.
+This module creates DAOS client instances.
 
 ## Usage
-
-The resources/services/activations/deletions that this module will create/trigger are:
-- Create an instance tempate for DAOS clients
-- Create a stateful instance group for DAOS clients
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 Copyright 2023 Google LLC
@@ -58,7 +54,7 @@ No modules.
 | <a name="input_daos_agent_yml"></a> [daos\_agent\_yml](#input\_daos\_agent\_yml) | YAML to configure the daos agent. | `string` | n/a | yes |
 | <a name="input_daos_control_yml"></a> [daos\_control\_yml](#input\_daos\_control\_yml) | YAML configuring DAOS control. | `string` | n/a | yes |
 | <a name="input_gvnic"></a> [gvnic](#input\_gvnic) | Use Google Virtual NIC (gVNIC) network interface | `bool` | `false` | no |
-| <a name="input_instance_base_name"></a> [instance\_base\_name](#input\_instance\_base\_name) | MIG instance base names to use | `string` | `"daos-client"` | no |
+| <a name="input_instance_base_name"></a> [instance\_base\_name](#input\_instance\_base\_name) | Base name for DAOS client instances | `string` | `"daos-client"` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | Set of key/value label pairs to assign to daos-client instances | `any` | `{}` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | GCP machine type. ie. c2-standard-16 | `string` | `"c2-standard-16"` | no |
 | <a name="input_network_name"></a> [network\_name](#input\_network\_name) | Name of the GCP network to use | `string` | `"default"` | no |

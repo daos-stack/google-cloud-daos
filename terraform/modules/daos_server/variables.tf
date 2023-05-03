@@ -83,7 +83,7 @@ variable "subnetwork_project" {
 }
 
 variable "instance_base_name" {
-  description = "MIG instance base names to use"
+  description = "Base name for DAOS server instances"
   default     = "daos-server"
   type        = string
 }
