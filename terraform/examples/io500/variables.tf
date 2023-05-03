@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Intel Corporation
+ * Copyright 2023 Intel Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ variable "server_labels" {
 variable "server_os_family" {
   description = "OS GCP image family"
   type        = string
-  default     = "daos-server-rocky-8"
+  #default     = "daos-server-rocky-8"
 }
 
 variable "server_os_project" {
@@ -181,8 +181,8 @@ variable "client_labels" {
 
 variable "client_os_family" {
   description = "OS GCP image family"
-  default     = "daos-client-hpc-centos-7"
-  type        = string
+  #default     = "daos-client-io500-rocky-8"
+  type = string
 }
 
 variable "client_os_project" {
