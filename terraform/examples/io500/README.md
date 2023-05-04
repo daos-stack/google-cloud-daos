@@ -65,7 +65,7 @@ bin/start.sh -c <config_file>
 Where `<config_file>` is the file name of a file in the `terraform/examples/io500/config` directory.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-Copyright 2022 Intel Corporation
+Copyright 2023 Intel Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
