@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 set -eo pipefail
 trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
@@ -28,10 +27,10 @@ trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 : "${GCP_USE_CLOUDBUILD:=true}"
 : "${GCP_CONFIGURE_PROJECT:=true}" # Set service account and iam roles for cloud build
 : "${DAOS_MACHINE_TYPE:="n2-standard-32"}"
-: "${DAOS_SOURCE_IMAGE_FAMILY:="rocky-linux-8-optimized-gcp"}"
-: "${DAOS_SOURCE_IMAGE_PROJECT_ID:="rocky-linux-cloud"}"
-: "${DAOS_SERVER_IMAGE_FAMILY:="daos-server-rocky-8"}"
-: "${DAOS_CLIENT_IMAGE_FAMILY:="daos-client-rocky-8"}"
+: "${DAOS_SOURCE_IMAGE_FAMILY:="hpc-rocky-linux-8"}"
+: "${DAOS_SOURCE_IMAGE_PROJECT_ID:="cloud-hpc-image-public"}"
+: "${DAOS_SERVER_IMAGE_FAMILY:="daos-server-hpc-rocky-8"}"
+: "${DAOS_CLIENT_IMAGE_FAMILY:="daos-client-hpc-rocky-8"}"
 : "${DAOS_BUILD_SERVER_IMAGE:=true}"
 : "${DAOS_BUILD_CLIENT_IMAGE:=true}"
 : "${DAOS_PACKER_TEMPLATE:="daos.pkr.hcl"}"

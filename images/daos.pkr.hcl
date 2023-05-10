@@ -65,12 +65,12 @@ variable "machine_type" {
 
 variable "source_image_family" {
   type    = string
-  default = "rocky-linux-8-optimized-gcp"
+  default = "hpc-rocky-linux-8"
 }
 
 variable "source_image_project_id" {
   type    = string
-  default = "rocky-linux-cloud"
+  default = "cloud-hpc-image-public"
 }
 
 variable "image_guest_os_features" {

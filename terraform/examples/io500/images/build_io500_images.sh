@@ -18,11 +18,11 @@ trap 'echo "Unexpected and unchecked error. Exiting." && cleanup' ERR
 trap cleanup INT
 
 : "${GCP_PROJECT:=$(gcloud info --format="value(config.project)")}"
-: "${DAOS_FORCE_REBUILD:="false"}"
+: "${DAOS_FORCE_REBUILD:=0}"
 : "${DAOS_ENV_FILE:="build.env"}"
 : "${LOG_LEVEL:=INFO}"
 
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd -P)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
 
 # shellcheck disable=SC2034
@@ -143,7 +143,8 @@ opts() {
       shift 2
       ;;
     --force | -f)
-      DAOS_FORCE_REBUILD="true"
+      DAOS_FORCE_REBUILD=1
+      export DAOS_FORCE_REBUILD
       shift
       ;;
     --)

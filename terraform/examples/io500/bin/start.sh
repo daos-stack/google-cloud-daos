@@ -39,9 +39,6 @@ CONFIG_FILE="GCP-1C-1S8d-rf0.sh"
 # shellcheck source=_log.sh
 source "${SCRIPT_DIR}/_log.sh"
 
-# shellcheck disable=SC2034
-: "${LOG_LEVEL:="INFO"}"
-
 # active_config.sh is a symlink to the last config file used by start.sh
 # ACTIVE_CONFIG="${CONFIG_DIR}/active_config.sh"
 
@@ -130,7 +127,7 @@ If start.sh is run without the -c option then the '${CONFIG_FILE}' will be used.
 }
 
 opts() {
-
+  log.debug "BEGIN: opts()"
   # shift will cause the script to exit if attempting to shift beyond the
   # max args.  So set +e to continue processing when shift errors.
   set +e
@@ -198,6 +195,7 @@ opts() {
   set -eo pipefail
 
   show_errors
+  log.debug "END: opts()"
 }
 
 load_config() {
@@ -294,9 +292,12 @@ create_hosts_files() {
 build_disk_images() {
   # Build the DAOS disk images
   log.section "IO500 Disk Images"
+  log.debug "DAOS_FORCE_REBUILD=${DAOS_FORCE_REBUILD}"
   if [[ $DAOS_FORCE_REBUILD -eq 1 ]]; then
+    log.debug "COMMAND: ${IMAGES_DIR}/build_io500_images.sh --force"
     "${IMAGES_DIR}/build_io500_images.sh" --force
   else
+    log.debug "COMMAND: ${IMAGES_DIR}/build_io500_images.sh"
     "${IMAGES_DIR}/build_io500_images.sh"
   fi
 }
@@ -579,6 +580,7 @@ EOF
 
 main() {
   # check_dependencies
+  log.debug "Calling opts"
   opts "$@"
   load_config
   create_tfvars
