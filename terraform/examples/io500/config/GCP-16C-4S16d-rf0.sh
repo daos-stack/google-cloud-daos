@@ -26,8 +26,8 @@
 # Server and client instances
 DAOS_SSH_USER="daos-user"
 DAOS_ALLOW_INSECURE="false"
-DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8-optimized-gcp"
-DAOS_SOURCE_IMAGE_PROJECT_ID="rocky-linux-cloud"
+DAOS_SOURCE_IMAGE_FAMILY="hpc-rocky-linux-8"
+DAOS_SOURCE_IMAGE_PROJECT_ID="cloud-hpc-image-public"
 
 # Server(s)
 DAOS_SERVER_INSTANCE_COUNT="4"
@@ -36,13 +36,13 @@ DAOS_SERVER_DISK_COUNT=16
 DAOS_SERVER_CRT_TIMEOUT=300
 DAOS_SERVER_SCM_SIZE=200
 DAOS_SERVER_GVNIC=false
-DAOS_SERVER_IMAGE_FAMILY="daos-server-io500-rocky-8"
+DAOS_SERVER_IMAGE_FAMILY="daos-server-io500-hpc-rocky-8"
 
 # Client(s)
 DAOS_CLIENT_INSTANCE_COUNT="16"
 DAOS_CLIENT_MACHINE_TYPE=c2-standard-16
 DAOS_CLIENT_GVNIC=false
-DAOS_CLIENT_IMAGE_FAMILY="daos-client-io500-rocky-8"
+DAOS_CLIENT_IMAGE_FAMILY="daos-client-io500-hpc-rocky-8"
 
 # Storage
 DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${DAOS_SERVER_INSTANCE_COUNT} 'BEGIN {pool_size = 375 * disk_count * server_count / 1000; print pool_size"TB"}')"

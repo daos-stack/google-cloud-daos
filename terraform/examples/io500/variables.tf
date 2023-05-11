@@ -62,7 +62,7 @@ variable "server_labels" {
 variable "server_os_family" {
   description = "OS GCP image family"
   type        = string
-  #default     = "daos-server-rocky-8"
+  default     = "daos-server-io500-hpc-rocky-8"
 }
 
 variable "server_os_project" {
@@ -181,8 +181,8 @@ variable "client_labels" {
 
 variable "client_os_family" {
   description = "OS GCP image family"
-  #default     = "daos-client-io500-rocky-8"
-  type = string
+  default     = "daos-client-io500-hpc-rocky-8"
+  type        = string
 }
 
 variable "client_os_project" {
