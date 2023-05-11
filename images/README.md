@@ -151,11 +151,12 @@ export DAOS_CLIENT_IMAGE_FAMILY="my-daos-client"
 
 ### Use a different source image
 
-For the source image, use the `rocky-linux-8` community image instead of the Google optimized `rocky-linux-8-optimized-gcp` image.
+For the source image, use the `rocky-linux-8-optimized-gcp` community image instead of the `hpc-rocky-linux-8` image.
 
 ```bash
 cd images
-export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8"
+export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8-optimized-gcp"
+export DAOS_SOURCE_IMAGE_PROJECT_ID="rocky-linux-cloud"
 ./build.sh
 ```
 
@@ -164,31 +165,32 @@ export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8"
 Say you want to make the following customizations to the images:
 
 1. Change the image family names of the DAOS Server and DAOS Client images
-2. Use the `rocky-linux-8-optimized-gcp` source image for the DAOS server image.
-3. Use the `rocky-linux-8` source image for the DAOS client image.
+2. Use `hpc-rocky-linux-8` as the source image for the DAOS client image (the default).
+3. Use `rocky-linux-8-optimized-gcp` as the source image for the DAOS server image.
 
-In this scenario since you want to use a different source image for the server and client images, it will be necessary to run `build.sh` twice with different environment variables.
-
-**Build Server Image**
-
-No need to set the `DAOS_SOURCE_IMAGE_FAMILY` since we want the default value `rocky-linux-8-optimized-gcp` for the server image.
-
-```bash
-cd images
-export DAOS_BUILD_CLIENT_IMAGE="false"            # Do not build client image
-export DAOS_SERVER_IMAGE_FAMILY="my-daos-server"  # Change image family name
-./build.sh
-```
+In this scenario it will be necessary to run the `build.sh` script two times with
+different environment variables.
 
 **Build Client Image**
 
-Set `DAOS_SOURCE_IMAGE_FAMILY` since we want to specify a non-default value for the client image.
+```bash
+cd images
+export DAOS_BUILD_CLIENT_IMAGE="true"         # Build client image
+export DAOS_CLIENT_IMAGE_FAMILY="daos-client" # Change image family name for client image
+
+export DAOS_BUILD_SERVER_IMAGE="false"        # Do not build server image
+./build.sh
+```
+
+**Build Server Image**
 
 ```bash
 cd images
-export DAOS_BUILD_SERVER_IMAGE="false"            # Do not build server image
-export DAOS_CLIENT_IMAGE_FAMILY="my-daos-client"  # Change image family name
-export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8"   # Use the community Rocky 8 image for the source
+export DAOS_BUILD_CLIENT_IMAGE="false"         # Do not build client image
+export DAOS_BUILD_SERVER_IMAGE="true"          # Build server image
+export DAOS_SERVER_IMAGE_FAMILY="daos-server"  # Change image family name for server image
+export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8-optimized-gcp" # Change source image family
+export DAOS_SOURCE_IMAGE_PROJECT_ID="rocky-linux-cloud"       # Change source image project
 ./build.sh
 ```
 

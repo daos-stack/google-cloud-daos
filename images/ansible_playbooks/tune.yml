@@ -29,8 +29,8 @@
       net.ipv4.tcp_fastopen: 3
 
   tasks:
-    - name: Set tuned-adm profile to network-latency
-      ansible.builtin.shell: tuned-adm profile network-latency || /bin/true
+    - name: Set tuned-adm profile to network-throughput
+      ansible.builtin.shell: tuned-adm profile network-throughput || /bin/true
 
     - name: Adjust TCP memory
       ansible.posix.sysctl:
@@ -69,26 +69,3 @@
         state: stopped
         enabled: no
         masked: yes
-
-    - name: Remove CPU vulnerabilities mitigations
-      ansible.builtin.lineinfile:
-        path: "{{grub_default}}"
-        regexp: '^GRUB_CMDLINE_LINUX="(((?!spectre_v2=off nopti spec_store_bypass_disable=off).)*)"$'
-        line: 'GRUB_CMDLINE_LINUX="\1 spectre_v2=off nopti spec_store_bypass_disable=off"'
-        backrefs: yes
-      notify: write_grub
-
-  handlers:
-    - name: Determine if using UEFI
-      ansible.builtin.set_fact:
-        grub_config: "{{ (ansible_mounts | selectattr('mount', 'contains', '/boot/efi') | list | length > 0) | ternary( '/etc/grub2-efi.cfg', '/etc/grub2.cfg' ) }}"
-      listen: write_grub
-
-    - name: Get config path for grub
-      ansible.builtin.command: readlink -e {{grub_config}}
-      register: grub_file
-      listen: write_grub
-
-    - name: Write grub configuration
-      ansible.builtin.command: grub2-mkconfig -o {{ grub_file.stdout }}
-      listen: write_grub

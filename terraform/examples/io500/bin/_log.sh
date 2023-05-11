@@ -15,9 +15,10 @@
 # limitations under the License.
 
 # BEGIN: Logging variables and functions
-LOG_LEVEL=INFO
+# shellcheck disable=SC2034
+: "${LOG_LEVEL:="INFO"}"
 
-declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2 [ERROR]=3 [FATAL]=4 [OFF]=5)
+declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3 [FATAL]=4 [OFF]=5)
 declare -A LOG_COLORS=([DEBUG]=2 [INFO]=12 [WARN]=3 [ERROR]=1 [FATAL]=9 [OFF]=0 [OTHER]=15)
 LOG_LINE_CHAR="-"
 if [[ -t 1 ]]; then
@@ -37,11 +38,11 @@ log() {
   fi
 }
 
-log.debug() { log "${1}" "DEBUG" ; }
-log.info()  { log "${1}" "INFO"  ; }
-log.warn()  { log "${1}" "WARN"  ; }
-log.error() { log "${1}" "ERROR" ; }
-log.fatal() { log "${1}" "FATAL" ; }
+log.debug() { log "${1}" "DEBUG"; }
+log.info() { log "${1}" "INFO"; }
+log.warn() { log "${1}" "WARN"; }
+log.error() { log "${1}" "ERROR"; }
+log.fatal() { log "${1}" "FATAL"; }
 
 log.line() {
   local line_char="${1:-$LOG_LINE_CHAR}"
@@ -50,7 +51,7 @@ log.line() {
   local line
   line=$(printf "%${line_width}s" | tr " " "${line_char}")
   if [[ ${LOG_LEVELS[$LOG_LEVEL]} -le ${LOG_LEVELS[OFF]} ]]; then
-    if [[ -t 1 ]];then tput setaf "${fg_color}"; fi
+    if [[ -t 1 ]]; then tput setaf "${fg_color}"; fi
     printf -- "%s\n" "${line}" 1>&2
     if [[ -t 1 ]]; then tput sgr0; fi
   fi
@@ -64,7 +65,7 @@ log.section() {
   local fg_color="${4:-${LOG_COLORS['OTHER']}}"
   if [[ ${LOG_LEVELS[$LOG_LEVEL]} -le ${LOG_LEVELS[OFF]} ]]; then
     log.line "${line_char}" "${line_width}" "${fg_color}"
-    if [[ -t 1 ]];then tput setaf "${fg_color}"; fi
+    if [[ -t 1 ]]; then tput setaf "${fg_color}"; fi
     echo -e "${msg}" 1>&2
     log.line "${line_char}" "${line_width}" "${fg_color}"
     if [[ -t 1 ]]; then tput sgr0; fi

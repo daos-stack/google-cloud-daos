@@ -14,5 +14,5 @@ Specifically, it does the following:
 
 The `build_io500_images.sh` script will build 2 images with image families:
 
-- `daos-client-io500-rocky-8`
-- `daos-server-io500-rocky-8`
+- `daos-client-io500-hpc-rocky-8`
+- `daos-server-io500-hpc-rocky-8`
