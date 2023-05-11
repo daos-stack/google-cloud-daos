@@ -175,10 +175,10 @@ different environment variables.
 
 ```bash
 cd images
-export DAOS_BUILD_CLIENT_IMAGE="true"
-export DAOS_CLIENT_IMAGE_FAMILY="daos-client"
+export DAOS_BUILD_CLIENT_IMAGE="true"         # Build client image
+export DAOS_CLIENT_IMAGE_FAMILY="daos-client" # Change image family name for client image
 
-export DAOS_BUILD_SERVER_IMAGE="false"
+export DAOS_BUILD_SERVER_IMAGE="false"        # Do not build server image
 ./build.sh
 ```
 
@@ -188,7 +188,7 @@ export DAOS_BUILD_SERVER_IMAGE="false"
 cd images
 export DAOS_BUILD_CLIENT_IMAGE="false"         # Do not build client image
 export DAOS_BUILD_SERVER_IMAGE="true"          # Build server image
-export DAOS_SERVER_IMAGE_FAMILY="daos-server"  # Change image family name for the server image
+export DAOS_SERVER_IMAGE_FAMILY="daos-server"  # Change image family name for server image
 export DAOS_SOURCE_IMAGE_FAMILY="rocky-linux-8-optimized-gcp" # Change source image family
 export DAOS_SOURCE_IMAGE_PROJECT_ID="rocky-linux-cloud"       # Change source image project
 ./build.sh
