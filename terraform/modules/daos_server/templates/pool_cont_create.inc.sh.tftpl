@@ -2,31 +2,60 @@
 echo "BEGIN: DAOS pool and container creation from definition in 'pool' variable"
 
 if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
+  daos_version=$(dmg version | awk '{print $3}')
+
   %{for pool in pools}
-  dmg pool create \
-    --size=${pool.size} \
-    --tier-ratio="${pool.tier_ratio}" \
-    --user="${pool.user}" \
-    --group="${pool.group}" \
-    %{~ if length(pool.properties) != 0 ~}
-    --properties="%{~ for idx, pprop_key in keys(pool.properties) ~}
-        ${~ pprop_key}:${pool.properties[pprop_key]}%{~ if idx != length(pool.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
-      %{~ endif ~}
-    "${pool.name}"
+
+  if awk 'BEGIN{if(ARGV[1]<ARGV[2])exit 0;exit 1;}' $daos_version "2.3"; then
+    # Use older DAOS v2.2.x dmg options
+    dmg pool create \
+      --size=${pool.size} \
+      --tier-ratio="${pool.tier_ratio}" \
+      --user="${pool.user}" \
+      --group="${pool.group}" \
+      %{~ if length(pool.properties) != 0 ~}
+      --properties="%{~ for idx, pprop_key in keys(pool.properties) ~}
+          ${~ pprop_key}:${pool.properties[pprop_key]}%{~ if idx != length(pool.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
+        %{~ endif ~}
+      "${pool.name}"
+  else
+    dmg pool create \
+      --size=${pool.size} \
+      --tier-ratio="${pool.tier_ratio}" \
+      --user="${pool.user}" \
+      --group="${pool.group}" \
+      %{~ if length(pool.properties) != 0 ~}
+      --properties="%{~ for idx, pprop_key in keys(pool.properties) ~}
+          ${~ pprop_key}:${pool.properties[pprop_key]}%{~ if idx != length(pool.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
+        %{~ endif ~}
+      "${pool.name}"
+  fi
 
     %{~ for acl in pool.acls ~}
   dmg pool update-acl --entry "${acl}" "${pool.name}"
     %{~ endfor ~}
 
     %{~ for container in pool.containers ~}
-  daos container create \
-    --type ${container.type} \
-      %{~ if length(container.properties) != 0 ~}
-    --properties="%{~ for idx, cprop_key in keys(container.properties) ~}
-        ${~ cprop_key}:${container.properties[cprop_key]}%{~ if idx != length(container.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
-      %{~ endif ~}
-    "${pool.name}" \
-    --label "${container.name}"
+  if awk 'BEGIN{if(ARGV[1]<ARGV[2])exit 0;exit 1;}' $daos_version "2.3"; then
+    daos container create \
+      --type ${container.type} \
+        %{~ if length(container.properties) != 0 ~}
+      --properties="%{~ for idx, cprop_key in keys(container.properties) ~}
+          ${~ cprop_key}:${container.properties[cprop_key]}%{~ if idx != length(container.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
+        %{~ endif ~}
+      "${pool.name}" \
+      --label "${container.name}"
+  else
+    daos container create \
+      --type ${container.type} \
+        %{~ if length(container.properties) != 0 ~}
+      --properties="%{~ for idx, cprop_key in keys(container.properties) ~}
+          ${~ cprop_key}:${container.properties[cprop_key]}%{~ if idx != length(container.properties)-1 ~},%{~ endif ~}%{~ endfor ~}" \
+        %{~ endif ~}
+      "${pool.name}" \
+      "${container.name}"
+  fi
+
 
       %{~ for acl in container.acls ~}
   daos cont update-acl "${pool.name}" "${container.name}" --entry "${acl}"

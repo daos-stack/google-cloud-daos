@@ -33,8 +33,10 @@ SSH_CONFIG_FILE="${TMP_DIR}/ssh_config"
 TF_DIR=$(realpath "${SCRIPT_DIR}/../")
 IMAGES_DIR=$(realpath "${SCRIPT_DIR}/../images")
 CLIENT_FILES_DIR=$(realpath "${SCRIPT_DIR}/../client_files")
+
 CONFIG_DIR=$(realpath "${SCRIPT_DIR}/../config")
-CONFIG_FILE="GCP-1C-1S8d-rf0.sh"
+DEFAULT_CONFIG_FILE="GCP-1C-1S8d-rf0.sh"
+: "${CONFIG_FILE:="${DEFAULT_CONFIG_FILE}"}"
 
 # shellcheck source=_log.sh
 source "${SCRIPT_DIR}/_log.sh"
@@ -65,11 +67,7 @@ Options:
 
   [ -c --config   CONFIG_FILE ]   Name of a configuration file in
                                   the config/ directory
-                                  Default: ${CONFIG_FILE}
-
-  [ -v --version  DAOS_VERSION ]  Version of DAOS to install
-
-  [ -u --repo-baseurl DAOS_REPO_BASE_URL ] Base URL of a repo.
+                                  Default: ${DEFAULT_CONFIG_FILE}
 
   [ -i --internal-ip ]            Use internal IP for SSH to the first client
 
@@ -81,7 +79,7 @@ Examples:
 
   Deploy a DAOS environment with a specifc configuration
 
-    ${SCRIPT_FILENAME} -c ./config/config_1c_1s_8d.sh
+    ${SCRIPT_FILENAME} -c ${CONFIG_FILE}
 
 EOF
 }
@@ -127,7 +125,6 @@ If start.sh is run without the -c option then the '${CONFIG_FILE}' will be used.
 }
 
 opts() {
-  log.debug "BEGIN: opts()"
   # shift will cause the script to exit if attempting to shift beyond the
   # max args.  So set +e to continue processing when shift errors.
   set +e
@@ -150,26 +147,6 @@ opts() {
     --internal-ip | -i)
       USE_INTERNAL_IP=1
       shift
-      ;;
-    --version | -v)
-      DAOS_VERSION="${2}"
-      if [[ "${DAOS_VERSION}" == -* ]] || [[ "${DAOS_VERSION}" = "" ]] || [[ -z ${DAOS_VERSION} ]]; then
-        log.error "Missing DAOS_VERSION value for -v or --version"
-        show_help
-        exit 1
-      fi
-      export DAOS_VERSION
-      shift 2
-      ;;
-    --repo-baseurl | -u)
-      DAOS_REPO_BASE_URL="${2}"
-      if [[ "${DAOS_REPO_BASE_URL}" == -* ]] || [[ "${DAOS_REPO_BASE_URL}" = "" ]] || [[ -z ${DAOS_REPO_BASE_URL} ]]; then
-        log.error "Missing URL value for -u or --repo-baseurl"
-        show_help
-        exit 1
-      fi
-      export DAOS_REPO_BASE_URL
-      shift 2
       ;;
     --force | -f)
       DAOS_FORCE_REBUILD=1
@@ -195,7 +172,6 @@ opts() {
   set -eo pipefail
 
   show_errors
-  log.debug "END: opts()"
 }
 
 load_config() {
@@ -227,9 +203,9 @@ load_config() {
   source "${active_config_path}"
 
   # Modify instance base names if RESOURCE_PREFIX variable is set
-  DAOS_SERVER_BASE_NAME="${DAOS_SERVER_BASE_NAME:-daos-server}"
-  DAOS_CLIENT_BASE_NAME="${DAOS_CLIENT_BASE_NAME:-daos-client}"
-  if [[ -n ${RESOURCE_PREFIX} ]]; then
+: "${DAOS_SERVER_BASE_NAME:="daos-server"}"
+: "${DAOS_CLIENT_BASE_NAME="daos-client"}"
+  if [[ -n $RESOURCE_PREFIX ]]; then
     DAOS_SERVER_BASE_NAME="${RESOURCE_PREFIX}-${DAOS_SERVER_BASE_NAME}"
     DAOS_CLIENT_BASE_NAME="${RESOURCE_PREFIX}-${DAOS_CLIENT_BASE_NAME}"
   fi
@@ -580,9 +556,9 @@ EOF
 
 main() {
   # check_dependencies
-  log.debug "Calling opts"
   opts "$@"
   load_config
+  log.debug.show_vars
   create_tfvars
   build_disk_images
   run_terraform

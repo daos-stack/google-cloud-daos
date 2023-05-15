@@ -26,9 +26,6 @@ ACTIVE_CONFIG_SYMLINK="${CONFIG_DIR}/active_config.sh"
 # shellcheck source=_log.sh
 source "${SCRIPT_DIR}/_log.sh"
 
-# shellcheck disable=SC2034
-LOG_LEVEL="DEBUG"
-
 # active_config.sh is a symlink to the last config file used by start.sh
 # shellcheck source=/dev/null
 # Source the active config file that was last used by ./start.sh
@@ -43,6 +40,8 @@ fi
 # Source the last configuration that was used by the start.sh script
 # shellcheck source=/dev/null
 source "$(readlink "${ACTIVE_CONFIG_SYMLINK}")"
+
+log.debug.show_vars
 
 log.section "Destroying DAOS Servers & Clients"
 cd "${TF_DIR}"

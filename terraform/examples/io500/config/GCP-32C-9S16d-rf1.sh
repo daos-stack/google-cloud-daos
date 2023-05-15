@@ -46,6 +46,7 @@ DAOS_CLIENT_IMAGE_FAMILY="daos-client-io500-hpc-rocky-8"
 # Storage
 DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${DAOS_SERVER_INSTANCE_COUNT} 'BEGIN {pool_size = 375 * disk_count * server_count / 1000; print pool_size"TB"}')"
 DAOS_CONT_REPLICATION_FACTOR="rf:1"
+DAOS_CHUNK_SIZE="1048576" # 1MB
 
 # IO500
 IO500_TEST_CONFIG_ID="GCP-32C-9S16d-rf1"
