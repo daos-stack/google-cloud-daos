@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 # Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,19 +18,22 @@ set -eo pipefail
 trap 'echo "Unexpected and unchecked error. Exiting." && cleanup' ERR
 trap cleanup INT
 
+: "${LOG_LEVEL:=INFO}"
+
 : "${GCP_PROJECT:=$(gcloud info --format="value(config.project)")}"
 : "${DAOS_FORCE_REBUILD:=0}"
-: "${DAOS_ENV_FILE:="build.env"}"
-: "${LOG_LEVEL:=INFO}"
+: "${DAOS_SOURCE_IMAGE_FAMILY:="hpc-rocky-linux-8"}"
+: "${DAOS_SOURCE_IMAGE_PROJECT_ID:="cloud-hpc-image-public"}"
+: "${DAOS_SERVER_IMAGE_FAMILY:="daos-server-io500-hpc-rocky-8"}"
+: "${DAOS_CLIENT_IMAGE_FAMILY:="daos-client-io500-hpc-rocky-8"}"
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
+REPO_ROOT_DIR=$(realpath "${SCRIPT_DIR}/../../../../")
+IMAGES_DIR="${REPO_ROOT_DIR}/images"
 
 # shellcheck disable=SC2034
 START_TIMESTAMP=$(date "+%FT%T")
-
-REPO_ROOT_DIR=$(realpath "${SCRIPT_DIR}/../../../../")
-IMAGES_DIR="${REPO_ROOT_DIR}/images"
 
 # Get the name of the Packer template from the build.sh script.
 # This way we don't have that variable declared in 2 different locations.
@@ -57,6 +61,18 @@ log.info() { log "${1}" "INFO"; }
 log.warn() { log "${1}" "WARN"; }
 log.error() { log "${1}" "ERROR"; }
 log.fatal() { log "${1}" "FATAL"; }
+
+log.debug.show_vars() {
+  if [[ "${LOG_LEVEL}" == "DEBUG" ]]; then
+    echo
+    log.debug "=== Environment variables ==="
+    readarray -t script_vars < <(compgen -A variable | grep "DAOS_\|GCP_\|IO500_" | sort)
+    for script_var in "${script_vars[@]}"; do
+      log.debug "${script_var}=${!script_var}"
+    done
+    echo
+  fi
+}
 # END: Logging variables and functions
 
 show_help() {
@@ -86,7 +102,7 @@ Usage:
      so that
          - The modified packer template '${DAOS_PACKER_TEMPLATE}' is used
          - All environment variables from the file specified in
-           ${SCRIPT_DIR}/${DAOS_ENV_FILE}
+           '${DAOS_IMAGE_BUILD_ENV_FILE}'
            are exported. This overrides the default environment
            vars to customize the image family name.
 
@@ -101,26 +117,19 @@ Usage:
 
 Options:
 
-  [ -e --env-file DAOS_ENV_FILE ] Environment vars file
-
   [ -f --force ]                  Force build even if images exist
 
   [ -h --help ]                   Show this help
 
 Environment Variables:
 
-  Environment Variable  Default Value  Current Value
-  --------------------  -------------  ----------------
-  DAOS_ENV_FILE         build.env      ${DAOS_ENV_FILE}
-  DAOS_FORCE_REBUILD    false          ${DAOS_FORCE_REBUILD}
-
-  The DAOS_ENV_FILE should contain a filename of a file
-  that contains the environment varibles for the
-  <repo_root>/image/build.sh file.
-
-  The DAOS_ENV_FILE will be sourced before running
-  <repo_root>/image/build.sh
-
+  Environment Variable         Default Value                 Current Value
+  --------------------         -------------                 ----------------
+  DAOS_FORCE_REBUILD           0                             ${DAOS_FORCE_REBUILD}
+  DAOS_SOURCE_IMAGE_FAMILY     hpc-rocky-linux-8             ${DAOS_SOURCE_IMAGE_FAMILY}
+  DAOS_SOURCE_IMAGE_PROJECT_ID cloud-hpc-image-public        ${DAOS_SOURCE_IMAGE_PROJECT_ID}
+  DAOS_SERVER_IMAGE_FAMILY     daos-server-io500-hpc-rocky-8 ${DAOS_SERVER_IMAGE_FAMILY}
+  DAOS_CLIENT_IMAGE_FAMILY     daos-client-io500-hpc-rocky-8 ${DAOS_CLIENT_IMAGE_FAMILY}
 EOF
 }
 
@@ -133,14 +142,6 @@ opts() {
     --help | -h)
       show_help
       exit 0
-      ;;
-    --env-file | -e)
-      DAOS_ENV_FILE="$2"
-      if [[ "${DAOS_ENV_FILE}" == -* ]] || [[ "${DAOS_ENV_FILE}" = "" ]] || [[ -z ${DAOS_INSTALL_TYPE} ]]; then
-        log.error "Missing DAOS_ENV_FILE value for -e or --env-file"
-        exit 1
-      fi
-      shift 2
       ;;
     --force | -f)
       DAOS_FORCE_REBUILD=1
@@ -163,17 +164,6 @@ opts() {
     esac
   done
   set -e
-}
-
-load_env() {
-  if [[ ! -f "${SCRIPT_DIR}/${DAOS_ENV_FILE}" ]]; then
-    log.error "DAOS_ENV_FILE=${DAOS_ENV_FILE}"
-    log.error "File not found: ${SCRIPT_DIR}/${DAOS_ENV_FILE}"
-    exit 1
-  else
-    # shellcheck disable=SC1090
-    source "${SCRIPT_DIR}/${DAOS_ENV_FILE}"
-  fi
 }
 
 copy_playbooks() {
@@ -215,18 +205,22 @@ cleanup() {
 build() {
   log.debug "build()"
 
-  load_env
-
   # Build Server Image
   SERVER_IMAGE=$(gcloud compute images list --project="${GCP_PROJECT}" --format='value(name)' --filter="name:${DAOS_SERVER_IMAGE_FAMILY}*" --limit=1)
   if [[ "${DAOS_FORCE_REBUILD}" -eq 1 ]] || [[ -z ${SERVER_IMAGE} ]]; then
     log.info "Building ${DAOS_SERVER_IMAGE_FAMILY} image"
     # Use the default packer template that does not run the io500 playbook
-    export DAOS_INSTALL_TYPE="server"
-    export DAOS_BUILD_CLIENT_IMAGE="false"
-    export DAOS_BUILD_SERVER_IMAGE="true"
-    export DAOS_PACKER_TEMPLATE="${DAOS_SRC_PACKER_TEMPLATE}"
-    export DAOS_PACKER_VARS_FILE="${DAOS_IO500_PACKER_VARS_FILE}"
+    DAOS_INSTALL_TYPE="server"
+    DAOS_BUILD_CLIENT_IMAGE="false"
+    DAOS_BUILD_SERVER_IMAGE="true"
+    DAOS_PACKER_TEMPLATE="${DAOS_SRC_PACKER_TEMPLATE}"
+    DAOS_PACKER_VARS_FILE="${DAOS_IO500_PACKER_VARS_FILE}"
+    # shellcheck disable=SC2046
+    {
+      export $(compgen -v | grep "^DAOS_")
+      export $(compgen -v | grep "^GCP_")
+    }
+    log.debug "DAOS_VERSION=${DAOS_VERSION}"
     "${IMAGES_DIR}"/build.sh
   else
     log.info "Skipping image build. ${DAOS_SERVER_IMAGE_FAMILY} image exists."
@@ -237,11 +231,16 @@ build() {
   if [[ "${DAOS_FORCE_REBUILD}" -eq 1 ]] || [[ -z ${CLIENT_IMAGE} ]]; then
     log.info "Building ${DAOS_CLIENT_IMAGE_FAMILY} image"
     # Use the modified packer template that runs the io500 playbook
-    export DAOS_INSTALL_TYPE="client"
-    export DAOS_BUILD_CLIENT_IMAGE="true"
-    export DAOS_BUILD_SERVER_IMAGE="false"
-    export DAOS_PACKER_TEMPLATE="${DAOS_IO500_PACKER_TEMPLATE}"
-    export DAOS_PACKER_VARS_FILE="${DAOS_IO500_PACKER_VARS_FILE}"
+    DAOS_INSTALL_TYPE="client"
+    DAOS_BUILD_CLIENT_IMAGE="true"
+    DAOS_BUILD_SERVER_IMAGE="false"
+    DAOS_PACKER_TEMPLATE="${DAOS_IO500_PACKER_TEMPLATE}"
+    DAOS_PACKER_VARS_FILE="${DAOS_IO500_PACKER_VARS_FILE}"
+    # shellcheck disable=SC2046
+    {
+      export $(compgen -v | grep "^DAOS_")
+      export $(compgen -v | grep "^GCP_")
+    }
     "${IMAGES_DIR}"/build.sh
   else
     log.info "Skipping image build. ${DAOS_CLIENT_IMAGE_FAMILY} image exists."
@@ -250,6 +249,7 @@ build() {
 
 main() {
   opts "$@"
+  log.debug.show_vars
   log.info "Building DAOS IO500 images"
   copy_playbooks
   create_pkr_template

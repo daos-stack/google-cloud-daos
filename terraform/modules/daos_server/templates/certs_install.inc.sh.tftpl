@@ -80,8 +80,6 @@ if [[ "$${DAOS_CLIENT_INSTALLED}" == "true" ]]; then
   cp /var/daos/daosCA/certs/agent.* /etc/daos/certs/
   chown -R daos_agent:daos_agent /etc/daos/certs
   chmod 0755 /etc/daos/certs
-  chmod 0644 /etc/daos/certs/*.crt
-  chmod 0600 /etc/daos/certs/*.key
 fi
 
 # SERVER CERTS
@@ -103,18 +101,11 @@ if [[ "$${DAOS_SERVER_INSTALLED}" == "true" ]]; then
 
   chmod 0755 /etc/daos/certs
   chmod 0755 /etc/daos/certs/clients
-
-  chmod 0644 /etc/daos/certs/*.crt
-  chmod 0600 /etc/daos/certs/*.key
-  chmod 0644 /etc/daos/certs/clients/*
 fi
 
 # INSTALL ADMIN CERTS ON CLIENTS AND SERVERS
 cp /var/daos/daosCA/certs/admin.* /etc/daos/certs/
 chown root:root /etc/daos/certs/admin.*
-chmod 0644 /etc/daos/certs/admin.crt
-# dmg requires 0700 admin.key
-chmod 0700 /etc/daos/certs/admin.key
 
 # Remove the CA dir now that the certs have been copied to /etc/daos/certs
 if [[ -d "/var/daos/daosCA" ]]; then

@@ -71,4 +71,17 @@ log.section() {
     if [[ -t 1 ]]; then tput sgr0; fi
   fi
 }
+
+log.debug.show_vars() {
+  if [[ "${LOG_LEVEL}" == "DEBUG" ]]; then
+    local script_vars
+    echo
+    log.debug "=== Environment variables ==="
+    readarray -t script_vars < <(compgen -A variable | grep "DAOS_\|GCP_\|IO500_" | sort)
+    for script_var in "${script_vars[@]}"; do
+      log.debug "${script_var}=${!script_var}"
+    done
+    echo
+  fi
+}
 # END: Logging variables and functions
