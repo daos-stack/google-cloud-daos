@@ -60,6 +60,19 @@ log.info() { log "${1}" "INFO"; }
 log.warn() { log "${1}" "WARN"; }
 log.error() { log "${1}" "ERROR"; }
 log.fatal() { log "${1}" "FATAL"; }
+
+log.debug.show_vars() {
+  if [[ "${LOG_LEVEL}" == "DEBUG" ]]; then
+    local script_vars
+    echo
+    log.debug "=== Environment variables ==="
+    readarray -t script_vars < <(compgen -A variable | grep "DAOS_\|GCP_" | sort)
+    for script_var in "${script_vars[@]}"; do
+      log.debug "${script_var}=${!script_var}"
+    done
+    echo
+  fi
+}
 # END: Logging variables and functions
 
 show_help() {
@@ -314,31 +327,10 @@ list_images() {
     --sort-by="creationTimestamp"
 }
 
-show_vars() {
-  log.debug "GCP_PROJECT                   ${GCP_PROJECT}"
-  log.debug "GCP_ZONE                      ${GCP_ZONE}"
-  log.debug "GCP_BUILD_WORKER_POOL         ${GCP_BUILD_WORKER_POOL}"
-  log.debug "GCP_USE_IAP                   ${GCP_USE_IAP}"
-  log.debug "GCP_ENABLE_OSLOGIN            ${GCP_ENABLE_OSLOGIN}"
-  log.debug "GCP_USE_CLOUDBUILD            ${GCP_USE_CLOUDBUILD}"
-  log.debug "GCP_CONFIGURE_PROJECT         ${GCP_CONFIGURE_PROJECT}"
-  log.debug "DAOS_VERSION                  ${DAOS_VERSION}"
-  log.debug "DAOS_REPO_BASE_URL            ${DAOS_REPO_BASE_URL}"
-  log.debug "DAOS_MACHINE_TYPE             ${DAOS_MACHINE_TYPE}"
-  log.debug "DAOS_SOURCE_IMAGE_FAMILY      ${DAOS_SOURCE_IMAGE_FAMILY}"
-  log.debug "DAOS_SOURCE_IMAGE_PROJECT_ID  ${DAOS_SOURCE_IMAGE_PROJECT_ID}"
-  log.debug "DAOS_SERVER_IMAGE_FAMILY      ${DAOS_SERVER_IMAGE_FAMILY}"
-  log.debug "DAOS_CLIENT_IMAGE_FAMILY      ${DAOS_CLIENT_IMAGE_FAMILY}"
-  log.debug "DAOS_BUILD_SERVER_IMAGE       ${DAOS_BUILD_SERVER_IMAGE}"
-  log.debug "DAOS_BUILD_CLIENT_IMAGE       ${DAOS_BUILD_CLIENT_IMAGE}"
-  log.debug "DAOS_PACKER_TEMPLATE          ${DAOS_PACKER_TEMPLATE}"
-  log.debug "DAOS_PACKER_VARS_FILE         ${DAOS_PACKER_VARS_FILE}"
-}
-
 main() {
   init
   opts "$@"
-  show_vars
+  log.debug.show_vars
   build_server_image
   build_client_image
   list_images
