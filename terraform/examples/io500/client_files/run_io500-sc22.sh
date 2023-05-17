@@ -232,7 +232,9 @@ io500_prepare() {
   export DAOS_POOL="${DAOS_POOL_LABEL}"
   export DAOS_CONT="${DAOS_CONT_LABEL}"
   export MFU_POSIX_TS=1
-  export IO500_NP=$((DAOS_CLIENT_INSTANCE_COUNT * $(nproc --all)))
+  export IO500_NP=$(( DAOS_CLIENT_INSTANCE_COUNT * $(nproc --all) ))
+  export IO500_PPN=$(( $(nproc --all) ))
+  export MPI_RUN_OPTS="--bind-to socket"
 
   # shellcheck disable=SC2153
   envsubst <"${IO500_INI}" >temp.ini
@@ -251,9 +253,14 @@ io500_prepare() {
 }
 
 run_io500() {
+  log.debug "COMMAND: mpirun -np ${IO500_NP} -ppn ${IO500_PPN} --hostfile ${SCRIPT_DIR}/hosts_clients ${MPI_RUN_OPTS} ${IO500_DIR}/io500 temp.ini"
+  # shellcheck disable=SC2086
   mpirun -np ${IO500_NP} \
+    -ppn ${IO500_PPN} \
     --hostfile "${SCRIPT_DIR}/hosts_clients" \
-    --bind-to socket "${IO500_DIR}/io500" temp.ini
+    $MPI_RUN_OPTS \
+    "${IO500_DIR}/io500" \
+    temp.ini
   log.info "IO500 run complete!"
 }
 

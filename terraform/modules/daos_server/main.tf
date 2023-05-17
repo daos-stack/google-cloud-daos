@@ -189,6 +189,10 @@ resource "google_compute_instance" "named_instances" {
     preemptible       = var.preemptible
     automatic_restart = false
   }
+
+  advanced_machine_features {
+    threads_per_core = 1
+  }
 }
 
 
