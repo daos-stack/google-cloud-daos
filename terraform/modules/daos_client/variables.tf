@@ -17,10 +17,7 @@ variable "project_id" {
   description = "The GCP project to use "
   type        = string
 }
-variable "region" {
-  description = "The GCP region to create and test resources in"
-  type        = string
-}
+
 variable "zone" {
   description = "The GCP zone to create and test resources in"
   type        = string
@@ -34,7 +31,7 @@ variable "labels" {
 
 variable "os_family" {
   description = "OS GCP image family"
-  default     = "daos-client-hpc-centos-7"
+  default     = "daos-client-hpc-rocky-8"
   type        = string
 }
 
@@ -53,18 +50,6 @@ variable "os_disk_size_gb" {
 variable "os_disk_type" {
   description = "OS disk type ie. pd-ssd, pd-standard"
   default     = "pd-ssd"
-  type        = string
-}
-
-variable "template_name" {
-  description = "MIG template name"
-  default     = "daos-client"
-  type        = string
-}
-
-variable "mig_name" {
-  description = "MIG name "
-  default     = "daos-client"
   type        = string
 }
 
@@ -93,7 +78,7 @@ variable "subnetwork_project" {
 }
 
 variable "instance_base_name" {
-  description = "MIG instance base names to use"
+  description = "Base name for DAOS client instances"
   default     = "daos-client"
   type        = string
 }

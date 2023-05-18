@@ -353,9 +353,8 @@ popd
 Build the DAOS Server and Client images
 
 ```bash
-pushd images
-./build_images.sh --type all
-popd
+cd images
+./build.sh
 ```
 
 ## Congratulations!
@@ -364,4 +363,4 @@ You have completed the **Pre-Deployment** steps!
 
 You are now ready to deploy DAOS on GCP.
 
-Refer to the [Deployment section of the main README](https://github.com/markaolson/google-cloud-daos/tree/DAOSGCP-119#deployment) for information on how to deploy DAOS on GCP.
+Refer to the [Deployment section of the main README](https://github.com/daos-stack/google-cloud-daos#deployment) for information on how to deploy DAOS on GCP.

@@ -1,0 +1,148 @@
+---
+# Copyright 2023 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# io500.yml
+# ansible-playbook io500.yml
+
+- name: Install IO500
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    #install_io500: false
+    packages:
+      - bzip2-devel
+      - clustershell
+      - gcc-toolset-9-gcc
+      - gcc-toolset-9-gcc-c++
+      - git
+      - jq
+      - libarchive-devel
+      - libuuid-devel
+      - openssl-devel
+      - patch
+      - rsync
+      - wget
+    oneapi_packages:
+      - intel-oneapi-mpi-2021.9.0
+      - intel-oneapi-mpi-devel-2021.9.0
+    io500_version: io500-sc22
+    io500_path: "/opt/{{ io500_version }}"
+    daos_install_path: /usr
+
+    _powertools_repo_name:
+      RedHat: powertools
+      AlmaLinux_9: crb
+
+    powertools_repo_name:
+      "{{ _powertools_repo_name[ansible_distribution ~ '_' ~ ansible_distribution_major_version] | default(
+      _powertools_repo_name[ansible_distribution] ) | default(
+      _powertools_repo_name[ansible_os_family] ) }}"
+
+    _powertools_repo_file:
+      RedHat: "{{ ansible_distribution }}-PowerTools.repo"
+      Rocky: "{{ ansible_distribution }}-PowerTools.repo"
+      AlmaLinux_8: "almalinux-PowerTools.repo"
+      AlmaLinux_9: "almalinux-crb.repo"
+      CentOS: "{{ ansible_distribution }}-{{ ansible_distribution_release }}-PowerTools.repo"
+
+    powertools_repo_file:
+      "{{ _powertools_repo_file[ansible_distribution ~ '_' ~ ansible_distribution_major_version] | default(
+      _powertools_repo_file[ansible_distribution] ) | default(
+      _powertools_repo_file[ansible_os_family] ) }}"
+
+  tasks:
+    - name: Enable powertools
+      community.general.ini_file:
+        path: "/etc/yum.repos.d/{{ powertools_repo_file }}"
+        section: "{{ powertools_repo_name }}"
+        option: enabled
+        value: "1"
+        mode: "0644"
+
+    - name: Install Development Tools group
+      package:
+        name: "@Development Tools"
+        state: present
+
+    - name: Install Packages
+      ansible.builtin.package:
+        name: "{{ packages }}"
+        state: present
+
+    - name: Create Intel oneAPI Repo file
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/oneAPI.repo
+        content: |
+          [oneAPI]
+          name=Intel(R) oneAPI repository
+          baseurl=https://yum.repos.intel.com/oneapi
+          enabled=1
+          gpgcheck=1
+          repo_gpgcheck=1
+          gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+
+    - name: Download GPG key
+      ansible.builtin.get_url:
+        url: https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        dest: /tmp/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+
+    - name: Import GPG key
+      ansible.builtin.rpm_key:
+        key: /tmp/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        state: present
+
+    - name: Clean up key file
+      ansible.builtin.file:
+        path: /tmp/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        state: absent
+
+    - name: Install oneAPI Packages
+      ansible.builtin.package:
+        name: "{{ oneapi_packages }}"
+        state: present
+
+    - name: Clone IO500 repo
+      ansible.builtin.git:
+        repo: https://github.com/IO500/io500.git
+        dest: "{{ io500_path }}"
+        version: "{{ io500_version }}"
+        force: true
+
+    - name: Apply patch for IO500 prepare.sh script
+      ansible.posix.patch:
+        src: "/tmp/patches/prepare.sh.patch"
+        dest: "{{ io500_path }}/prepare.sh"
+
+    - name: Apply patch for IO500 Makefile
+      ansible.posix.patch:
+        src: "/tmp/patches/Makefile.patch"
+        dest: "{{ io500_path }}/Makefile"
+
+    - name: Run prepare.sh script
+      ansible.builtin.shell: |
+        export I_MPI_OFI_LIBRARY_INTERNAL=0
+        export I_MPI_OFI_PROVIDER="tcp;ofi_rxm"
+        source /opt/intel/oneapi/setvars.sh
+        "{{ io500_path }}/prepare.sh"
+      args:
+        chdir: "{{ io500_path }}"
+        executable: /bin/bash
+
+  handlers:
+    - name: Yum update cache
+      ansible.builtin.yum:
+        update_cache: yes

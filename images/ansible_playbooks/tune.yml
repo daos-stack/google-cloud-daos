@@ -1,0 +1,71 @@
+---
+# Copyright 2023 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# tune.yml
+
+- name: Tune image
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    grub_default: /etc/default/grub
+    ncpus: "{{ansible_processor_cores * ansible_processor_count}}"
+    sysctl_config:
+      net.ipv4.tcp_rmem: 4096 87380 16777216
+      net.ipv4.tcp_wmem: 4096 16384 16777216
+      net.ipv4.tcp_fastopen: 3
+
+  tasks:
+    - name: Set tuned-adm profile to network-throughput
+      ansible.builtin.shell: tuned-adm profile network-throughput || /bin/true
+
+    - name: Adjust TCP memory
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict: "{{ sysctl_config }}"
+
+    - name: Configure system limits
+      community.general.pam_limits:
+        domain: "*"
+        limit_type: "{{item.limit_type}}"
+        limit_item: "{{item.limit_item}}"
+        value: "{{item.value}}"
+      with_items:
+        - { limit_type: "-", limit_item: "nproc", value: "unlimited" }
+        - { limit_type: "-", limit_item: "memlock", value: "unlimited" }
+        - { limit_type: "-", limit_item: "stack", value: "unlimited" }
+        - { limit_type: "-", limit_item: "nofile", value: 1048576 }
+        - { limit_type: "-", limit_item: "cpu", value: "unlimited" }
+        - { limit_type: "-", limit_item: "rtprio", value: unlimited }
+
+    - name: Disable SELinux service
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+      ansible.posix.selinux:
+        state: disabled
+      register: disablingSE
+
+    - name: Disable firewalld service
+      ansible.builtin.systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+        masked: yes
