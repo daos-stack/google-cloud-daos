@@ -57,8 +57,6 @@
         - { limit_type: "-", limit_item: "rtprio", value: unlimited }
 
     - name: Disable SELinux service
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
       ansible.posix.selinux:
         state: disabled
       register: disablingSE
