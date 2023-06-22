@@ -31,9 +31,10 @@ set -eo pipefail
 trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-LOCAL_RESULTS_DIR=$(realpath "${SCRIPT_DIR}/../results")
-TMP_DIR=$(realpath "${SCRIPT_DIR}/../.tmp")
-ACTIVE_CONFIG="${SCRIPT_DIR}/../config/active_config.sh"
+TF_DIR="$(realpath "${SCRIPT_DIR}/../")"
+LOCAL_RESULTS_DIR="${TF_DIR}/results"
+TMP_DIR="${TF_DIR}/.tmp"
+ACTIVE_CONFIG="${TF_DIR}/config/active_config.sh"
 
 # shellcheck disable=SC2034
 source "${SCRIPT_DIR}/_log.sh"
@@ -52,7 +53,7 @@ load_active_config() {
 }
 
 get_first_client_ip() {
-  FIRST_CLIENT_IP=$(grep ssh "${SCRIPT_DIR}/login.sh" | awk '{print $4}')
+  FIRST_CLIENT_IP="$(grep ssh "${SCRIPT_DIR}/login.sh" | awk '{print $4}')"
   log.debug "FIRST_CLIENT_IP=${FIRST_CLIENT_IP}"
 }
 
