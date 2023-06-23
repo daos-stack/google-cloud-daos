@@ -135,17 +135,27 @@ build {
     execute_command = "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
     inline = [
       "dnf -y install epel-release",
-      "dnf -y install ansible"
+      "dnf -y install python3.11 python3.11-pip ansible-core",
+      "alternatives --set python3 /usr/bin/python3.11"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "ansible-galaxy collection install ansible.posix",
+      "ansible-galaxy collection install community.general"
     ]
   }
 
   provisioner "ansible-local" {
-    playbook_file = "./ansible_playbooks/tune.yml"
+    playbook_file   = "./ansible_playbooks/tune.yml"
+    extra_arguments = ["--user", "root"]
   }
 
   provisioner "ansible-local" {
     playbook_file = "./ansible_playbooks/daos.yml"
     extra_arguments = [
+      "--user", "root",
       "--extra-vars",
       "\"daos_version=${var.daos_version} daos_repo_base_url=${var.daos_repo_base_url} daos_packages_repo_file=${var.daos_packages_repo_file} daos_install_type=${var.daos_install_type}\""
     ]
