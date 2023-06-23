@@ -17,10 +17,11 @@ set -eo pipefail
 trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-TMP_DIR=$(realpath "${SCRIPT_DIR}/../.tmp")
 TF_DIR=$(realpath "${SCRIPT_DIR}/../")
-CLIENT_FILES_DIR=$(realpath "${SCRIPT_DIR}/../client_files")
-CONFIG_DIR=$(realpath "${SCRIPT_DIR}/../config")
+TMP_DIR="${TF_DIR}/.tmp"
+
+CLIENT_FILES_DIR="${TF_DIR}/client_files"
+CONFIG_DIR="${TF_DIR}/config"
 ACTIVE_CONFIG_SYMLINK="${CONFIG_DIR}/active_config.sh"
 
 # shellcheck source=_log.sh

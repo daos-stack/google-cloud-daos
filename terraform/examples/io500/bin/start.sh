@@ -28,13 +28,13 @@ trap 'echo "Hit an unexpected and unchecked error. Exiting."' ERR
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 SCRIPT_FILENAME=$(basename "${BASH_SOURCE[0]}")
-TMP_DIR=$(realpath "${SCRIPT_DIR}/../.tmp")
+TF_DIR="$(realpath "${SCRIPT_DIR}/../")"
+IMAGES_DIR="${TF_DIR}/images"
+CLIENT_FILES_DIR="${TF_DIR}/client_files"
+TMP_DIR="${TF_DIR}/.tmp"
 SSH_CONFIG_FILE="${TMP_DIR}/ssh_config"
-TF_DIR=$(realpath "${SCRIPT_DIR}/../")
-IMAGES_DIR=$(realpath "${SCRIPT_DIR}/../images")
-CLIENT_FILES_DIR=$(realpath "${SCRIPT_DIR}/../client_files")
+CONFIG_DIR="${TF_DIR}/config"
 
-CONFIG_DIR=$(realpath "${SCRIPT_DIR}/../config")
 DEFAULT_CONFIG_FILE="GCP-1C-1S8d-rf0.sh"
 : "${CONFIG_FILE:="${DEFAULT_CONFIG_FILE}"}"
 
