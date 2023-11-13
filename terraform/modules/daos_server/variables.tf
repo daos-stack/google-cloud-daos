@@ -34,6 +34,12 @@ variable "labels" {
   default     = {}
 }
 
+variable "tags" {
+  description = "Set of key/value label pairs to assign to daos-server instances"
+  type        = list(any)
+  default     = ["daos-server"]
+}
+
 variable "os_family" {
   description = "OS GCP image family"
   type        = string

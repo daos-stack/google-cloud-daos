@@ -210,6 +210,14 @@ load_config() {
     DAOS_CLIENT_BASE_NAME="${RESOURCE_PREFIX}-${DAOS_CLIENT_BASE_NAME}"
   fi
 
+if [[ -z $DAOS_SERVER_TAGS ]]; then
+  DAOS_SERVER_TAGS='["daos-server"]'
+fi
+
+if [[ -z $DAOS_CLIENT_TAGS ]]; then
+  DAOS_CLIENT_TAGS='["daos-client"]'
+fi
+
   # shellcheck disable=SC2046
   {
     export $(compgen -v | grep "^DAOS_")
@@ -306,6 +314,7 @@ server_gvnic                = ${DAOS_SERVER_GVNIC}
 server_instance_base_name   = "${DAOS_SERVER_BASE_NAME}"
 server_machine_type         = "${DAOS_SERVER_MACHINE_TYPE}"
 server_number_of_instances  = ${DAOS_SERVER_INSTANCE_COUNT}
+server_tags                 = ${DAOS_SERVER_TAGS}
 server_os_family            = "${DAOS_SERVER_IMAGE_FAMILY}"
 server_os_project           = "${GCP_PROJECT_ID}"
 
@@ -314,6 +323,7 @@ client_gvnic               = ${DAOS_CLIENT_GVNIC}
 client_instance_base_name  = "${DAOS_CLIENT_BASE_NAME}"
 client_machine_type        = "${DAOS_CLIENT_MACHINE_TYPE}"
 client_number_of_instances = ${DAOS_CLIENT_INSTANCE_COUNT}
+client_tags                = ${DAOS_CLIENT_TAGS}
 client_os_family           = "${DAOS_CLIENT_IMAGE_FAMILY}"
 client_os_project          = "${GCP_PROJECT_ID}"
 
@@ -549,7 +559,7 @@ To run the IO500 benchmark:
    bin/login.sh
 
 2. Run IO500
-   ./run_io500-sc22.sh
+   ./run_io500-sc23.sh
 
 EOF
 }

@@ -28,15 +28,15 @@ limitations under the License.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.5 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | >= 3.54.0 |
-| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | >= 4.16.0 |
+| <a name="requirement_google"></a> [google](#requirement\_google) | 5.5.0 |
+| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | 5.5.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | >= 3.54.0 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 4.16.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | 5.5.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | 5.5.0 |
 
 ## Modules
 
@@ -46,13 +46,13 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [google-beta_google_compute_instance.named_instances](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_compute_instance) | resource |
-| [google_compute_disk.daos_server_boot_disk](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_disk) | resource |
-| [google_secret_manager_secret.daos_ca](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
-| [google_secret_manager_secret_iam_policy.daos_ca_secret_policy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_policy) | resource |
-| [google_compute_default_service_account.default](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_default_service_account) | data source |
-| [google_compute_image.os_image](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_image) | data source |
-| [google_iam_policy.daos_ca_secret_version_manager](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/iam_policy) | data source |
+| [google-beta_google_compute_instance.named_instances](https://registry.terraform.io/providers/hashicorp/google-beta/5.5.0/docs/resources/google_compute_instance) | resource |
+| [google_compute_disk.daos_server_boot_disk](https://registry.terraform.io/providers/hashicorp/google/5.5.0/docs/resources/compute_disk) | resource |
+| [google_secret_manager_secret.daos_ca](https://registry.terraform.io/providers/hashicorp/google/5.5.0/docs/resources/secret_manager_secret) | resource |
+| [google_secret_manager_secret_iam_policy.daos_ca_secret_policy](https://registry.terraform.io/providers/hashicorp/google/5.5.0/docs/resources/secret_manager_secret_iam_policy) | resource |
+| [google_compute_default_service_account.default](https://registry.terraform.io/providers/hashicorp/google/5.5.0/docs/data-sources/compute_default_service_account) | data source |
+| [google_compute_image.os_image](https://registry.terraform.io/providers/hashicorp/google/5.5.0/docs/data-sources/compute_image) | data source |
+| [google_iam_policy.daos_ca_secret_version_manager](https://registry.terraform.io/providers/hashicorp/google/5.5.0/docs/data-sources/iam_policy) | data source |
 
 ## Inputs
 
@@ -79,6 +79,7 @@ No modules.
 | <a name="input_service_account"></a> [service\_account](#input\_service\_account) | Service account to attach to the instance. See https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#service_account. | <pre>object({<br>    email  = string,<br>    scopes = set(string)<br>  })</pre> | <pre>{<br>  "email": null,<br>  "scopes": [<br>    "https://www.googleapis.com/auth/devstorage.read_only",<br>    "https://www.googleapis.com/auth/logging.write",<br>    "https://www.googleapis.com/auth/monitoring.write",<br>    "https://www.googleapis.com/auth/servicecontrol",<br>    "https://www.googleapis.com/auth/service.management.readonly",<br>    "https://www.googleapis.com/auth/trace.append",<br>    "https://www.googleapis.com/auth/cloud-platform"<br>  ]<br>}</pre> | no |
 | <a name="input_subnetwork_name"></a> [subnetwork\_name](#input\_subnetwork\_name) | Name of the GCP sub-network to use | `string` | `"default"` | no |
 | <a name="input_subnetwork_project"></a> [subnetwork\_project](#input\_subnetwork\_project) | The GCP project where the subnetwork is defined | `string` | `null` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Set of key/value label pairs to assign to daos-server instances | `list(any)` | <pre>[<br>  "daos-server"<br>]</pre> | no |
 | <a name="input_zone"></a> [zone](#input\_zone) | The GCP zone to create and test resources in | `string` | n/a | yes |
 
 ## Outputs

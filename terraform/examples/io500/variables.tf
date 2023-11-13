@@ -96,9 +96,15 @@ variable "server_instance_base_name" {
 }
 
 variable "server_number_of_instances" {
-  description = "Number of daos servers to bring up"
+  description = "Number of DAOS server instances"
   default     = 4
   type        = number
+}
+
+variable "server_tags" {
+  description = "List of network tags for DAOS server instances"
+  default     = ["daos-client"]
+  type        = list(any)
 }
 
 variable "server_daos_disk_count" {
@@ -216,9 +222,15 @@ variable "client_instance_base_name" {
 }
 
 variable "client_number_of_instances" {
-  description = "Number of daos clients to bring up"
+  description = "Number of DAOS client instances"
   default     = 16
   type        = number
+}
+
+variable "client_tags" {
+  description = "List of network tags for DAOS client instances"
+  default     = ["daos-server"]
+  type        = list(any)
 }
 
 variable "client_service_account" {

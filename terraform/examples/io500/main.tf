@@ -27,6 +27,7 @@ module "daos_server" {
   subnetwork_project  = var.subnetwork_project
   subnetwork_name     = var.subnetwork_name
   number_of_instances = var.server_number_of_instances
+  tags                = var.server_tags
   labels              = var.server_labels
   preemptible         = var.server_preemptible
   instance_base_name  = var.server_instance_base_name
@@ -52,6 +53,7 @@ module "daos_client" {
   subnetwork_project    = var.subnetwork_project
   subnetwork_name       = var.subnetwork_name
   number_of_instances   = var.client_number_of_instances
+  tags                  = var.client_tags
   labels                = var.client_labels
   preemptible           = var.client_preemptible
   instance_base_name    = var.client_instance_base_name

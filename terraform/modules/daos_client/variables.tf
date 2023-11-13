@@ -29,6 +29,12 @@ variable "labels" {
   default     = {}
 }
 
+variable "tags" {
+  description = "List of network tags to assign to daos-client instances"
+  type        = list(any)
+  default     = ["daos-client"]
+}
+
 variable "os_family" {
   description = "OS GCP image family"
   default     = "daos-client-hpc-rocky-8"
