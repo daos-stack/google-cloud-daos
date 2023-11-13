@@ -15,9 +15,11 @@ transport_config:
 
 provider: ofi+tcp;ofi_rxm
 disable_vfio: true
+disable_vmd: true
 crt_timeout: ${crt_timeout}
 nr_hugepages: ${nr_hugepages}
 control_log_file: /var/daos/server.log
+helper_log_file: /var/daos/helper.log
 
 engines:
 -

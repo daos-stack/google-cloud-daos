@@ -7,11 +7,19 @@ These instructions describe how to deploy a DAOS Cluster using the example in [t
 Deployment tasks described in these instructions:
 
 - Deploy a DAOS cluster using Terraform
+- Log into the first DAOS client instance
 - Perform DAOS administrative tasks to prepare the storage
-- Mount a DAOS container with [DFuse (DAOS FUSE)](https://docs.daos.io/v2.0/user/filesystem/?h=dfuse#dfuse-daos-fuse)
+- Mount a DAOS container with [DFuse (DAOS FUSE)](https://docs.daos.io/v2.4/user/filesystem/?h=dfuse#dfuse-daos-fuse)
 - Store files in a DAOS container
 - Unmount the container
-- Remove the deployment (terraform destroy)
+- Undeploy DAOS cluster (terraform destroy)
+
+## Prerequisites
+
+The steps in the [Pre-Deployment Guide](pre-deployment_guide.md) must be completed prior to deploying the DAOS cluster in this example.
+
+The [Pre-Deployment Guide](pre-deployment_guide.md) describes how to build the DAOS images that are used to deploy server and client instances.
+
 
 ## Clone the repository
 
@@ -25,7 +33,7 @@ cd ~/google-cloud-daos/terraform/examples/daos_cluster
 
 ## Create a `terraform.tfvars` file
 
-Before you run `terraform` you need to create a `terraform.tfvars` file in the `terraform/examples/daos_cluster` directory.
+Before you run `terraform apply` to deploy the DAOS cluster you need to create a `terraform.tfvars` file in the `terraform/examples/daos_cluster` directory.
 
 The `terraform.tfvars` file contains the variable values for the configuration.
 
@@ -111,23 +119,19 @@ gcloud compute instances list \
   --format="value(name,INTERNAL_IP)"
 ```
 
-## Perform DAOS administration tasks
-
-After your DAOS cluster has been deployed you can log into the first DAOS server instance to perform administrative tasks.
-
-### Log into the first DAOS server instance
+## Log into the first DAOS client instance
 
 Log into the first server instance
 
 ```bash
-gcloud compute ssh daos-server-0001
+gcloud compute ssh daos-client-0001
 ```
 
+## Perform DAOS administration tasks
+
+The `dmg` command is used to perform adminstrative tasks such as formatting storage and managing pools and therefore must be run with `sudo`.
+
 ### Verify that all daos-server instances have joined
-
-The DAOS Management Tool `dmg` is meant to be used by administrators to manage the DAOS storage system and pools.
-
-You will need to run `dmg` with `sudo`.
 
 Use `dmg` to verify that the DAOS storage system is ready.
 
@@ -172,9 +176,7 @@ This shows how much NVMe-Free space is available for each server.
 Create a pool named `pool1` that uses the total NVMe-Free for all servers.
 
 ```bash
-TOTAL_NVME_FREE="$(sudo dmg storage query usage | awk '{split($0,a," "); sum += a[10]} END {print sum}')TB"
-echo "Total NVMe-Free: ${TOTAL_NVME_FREE}"
-sudo dmg pool create --size="${TOTAL_NVME_FREE}" --tier-ratio=3 --label=pool1
+sudo dmg pool create --size="100%" pool1
 ```
 
 View the ACLs on *pool1*
@@ -193,44 +195,23 @@ A:G:GROUP@:rw
 
 Here we see that root owns the pool.
 
-Add an [ACE](https://docs.daos.io/v2.0/admin/pool_operations/#adding-and-updating-aces) that will allow any user to create a container in the pool
+Add an [ACE](https://docs.daos.io/v2.4/admin/pool_operations/#adding-and-updating-aces) that will allow any user to create a container in the pool
 
 ```bash
 sudo dmg pool update-acl -e A::EVERYONE@:rcta pool1
 ```
-
-This completes the administration tasks for the pool.
 
 For more information about pools see
 
 - [Overview - Storage Model - DAOS Pool](https://docs.daos.io/latest/overview/storage/#daos-pool)
 - [Administration Guide - Pool Operations](https://docs.daos.io/latest/admin/pool_operations/)
 
-### Log out of the first server instance
-
-Now that the administrative tasks have been completed, you may log out of the first server instance.
-
-```bash
-logout
-```
-
 ## Create a Container
-
-User tasks such as creating and mounting a container will be done on the first client
-
-### Log into the first DAOS client instance
-
-Log into the first client instance
-
-```bash
-gcloud compute ssh daos-client-0001
-```
-
 
 Create a [container](https://docs.daos.io/latest/overview/storage/#daos-container) in the pool
 
 ```bash
-daos container create --type=POSIX --properties=rf:0 --label=cont1 pool1
+daos container create --type=POSIX --properties=rf:0 pool1 cont1
 ```
 
 For more information about containers see
@@ -261,8 +242,10 @@ Create a 20GiB file which will be stored in the DAOS filesystem.
 
 ```bash
 cd ${HOME}/daos/cont1
+
+# Create a 20GB file
 time LD_PRELOAD=/usr/lib64/libioil.so \
-  dd if=/dev/zero of=./test21G.img bs=1G count=20
+  dd if=/dev/zero of=./test20.img bs=1G count=20
 ```
 
 ## Unmount the container and logout of the first client

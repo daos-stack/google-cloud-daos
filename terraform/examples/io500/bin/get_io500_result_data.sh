@@ -14,14 +14,14 @@
 # limitations under the License.
 
 
-# Each time the run_io500-sc22.sh script is run on the first DAOS client
+# Each time the run_io500-sc23.sh script is run on the first DAOS client
 # it generates a tar.gz file that contains the result files from the run.
 # This script will download the tar.gz files for all runs and store them in
 # a the terraform/examples/io500/results directory on your local system.
 # If the terraform/examples/io500/results directory doesn't exsist, it will be
 # created.
 #
-# After running the run_io500-sc22.sh script on the first DAOS client instance, log
+# After running the run_io500-sc23.sh script on the first DAOS client instance, log
 # out of the first client instance and run this script before
 # running stop.sh. This will save the results locally so that you can view
 # them after the cluster is destroyed.

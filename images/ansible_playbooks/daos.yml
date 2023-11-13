@@ -22,7 +22,7 @@
 
   vars:
     daos_install_type: "all"
-    daos_version: "2.2.0"
+    daos_version: "2.4.0"
     daos_repo_base_url: "https://packages.daos.io"
     daos_packages_repo_file: "EL8/packages/x86_64/daos_packages.repo"
     daos_packages:
@@ -33,6 +33,7 @@
     packages:
       - clustershell
       - curl
+      - fuse
       - git
       - jq
       - patch

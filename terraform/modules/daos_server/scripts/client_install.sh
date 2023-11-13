@@ -16,7 +16,7 @@
 #
 # Install DAOS Client package
 #
-DAOS_VERSION="${DAOS_VERSION:-2.2}"
+DAOS_VERSION="${DAOS_VERSION:-2.4}"
 
 set_vars() {
   # shellcheck disable=SC1091
@@ -26,22 +26,12 @@ set_vars() {
   OS_MAJOR_VERSION_ID="${ID,,}_${OS_MAJOR_VERSION}"
 
   case "${OS_MAJOR_VERSION_ID}" in
-    centos_7)
-      DAOS_OS_VERSION="CentOS7"
-      PKG_MGR="yum"
-      REPO_PATH=/etc/yum.repos.d
-      ;;
     almalinux_8|centos_8|rhel_8|rocky_8)
       DAOS_OS_VERSION="EL8"
       PKG_MGR="dnf"
       REPO_PATH=/etc/yum.repos.d
       ;;
     opensuse-leap_15)
-      if [[ "${OS_VERSION_ID}" == "opensuse-leap_15.4" ]]; then
-        log.error "Unsupported OS: ${OS_VERSION_ID}."
-        log.error "See https://daosio.atlassian.net/browse/DAOS-11637"
-        exit 1
-      fi
       DAOS_OS_VERSION="Leap15"
       PKG_MGR="zypper"
       REPO_PATH=/etc/zypp/repos.d

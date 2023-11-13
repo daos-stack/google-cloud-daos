@@ -152,6 +152,7 @@ If you are currently in Cloud Shell, you don't need to run this command.
 
 ```bash
 gcloud auth login
+gcloud auth application-default login
 ```
 
 To learn more about using the Google Cloud CLI see the various [How-to Guides](https://cloud.google.com/sdk/docs/how-to).

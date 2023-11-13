@@ -140,7 +140,7 @@ resource "google_compute_instance" "named_instances" {
   labels     = var.labels
 
   can_ip_forward = false
-  tags           = ["daos-server"]
+  tags           = var.tags
   machine_type   = var.machine_type
 
   metadata = {
