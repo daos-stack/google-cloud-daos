@@ -1,20 +1,27 @@
 # Images
 
-This directory contains files necessary for building DAOS images using [Cloud Build](https://cloud.google.com/build) and [Packer](https://developer.hashicorp.com/packer/downloads).
+This directory contains files necessary for building DAOS images using
+[Cloud Build](https://cloud.google.com/build) and
+[Packer](https://developer.hashicorp.com/packer/downloads).
 
 ## Pre-Deployment steps required
 
-If you have not done so yet, please complete the steps in [Pre-Deployment Guide](../docs/pre-deployment_guide.md).
+If you have not done so yet, please complete the steps in the
+[Pre-Deployment Guide](../docs/pre-deployment_guide.md).
 
-The pre-deployment steps will have you run the `images/build.sh` script once in order to build a DAOS server image and a DAOS client image with the configured default settings.
+The pre-deployment steps will have you run the `images/build.sh` script once in
+order to build a DAOS server image and a DAOS client image with the configured
+default settings.
 
-That should be all you need to run the Terraform examples in the `terraform/examples` directory or to run the [DAOS examples in the Google HPC Toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel).
+That should be all you need to run the Terraform examples in
+the `terraform/examples` directory or to run the [DAOS examples in the Google HPC Toolkit](https://github.com/GoogleCloudPlatform/hpc-toolkit/tree/main/community/examples/intel).
 
-The information in this document is provided in case you need to build custom images with non-default settings.
+The information in this document is provided in case you need to build custom
+images with non-default settings.
 
 ## Building DAOS images
 
-To rebuild the images with the default settings run:
+To build the images with the default settings run:
 
 ```bash
 cd images
@@ -23,13 +30,32 @@ cd images
 
 ## The Packer HCL template file
 
-A single Packer HCL template file `daos.pkr.hcl` is used to build either a DAOS server or DAOS client image.
+A single Packer HCL template file `daos.pkr.hcl` is used to build either a DAOS
+server or DAOS client image.
 
-The `daos.pkr.hcl` file does not build both server and client images in a single `packer build` run. This is by design since there are use cases in which only one type of image is needed. If both types of images are needed, then `packer build` must be run twice with different variable values.
+The `daos.pkr.hcl` file does not build both server and client images in a single `packer build` run.
+This is by design since there are use cases in which only one type of image is needed. If both types
+of images are needed, then `packer build` must be run twice with different variable values.
+
+The `build.sh` script does this for you by running packer twice with different variable values for
+server and client images.
 
 ### Source Block
 
-Within the `daos.pkr.hcl` template there is a single `source` block. Most of the settings for the block are set by variable values.
+Within the `daos.pkr.hcl` template there is a single `source` block. The settings
+settings for the block are provided by variable values. This allows the settings
+to be passed to packer via a variables file which is specified by the `-var-file` parameter
+of the `packer build` command.
+
+The `build.sh` script generates a packer variables file from the `GCP_*` and `DAOS_*` environment
+variables defined in the script.
+
+Run `./build.sh --help` to see a list of environment variables that are used
+by the `./build.sh` script to create a packer variables file that will be
+passed to packer to create the images.
+
+You can export these variables before running the `build.sh` script to customize
+the images or to modify Cloud Build settings.
 
 ### Build Block
 
@@ -41,7 +67,8 @@ The `build` block consists of provisioners that do the following:
 
 These provisioners are the same for building both DAOS server and DAOS client images.
 
-The `daos_install_type` variable in the `daos.pkr.hcl` template is passed in the `--extra-vars` parameter when running the `daos.yml` ansible playbook.
+The `daos_install_type` variable in the `daos.pkr.hcl` template is passed in the `--extra-vars`
+parameter of the `ansible-playbook` command when running the `daos.yml` ansible playbook.
 
 If `daos_install_type=server`, then the `daos.yml` playbook will install the DAOS server packages.
 
@@ -74,13 +101,15 @@ The `images/build.sh` script uses the following environment variables.
 
 To view the default values for these variables see the defaults set in the `build.sh` script.
 
-Running `build.sh --help` will display the values of these variables so that you can inspect them before running `build.sh`
+Running `build.sh --help` will display the values of these variables so that you can inspect them
+before running `build.sh`
 
 ### Controlling the version of DAOS to be installed
 
 Official DAOS packages are hosted at https://packages.daos.io/
 
-Unfortunately, the paths to the `.repo` files for each repository do not follow a standard convention that can be dynamically created based on something like the `/etc/os-release` file.
+Unfortunately, the paths to the `.repo` files for each repository do not follow a standard
+convention that can be dynamically created based on something like the `/etc/os-release` file.
 
 To specify the path to a repo file the following 3 environment variables are used:
 
@@ -98,27 +127,15 @@ The values of these variables should not start or end with a `/`
 
 **Examples:**
 
-  To install DAOS v2.2.0 on CentOS 7
+To install DAOS v2.4.0 on Rocky 8
 
-  ```bash
-  DAOS_REPO_BASE_URL=https://packages.daos.io
-  DAOS_VERSION="2.2.0"
-  DAOS_PACKAGES_REPO_FILE="CentOS7/packages/x86_64/daos_packages.repo"
-  ```
-
-  To install DAOS v2.2.0 on Rocky 8
-
-  ```bash
-  DAOS_REPO_BASE_URL=https://packages.daos.io
-  DAOS_VERSION="2.2.0"
-  DAOS_PACKAGES_REPO_FILE="EL8/packages/x86_64/daos_packages.repo"
-  ```
+```bash
+DAOS_REPO_BASE_URL=https://packages.daos.io
+DAOS_VERSION="2.4.0"
+DAOS_PACKAGES_REPO_FILE="EL8/packages/x86_64/daos_packages.repo"
+```
 
 ## Building only the DAOS Server or the DAOS Client image
-
-If you do not want to build one of the images, you must set the appropriate environment variable.
-
-For example,
 
 To build only the DAOS Server image
 
@@ -138,7 +155,8 @@ export DAOS_BUILD_SERVER_IMAGE="false" # Do not run the job to build the DAOS se
 
 ## Custom image builds
 
-To create images that do not use the default settings, export one or more of the environment variables listed above before running `build.sh`
+To create images that do not use the default settings, export one or more of the environment
+variables listed above before running `build.sh`
 
 ### Change the name of the image family
 
@@ -151,7 +169,8 @@ export DAOS_CLIENT_IMAGE_FAMILY="my-daos-client"
 
 ### Use a different source image
 
-For the source image, use the `rocky-linux-8-optimized-gcp` community image instead of the `hpc-rocky-linux-8` image.
+For the source image, use the `rocky-linux-8-optimized-gcp` community image instead of the
+`hpc-rocky-linux-8` image.
 
 ```bash
 cd images
@@ -204,6 +223,12 @@ export GCP_USE_CLOUDBUILD="false" # Do not run packer in Cloud Build
 ./build.sh
 ```
 
-When running `build.sh` this way, all project configuration steps are skipped.
+When running `build.sh` this way, all GCP project configuration steps (setting permissions) are skipped.
 
-When `GCP_USE_CLOUDBUILD="true"` the `build.sh` will check your GCP project to ensure the default service account has the proper permissions needed for the Cloud Build job to run packer and create the images in your project.  Setting `GCP_USE_CLOUDBUILD="true"` will skip the project configuration steps. In this case, it's up to you to make sure the proper permissions are configured for you to run packer locally to build the images.
+When `GCP_USE_CLOUDBUILD="true"` the `build.sh` will check your GCP project to ensure the default
+service account has the proper permissions needed for the Cloud Build job to run packer and create
+the images in your project.
+
+Setting `GCP_USE_CLOUDBUILD="false"` will skip the project configuration steps. In this case, it's
+up to you to make sure the proper permissions are configured for you to run packer locally to build
+the images.
