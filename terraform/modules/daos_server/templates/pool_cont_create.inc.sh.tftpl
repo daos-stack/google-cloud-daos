@@ -10,7 +10,9 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
     # Use older DAOS v2.2.x dmg options
     dmg pool create \
       --size=${pool.size} \
+      %{ if !can(regex(".*%.*", pool.size)) }
       --tier-ratio="${pool.tier_ratio}" \
+      %{~ endif ~}
       --user="${pool.user}" \
       --group="${pool.group}" \
       %{~ if length(pool.properties) != 0 ~}
@@ -21,7 +23,9 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
   else
     dmg pool create \
       --size=${pool.size} \
+      %{ if !can(regex(".*%.*", pool.size)) }
       --tier-ratio="${pool.tier_ratio}" \
+      %{~ endif ~}
       --user="${pool.user}" \
       --group="${pool.group}" \
       %{~ if length(pool.properties) != 0 ~}
@@ -55,7 +59,6 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
       "${pool.name}" \
       "${container.name}"
   fi
-
 
       %{~ for acl in container.acls ~}
   daos cont update-acl "${pool.name}" "${container.name}" --entry "${acl}"
