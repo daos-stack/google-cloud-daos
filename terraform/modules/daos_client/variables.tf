@@ -30,7 +30,7 @@ variable "labels" {
 }
 
 variable "tags" {
-  description = "List of network tags to assign to daos-client instances"
+  description = "List of network tags to attach to DAOS client instances"
   type        = list(any)
   default     = ["daos-client"]
 }

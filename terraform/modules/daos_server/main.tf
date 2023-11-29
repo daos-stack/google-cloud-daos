@@ -38,9 +38,9 @@ locals {
     "${path.module}/templates/daos_server.yml.tftpl",
     {
       access_points  = local.access_points
-      nr_hugepages   = local.huge_pages
       targets        = local.targets
       scm_size       = local.scm_size
+      nr_hugepages   = local.huge_pages
       crt_timeout    = local.crt_timeout
       allow_insecure = local.allow_insecure
     }

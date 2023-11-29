@@ -125,7 +125,7 @@ create_pool() {
   log.info "Create pool: label=${DAOS_POOL_LABEL} size=${DAOS_POOL_SIZE}"
 
   if ! dmg pool list | grep -q "${DAOS_POOL_LABEL}"; then
-    if [[ "${DAOS_POOL_SIZE}" == "100%" ]]; then
+    if [[ "${DAOS_POOL_SIZE}" == *%* ]]; then
       dmg pool create \
         --size="${DAOS_POOL_SIZE}" \
         --user="${USER}" \

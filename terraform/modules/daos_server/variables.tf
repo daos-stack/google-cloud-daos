@@ -160,7 +160,7 @@ variable "pools" {
   type = list(object({
     name       = string
     size       = string
-    tier_ratio = number
+    tier_ratio = optional(number)
     user       = string
     group      = string
     acls       = list(string)

@@ -102,9 +102,10 @@ variable "server_number_of_instances" {
 }
 
 variable "server_tags" {
-  description = "List of network tags for DAOS server instances"
-  default     = ["daos-client"]
+  description = "List of network tags to attach to DAOS server instances"
+  default     = ["daos-server"]
   type        = list(any)
+
 }
 
 variable "server_daos_disk_count" {
@@ -162,7 +163,7 @@ variable "server_pools" {
   type = list(object({
     name       = string
     size       = string
-    tier_ratio = number
+    tier_ratio = optional(number)
     user       = string
     group      = string
     acls       = list(string)
@@ -228,8 +229,8 @@ variable "client_number_of_instances" {
 }
 
 variable "client_tags" {
-  description = "List of network tags for DAOS client instances"
-  default     = ["daos-server"]
+  description = "List of network tags to attach to DAOS client instances"
+  default     = ["daos-client"]
   type        = list(any)
 }
 
