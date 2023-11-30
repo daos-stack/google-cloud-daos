@@ -309,7 +309,6 @@ allow_insecure     = "${DAOS_ALLOW_INSECURE}"
 # Servers
 server_daos_crt_timeout     = ${DAOS_SERVER_CRT_TIMEOUT}
 server_daos_disk_count      = ${DAOS_SERVER_DISK_COUNT}
-server_daos_scm_size        = ${DAOS_SERVER_SCM_SIZE}
 server_gvnic                = ${DAOS_SERVER_GVNIC}
 server_instance_base_name   = "${DAOS_SERVER_BASE_NAME}"
 server_machine_type         = "${DAOS_SERVER_MACHINE_TYPE}"
