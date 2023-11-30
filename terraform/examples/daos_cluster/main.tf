@@ -38,7 +38,6 @@ module "daos_server" {
   os_disk_size_gb     = var.server_os_disk_size_gb
   daos_disk_count     = var.server_daos_disk_count
   daos_crt_timeout    = var.server_daos_crt_timeout
-  daos_scm_size       = var.server_daos_scm_size
   service_account     = var.server_service_account
   pools               = var.server_pools
   gvnic               = var.server_gvnic

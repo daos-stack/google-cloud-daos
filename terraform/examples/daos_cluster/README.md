@@ -84,7 +84,6 @@ No resources.
 | <a name="input_region"></a> [region](#input\_region) | The GCP region | `string` | n/a | yes |
 | <a name="input_server_daos_crt_timeout"></a> [server\_daos\_crt\_timeout](#input\_server\_daos\_crt\_timeout) | crt\_timeout | `number` | `300` | no |
 | <a name="input_server_daos_disk_count"></a> [server\_daos\_disk\_count](#input\_server\_daos\_disk\_count) | Number of local ssd's to use | `number` | `16` | no |
-| <a name="input_server_daos_scm_size"></a> [server\_daos\_scm\_size](#input\_server\_daos\_scm\_size) | scm\_size | `number` | `200` | no |
 | <a name="input_server_gvnic"></a> [server\_gvnic](#input\_server\_gvnic) | Use Google Virtual NIC (gVNIC) network interface | `bool` | `false` | no |
 | <a name="input_server_instance_base_name"></a> [server\_instance\_base\_name](#input\_server\_instance\_base\_name) | Base name for DAOS server instances | `string` | `"daos-server"` | no |
 | <a name="input_server_labels"></a> [server\_labels](#input\_server\_labels) | Set of key/value label pairs to assign to daos-server instances | `any` | `{}` | no |

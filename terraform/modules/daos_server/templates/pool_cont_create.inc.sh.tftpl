@@ -11,7 +11,9 @@ if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
     dmg pool create \
       --size=${pool.size} \
       %{ if !can(regex(".*%.*", pool.size)) }
+        %{ if pool.tier_ratio != null }
       --tier-ratio="${pool.tier_ratio}" \
+        %{~ endif ~}
       %{~ endif ~}
       --user="${pool.user}" \
       --group="${pool.group}" \
