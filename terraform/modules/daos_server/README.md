@@ -61,7 +61,7 @@ No modules.
 | <a name="input_allow_insecure"></a> [allow\_insecure](#input\_allow\_insecure) | Sets the allow\_insecure setting in the transport\_config section of the daos\_*.yml files | `bool` | `false` | no |
 | <a name="input_daos_crt_timeout"></a> [daos\_crt\_timeout](#input\_daos\_crt\_timeout) | crt\_timeout | `number` | `300` | no |
 | <a name="input_daos_disk_count"></a> [daos\_disk\_count](#input\_daos\_disk\_count) | Number of local ssd's to use | `number` | `16` | no |
-| <a name="input_daos_scm_size"></a> [daos\_scm\_size](#input\_daos\_scm\_size) | scm\_size | `number` | `200` | no |
+| <a name="input_daos_scm_size"></a> [daos\_scm\_size](#input\_daos\_scm\_size) | scm\_size | `number` | `null` | no |
 | <a name="input_gvnic"></a> [gvnic](#input\_gvnic) | Use Google Virtual NIC (gVNIC) network interface | `bool` | `false` | no |
 | <a name="input_instance_base_name"></a> [instance\_base\_name](#input\_instance\_base\_name) | Base name for DAOS server instances | `string` | `"daos-server"` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | Set of key/value label pairs to assign to daos-server instances | `any` | `{}` | no |

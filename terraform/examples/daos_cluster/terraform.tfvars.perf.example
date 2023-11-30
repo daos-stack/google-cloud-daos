@@ -12,7 +12,6 @@ zone                       = "<zone>"
 
 server_machine_type        = "n2-standard-16"
 server_daos_disk_count     = 4
-server_daos_scm_size       = 45
 server_number_of_instances = 4
 
 client_number_of_instances = 16

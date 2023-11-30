@@ -141,7 +141,7 @@ variable "server_preemptible" {
 
 variable "server_daos_scm_size" {
   description = "scm_size"
-  default     = 200
+  default     = null
   type        = number
 }
 
