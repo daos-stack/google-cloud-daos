@@ -139,12 +139,6 @@ variable "server_preemptible" {
   type        = string
 }
 
-variable "server_daos_scm_size" {
-  description = "scm_size"
-  default     = null
-  type        = number
-}
-
 variable "server_daos_crt_timeout" {
   description = "crt_timeout"
   default     = 300
