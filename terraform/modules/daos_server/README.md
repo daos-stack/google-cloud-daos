@@ -27,16 +27,16 @@ limitations under the License.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.5 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | >= 3.54.0 |
-| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | >= 4.16.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.2 |
+| <a name="requirement_google"></a> [google](#requirement\_google) | ~> 4.84.0 |
+| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | ~> 4.84.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | >= 3.54.0 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 4.16.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | ~> 4.84.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | ~> 4.84.0 |
 
 ## Modules
 
@@ -61,7 +61,7 @@ No modules.
 | <a name="input_allow_insecure"></a> [allow\_insecure](#input\_allow\_insecure) | Sets the allow\_insecure setting in the transport\_config section of the daos\_*.yml files | `bool` | `false` | no |
 | <a name="input_daos_crt_timeout"></a> [daos\_crt\_timeout](#input\_daos\_crt\_timeout) | crt\_timeout | `number` | `300` | no |
 | <a name="input_daos_disk_count"></a> [daos\_disk\_count](#input\_daos\_disk\_count) | Number of local ssd's to use | `number` | `16` | no |
-| <a name="input_daos_scm_size"></a> [daos\_scm\_size](#input\_daos\_scm\_size) | scm\_size | `number` | `200` | no |
+| <a name="input_daos_scm_size"></a> [daos\_scm\_size](#input\_daos\_scm\_size) | scm\_size | `number` | `null` | no |
 | <a name="input_gvnic"></a> [gvnic](#input\_gvnic) | Use Google Virtual NIC (gVNIC) network interface | `bool` | `false` | no |
 | <a name="input_instance_base_name"></a> [instance\_base\_name](#input\_instance\_base\_name) | Base name for DAOS server instances | `string` | `"daos-server"` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | Set of key/value label pairs to assign to daos-server instances | `any` | `{}` | no |
@@ -72,13 +72,14 @@ No modules.
 | <a name="input_os_disk_type"></a> [os\_disk\_type](#input\_os\_disk\_type) | OS disk type ie. pd-ssd, pd-standard | `string` | `"pd-ssd"` | no |
 | <a name="input_os_family"></a> [os\_family](#input\_os\_family) | OS GCP image family | `string` | `"daos-server-hpc-rocky-8"` | no |
 | <a name="input_os_project"></a> [os\_project](#input\_os\_project) | OS GCP image project name. Defaults to project\_id if null. | `string` | `null` | no |
-| <a name="input_pools"></a> [pools](#input\_pools) | List of pools and containers to be created | <pre>list(object({<br>    name       = string<br>    size       = string<br>    tier_ratio = number<br>    user       = string<br>    group      = string<br>    acls       = list(string)<br>    properties = map(any)<br>    containers = list(object({<br>      name            = string<br>      type            = string<br>      user            = string<br>      group           = string<br>      acls            = list(string)<br>      properties      = map(any)<br>      user_attributes = map(any)<br>    }))<br>  }))</pre> | `[]` | no |
+| <a name="input_pools"></a> [pools](#input\_pools) | List of pools and containers to be created | <pre>list(object({<br>    name       = string<br>    size       = string<br>    tier_ratio = optional(number)<br>    user       = string<br>    group      = string<br>    acls       = list(string)<br>    properties = map(any)<br>    containers = list(object({<br>      name            = string<br>      type            = string<br>      user            = string<br>      group           = string<br>      acls            = list(string)<br>      properties      = map(any)<br>      user_attributes = map(any)<br>    }))<br>  }))</pre> | `[]` | no |
 | <a name="input_preemptible"></a> [preemptible](#input\_preemptible) | If preemptible instances | `string` | `false` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The GCP project to use | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | The GCP region to create and test resources in | `string` | n/a | yes |
 | <a name="input_service_account"></a> [service\_account](#input\_service\_account) | Service account to attach to the instance. See https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#service_account. | <pre>object({<br>    email  = string,<br>    scopes = set(string)<br>  })</pre> | <pre>{<br>  "email": null,<br>  "scopes": [<br>    "https://www.googleapis.com/auth/devstorage.read_only",<br>    "https://www.googleapis.com/auth/logging.write",<br>    "https://www.googleapis.com/auth/monitoring.write",<br>    "https://www.googleapis.com/auth/servicecontrol",<br>    "https://www.googleapis.com/auth/service.management.readonly",<br>    "https://www.googleapis.com/auth/trace.append",<br>    "https://www.googleapis.com/auth/cloud-platform"<br>  ]<br>}</pre> | no |
 | <a name="input_subnetwork_name"></a> [subnetwork\_name](#input\_subnetwork\_name) | Name of the GCP sub-network to use | `string` | `"default"` | no |
 | <a name="input_subnetwork_project"></a> [subnetwork\_project](#input\_subnetwork\_project) | The GCP project where the subnetwork is defined | `string` | `null` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Set of key/value label pairs to assign to daos-server instances | `list(any)` | <pre>[<br>  "daos-server"<br>]</pre> | no |
 | <a name="input_zone"></a> [zone](#input\_zone) | The GCP zone to create and test resources in | `string` | n/a | yes |
 
 ## Outputs

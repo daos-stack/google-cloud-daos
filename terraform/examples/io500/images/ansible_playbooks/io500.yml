@@ -22,24 +22,36 @@
   become: true
 
   vars:
-    #install_io500: false
     packages:
       - bzip2-devel
       - clustershell
+      - daos-devel
+      - fuse
       - gcc-toolset-9-gcc
       - gcc-toolset-9-gcc-c++
       - git
       - jq
       - libarchive-devel
       - libuuid-devel
+      - lsof
+      - nvme-cli
       - openssl-devel
       - patch
+      - pciutils
+      - pdsh
       - rsync
+      - sudo
+      - vim
       - wget
-    oneapi_packages:
-      - intel-oneapi-mpi-2021.9.0
-      - intel-oneapi-mpi-devel-2021.9.0
-    io500_version: io500-sc22
+      - which
+
+    inteloneapi_base_url: "https://yum.repos.intel.com/oneapi"
+    inteloneapi_gpgkey_file: "GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
+    inteloneapi_gpgkey_url: "https://yum.repos.intel.com/intel-gpg-keys/{{ inteloneapi_gpgkey_file }}"
+    inteloneapi_packages:
+      - intel-oneapi-mpi
+      - intel-oneapi-mpi-devel
+    io500_version: io500-sc23
     io500_path: "/opt/{{ io500_version }}"
     daos_install_path: /usr
 
@@ -89,30 +101,30 @@
         content: |
           [oneAPI]
           name=Intel(R) oneAPI repository
-          baseurl=https://yum.repos.intel.com/oneapi
+          baseurl={{ inteloneapi_base_url }}
           enabled=1
           gpgcheck=1
           repo_gpgcheck=1
-          gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          gpgkey={{ inteloneapi_gpgkey_url }}
 
     - name: Download GPG key
       ansible.builtin.get_url:
-        url: https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-        dest: /tmp/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        url: "{{ inteloneapi_gpgkey_url }}"
+        dest: "/tmp/{{ inteloneapi_gpgkey_file }}"
 
     - name: Import GPG key
       ansible.builtin.rpm_key:
-        key: /tmp/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        key: "/tmp/{{ inteloneapi_gpgkey_file }}"
         state: present
 
     - name: Clean up key file
       ansible.builtin.file:
-        path: /tmp/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+        path: "/tmp/{{ inteloneapi_gpgkey_file }}"
         state: absent
 
     - name: Install oneAPI Packages
       ansible.builtin.package:
-        name: "{{ oneapi_packages }}"
+        name: "{{ inteloneapi_packages }}"
         state: present
 
     - name: Clone IO500 repo

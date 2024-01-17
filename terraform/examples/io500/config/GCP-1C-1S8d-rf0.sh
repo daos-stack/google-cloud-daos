@@ -17,7 +17,7 @@
 
 # ------------------------------------------------------------------------------
 # Configuration: 1 client, 1 server, 8 disks per server
-# IO500 Config:  io500-sc22.config-template.daos-rf0.ini
+# IO500 Config:  io500-sc23.config-template.daos-rf0.ini
 # ------------------------------------------------------------------------------
 
 # Set if you want to prepend a string to the names of the instances
@@ -34,7 +34,6 @@ DAOS_SERVER_INSTANCE_COUNT="1"
 DAOS_SERVER_MACHINE_TYPE=n2-custom-36-262144
 DAOS_SERVER_DISK_COUNT=8
 DAOS_SERVER_CRT_TIMEOUT=300
-DAOS_SERVER_SCM_SIZE=200
 DAOS_SERVER_GVNIC=false
 DAOS_SERVER_IMAGE_FAMILY="daos-server-io500-hpc-rocky-8"
 
@@ -45,14 +44,14 @@ DAOS_CLIENT_GVNIC=false
 DAOS_CLIENT_IMAGE_FAMILY="daos-client-io500-hpc-rocky-8"
 
 # Storage
-DAOS_POOL_SIZE="$(awk -v disk_count=${DAOS_SERVER_DISK_COUNT} -v server_count=${DAOS_SERVER_INSTANCE_COUNT} 'BEGIN {pool_size = 375 * disk_count * server_count / 1000; print pool_size"TB"}')"
+DAOS_POOL_SIZE="100%"
 DAOS_CONT_REPLICATION_FACTOR="rf:0"
 DAOS_CHUNK_SIZE="1048576" # 1MB
 
 # IO500
 IO500_TEST_CONFIG_ID="GCP-1C-1S8d-rf0"
 IO500_STONEWALL_TIME=60 # Number of seconds to run the benchmark
-IO500_INI="io500-sc22.config-template.daos-rf0.ini"
+IO500_INI="io500-sc23.config-template.daos-rf0.ini"
 
 # GCP
 GCP_PROJECT_ID=$(gcloud info --format="value(config.project)")

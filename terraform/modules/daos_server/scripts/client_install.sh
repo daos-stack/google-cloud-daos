@@ -16,7 +16,7 @@
 #
 # Install DAOS Client package
 #
-DAOS_VERSION="${DAOS_VERSION:-2.2}"
+DAOS_VERSION="${DAOS_VERSION:-2.4}"
 
 set_vars() {
   # shellcheck disable=SC1091
@@ -26,22 +26,12 @@ set_vars() {
   OS_MAJOR_VERSION_ID="${ID,,}_${OS_MAJOR_VERSION}"
 
   case "${OS_MAJOR_VERSION_ID}" in
-    centos_7)
-      DAOS_OS_VERSION="CentOS7"
-      PKG_MGR="yum"
-      REPO_PATH=/etc/yum.repos.d
-      ;;
     almalinux_8|centos_8|rhel_8|rocky_8)
       DAOS_OS_VERSION="EL8"
       PKG_MGR="dnf"
       REPO_PATH=/etc/yum.repos.d
       ;;
     opensuse-leap_15)
-      if [[ "${OS_VERSION_ID}" == "opensuse-leap_15.4" ]]; then
-        log.error "Unsupported OS: ${OS_VERSION_ID}."
-        log.error "See https://daosio.atlassian.net/browse/DAOS-11637"
-        exit 1
-      fi
       DAOS_OS_VERSION="Leap15"
       PKG_MGR="zypper"
       REPO_PATH=/etc/zypp/repos.d
@@ -69,18 +59,35 @@ install_epel() {
 add_daos_repo() {
   local repo_file="${REPO_PATH}/daos.repo"
   rm -f "${repo_file}"
-  echo "Adding DAOS v${DAOS_VERSION} packages repo"
+  echo "Downloading DAOS v${DAOS_VERSION} packages repo file"
   curl -s -k --output "${repo_file}" "https://packages.daos.io/v${DAOS_VERSION}/${DAOS_OS_VERSION}/packages/x86_64/daos_packages.repo"
-  if [[ "${OS_VERSION_ID}" == "opensuse-leap_15" ]]; then
-    sed -i 's|gpgkey=.*|gpgkey=https://packages.daos.io/RPM-GPG-KEY|g' "${repo_file}"
+  if [[ -f ${repo_file} ]]; then
+    echo "Download of DAOS v${DAOS_VERSION} packages repo file was successful"
+  else
+    echo "Download of DAOS v${DAOS_VERSION} packages repo file failed. Exiting."
+    exit 1
   fi
 }
 
 install_daos_client() {
-    "${PKG_MGR}" install -y daos-client daos-devel
-    # Disable daos_agent service.
-    # It will be enabled by a startup script after the service has been configured.
-    systemctl disable daos_agent
+    local max_attempts=5
+    local attempt_num=1
+    local success="false"
+    while [[ "${success}" == "false" ]] && [ $attempt_num -le $max_attempts ]; do
+      echo "Installing DAOS v${DAOS_VERSION} admin, client, and develop packages. Attempt: ${attempt_num}"
+      "${PKG_MGR}" install -y daos-admin daos-client daos-devel
+      if [[ $? -eq 0 ]]; then
+        success="true"
+        echo "DAOS admin, client, and develop packages installed successfully"
+        echo "Disabling daos_agent service"
+        echo "daos_agent service will be enabled after the service has been configured."
+        systemctl disable daos_agent
+      else
+        echo "DAOS client install attempt ${attempt_num} failed. Sleeping for 30 seconds before retry ..."
+        ((attempt_num++))
+        sleep 30
+      fi
+    done
 }
 
 main() {

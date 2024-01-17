@@ -1,5 +1,6 @@
 if [[ "$${HOSTNAME,,}" == "$${FIRST_DAOS_SERVER_HOSTNAME,,}" ]]; then
-  # Wait for servers to start
+  echo "Waiting for servers to start ..."
+  echo "servers = '${servers}'"
   until dmg network scan | grep --fixed-strings "${servers}"
   do
     sleep 5

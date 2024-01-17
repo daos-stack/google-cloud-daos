@@ -101,6 +101,12 @@ variable "server_number_of_instances" {
   type        = number
 }
 
+variable "server_tags" {
+  description = "Set of key/value label pairs to assign to daos-server instances"
+  type        = list(any)
+  default     = ["daos-server"]
+}
+
 variable "server_daos_disk_count" {
   description = "Number of local ssd's to use"
   default     = 16
@@ -132,12 +138,6 @@ variable "server_preemptible" {
   type        = string
 }
 
-variable "server_daos_scm_size" {
-  description = "scm_size"
-  default     = 200
-  type        = number
-}
-
 variable "server_daos_crt_timeout" {
   description = "crt_timeout"
   default     = 300
@@ -156,7 +156,7 @@ variable "server_pools" {
   type = list(object({
     name       = string
     size       = string
-    tier_ratio = number
+    tier_ratio = optional(number)
     user       = string
     group      = string
     acls       = list(string)
@@ -219,6 +219,12 @@ variable "client_number_of_instances" {
   description = "Number of daos clients to bring up"
   default     = 16
   type        = number
+}
+
+variable "client_tags" {
+  description = "Set of key/value label pairs to assign to daos-client instances"
+  type        = list(any)
+  default     = ["daos-client"]
 }
 
 variable "client_service_account" {

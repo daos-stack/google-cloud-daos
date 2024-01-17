@@ -34,6 +34,12 @@ variable "labels" {
   default     = {}
 }
 
+variable "tags" {
+  description = "Set of key/value label pairs to assign to daos-server instances"
+  type        = list(any)
+  default     = ["daos-server"]
+}
+
 variable "os_family" {
   description = "OS GCP image family"
   type        = string
@@ -126,7 +132,7 @@ variable "preemptible" {
 
 variable "daos_scm_size" {
   description = "scm_size"
-  default     = 200
+  default     = null
   type        = number
 }
 
@@ -154,7 +160,7 @@ variable "pools" {
   type = list(object({
     name       = string
     size       = string
-    tier_ratio = number
+    tier_ratio = optional(number)
     user       = string
     group      = string
     acls       = list(string)

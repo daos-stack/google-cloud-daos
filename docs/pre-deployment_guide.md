@@ -20,7 +20,6 @@ Since *project name* and *project ID* are used in many configurations it is reco
 
 To create a project, refer to the following documentation
 
-- [Get Started with Google Cloud](https://cloud.google.com/docs/get-started)
 - [Creating and managing projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
 
 Make note of the *Project Name* and *Project ID* for the project that you plan to use for your DAOS deployment as you will be using it later in various configurations.
@@ -152,6 +151,7 @@ If you are currently in Cloud Shell, you don't need to run this command.
 
 ```bash
 gcloud auth login
+gcloud auth application-default login
 ```
 
 To learn more about using the Google Cloud CLI see the various [How-to Guides](https://cloud.google.com/sdk/docs/how-to).

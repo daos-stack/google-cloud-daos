@@ -17,7 +17,7 @@
 # Cleans DAOS storage and runs an IO500 benchmark
 #
 # Instructions that were referenced to create this script are at
-# https://daosio.atlassian.net/wiki/spaces/DC/pages/11167301633/IO-500+SC22
+# https://daosio.atlassian.net/wiki/spaces/DC/pages/11167301633/IO-500+sc23
 #
 
 set -eo pipefail
@@ -28,7 +28,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 # shellcheck source=_log.sh
 source "${SCRIPT_DIR}/_log.sh"
 
-IO500_VERSION_TAG="io500-sc22"
+IO500_VERSION_TAG="io500-sc23"
 CONFIG_FILE="${SCRIPT_DIR}/config.sh"
 
 # Comma separated list of servers needed for the dmg command
@@ -121,29 +121,18 @@ show_storage_usage() {
   dmg storage query usage
 }
 
-use_old_cli() {
-  local daos_version
-  daos_version=$(rpm -q --queryformat '%{VERSION}' daos)
-  awk 'BEGIN{if(ARGV[1]<ARGV[2])exit 0;exit 1;}' "${daos_version}" "2.3"
-  return $?
-}
-
 create_pool() {
-  local daos_version
-  daos_version=$(dmg version | awk '{print $3}')
-
   log.info "Create pool: label=${DAOS_POOL_LABEL} size=${DAOS_POOL_SIZE}"
 
   if ! dmg pool list | grep -q "${DAOS_POOL_LABEL}"; then
-    if use_old_cli; then
-      # dmg options are different in different versions of DAOS
-      # Use older DAOS v2.2.x dmg options
-      dmg pool create --size="${DAOS_POOL_SIZE}"\
-        --tier-ratio="${DAOS_TIER_RATIO}" \
+    if [[ "${DAOS_POOL_SIZE}" == *%* ]]; then
+      dmg pool create \
+        --size="${DAOS_POOL_SIZE}" \
         --user="${USER}" \
-        --label="${DAOS_POOL_LABEL}"
+        "${DAOS_POOL_LABEL}"
     else
-      dmg pool create --size="${DAOS_POOL_SIZE}"\
+      dmg pool create \
+        --size="${DAOS_POOL_SIZE}"\
         --tier-ratio="${DAOS_TIER_RATIO}" \
         --user="${USER}" \
         "${DAOS_POOL_LABEL}"
@@ -151,12 +140,7 @@ create_pool() {
   fi
 
   log.info "Setting pool property: reclaim=disabled"
-  if use_old_cli; then
-    # Use older DAOS v2.2.x dmg options
-    dmg pool set-prop "${DAOS_POOL_LABEL}" --name=reclaim --value=disabled
-  else
     dmg pool set-prop "${DAOS_POOL_LABEL}" "reclaim:disabled"
-  fi
 
   log.info "Pool created successfully"
   dmg pool query "${DAOS_POOL_LABEL}"
@@ -166,20 +150,11 @@ create_container() {
   log.info "Create container: label=${DAOS_CONT_LABEL}"
 
   if ! daos container list "${DAOS_POOL_LABEL}" | grep -q "${DAOS_CONT_LABEL}"; then
-    if use_old_cli; then
-      # Use older DAOS v2.2.x dmg options
-      daos container create --type=POSIX \
-        --chunk-size="${DAOS_CHUNK_SIZE}" \
-        --properties="${DAOS_CONT_REPLICATION_FACTOR}" \
-        --label="${DAOS_CONT_LABEL}" \
-        "${DAOS_POOL_LABEL}"
-    else
-      daos container create --type=POSIX \
-        --chunk-size="${DAOS_CHUNK_SIZE}" \
-        --properties="${DAOS_CONT_REPLICATION_FACTOR}" \
-        "${DAOS_POOL_LABEL}" \
-        "${DAOS_CONT_LABEL}"
-    fi
+    daos container create --type=POSIX \
+      --chunk-size="${DAOS_CHUNK_SIZE}" \
+      --properties="${DAOS_CONT_REPLICATION_FACTOR}" \
+      "${DAOS_POOL_LABEL}" \
+      "${DAOS_CONT_LABEL}"
   fi
 
   log.info "Show container properties"
@@ -306,8 +281,12 @@ process_results() {
   dmg pool query "${DAOS_POOL_LABEL}" > \
     "${IO500_RESULTS_DIR_TIMESTAMPED}/dmg_pool_query_${DAOS_POOL_LABEL}.txt"
 
-  log.info "Results files located in ${IO500_RESULTS_DIR_TIMESTAMPED}"
+  # Convert summary txt to csv
+  log.info "Converting result_summary.txt to csv"
+  result_summary_file=$(find "${IO500_RESULTS_DIR_TIMESTAMPED}" -type f -name "result_summary.txt")
+  "${SCRIPT_DIR}/io500_summary_to_csv.py" "${result_summary_file}"
 
+  log.info "Results files located in ${IO500_RESULTS_DIR_TIMESTAMPED}"
   RESULTS_TAR_FILE="${IO500_TEST_CONFIG_ID}_${TIMESTAMP}.tar.gz"
 
   log.info "Creating '${HOME}/${RESULTS_TAR_FILE}' file with contents of ${IO500_RESULTS_DIR_TIMESTAMPED} directory"

@@ -53,7 +53,7 @@ resource "google_compute_instance" "named_instances" {
   count          = var.number_of_instances
   name           = format("%s-%04d", var.instance_base_name, count.index + 1)
   can_ip_forward = false
-  tags           = ["daos-client"]
+  tags           = var.tags
   machine_type   = var.machine_type
 
   metadata = {

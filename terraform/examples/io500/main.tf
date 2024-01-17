@@ -27,6 +27,7 @@ module "daos_server" {
   subnetwork_project  = var.subnetwork_project
   subnetwork_name     = var.subnetwork_name
   number_of_instances = var.server_number_of_instances
+  tags                = var.server_tags
   labels              = var.server_labels
   preemptible         = var.server_preemptible
   instance_base_name  = var.server_instance_base_name
@@ -37,7 +38,6 @@ module "daos_server" {
   os_disk_size_gb     = var.server_os_disk_size_gb
   daos_disk_count     = var.server_daos_disk_count
   daos_crt_timeout    = var.server_daos_crt_timeout
-  daos_scm_size       = var.server_daos_scm_size
   service_account     = var.server_service_account
   pools               = var.server_pools
   gvnic               = var.server_gvnic
@@ -52,6 +52,7 @@ module "daos_client" {
   subnetwork_project    = var.subnetwork_project
   subnetwork_name       = var.subnetwork_name
   number_of_instances   = var.client_number_of_instances
+  tags                  = var.client_tags
   labels                = var.client_labels
   preemptible           = var.client_preemptible
   instance_base_name    = var.client_instance_base_name

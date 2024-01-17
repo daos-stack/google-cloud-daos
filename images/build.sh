@@ -16,7 +16,7 @@
 set -eo pipefail
 trap 'echo "Unexpected and unchecked error. Exiting."' ERR
 
-: "${DAOS_VERSION:="2.2.0"}"
+: "${DAOS_VERSION:="2.4.0"}"
 : "${DAOS_REPO_BASE_URL:="https://packages.daos.io"}"
 : "${DAOS_PACKAGES_REPO_FILE:="EL8/packages/x86_64/daos_packages.repo"}"
 : "${GCP_PROJECT:=}"

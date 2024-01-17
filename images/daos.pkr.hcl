@@ -134,9 +134,9 @@ build {
   provisioner "shell" {
     execute_command = "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
     inline = [
+      "dnf clean packages",
       "dnf -y install epel-release",
-      "dnf -y install python3.11 python3.11-pip ansible-core",
-      "alternatives --set python3 /usr/bin/python3.11"
+      "dnf -y install ansible-core"
     ]
   }
 

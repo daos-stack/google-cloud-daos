@@ -22,13 +22,11 @@ locals {
   max_aps            = var.number_of_instances > 5 ? 5 : (var.number_of_instances % 2) == 1 ? var.number_of_instances : var.number_of_instances - 1
   access_points      = formatlist("%s-%04s", var.instance_base_name, range(1, local.max_aps + 1))
   scm_size           = var.daos_scm_size
-  # To get nr_hugepages value: (targets * 1Gib) / hugepagesize
-  huge_pages        = (var.daos_disk_count * 1048576) / 2048
-  targets           = var.daos_disk_count
-  crt_timeout       = var.daos_crt_timeout
-  daos_ca_secret_id = basename(google_secret_manager_secret.daos_ca.id)
-  allow_insecure    = var.allow_insecure
-  pools             = var.pools
+  targets            = var.daos_disk_count
+  crt_timeout        = var.daos_crt_timeout
+  daos_ca_secret_id  = basename(google_secret_manager_secret.daos_ca.id)
+  allow_insecure     = var.allow_insecure
+  pools              = var.pools
 
   # Google Virtual NIC (gVNIC) network interface
   nic_type                    = var.gvnic ? "GVNIC" : "VIRTIO_NET"
@@ -38,7 +36,6 @@ locals {
     "${path.module}/templates/daos_server.yml.tftpl",
     {
       access_points  = local.access_points
-      nr_hugepages   = local.huge_pages
       targets        = local.targets
       scm_size       = local.scm_size
       crt_timeout    = local.crt_timeout
@@ -140,7 +137,7 @@ resource "google_compute_instance" "named_instances" {
   labels     = var.labels
 
   can_ip_forward = false
-  tags           = ["daos-server"]
+  tags           = var.tags
   machine_type   = var.machine_type
 
   metadata = {

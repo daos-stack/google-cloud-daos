@@ -1,12 +1,12 @@
 diff --git a/prepare.sh b/prepare.sh
-index da39346..2198147 100755
+index 35bb555..aed4437 100755
 --- a/prepare.sh
 +++ b/prepare.sh
 @@ -8,7 +8,7 @@ echo It will output OK at the end if builds succeed
  echo
 
  IOR_HASH=06fc08e147600f4e5896a5b9b2bf8f1c4a79121f
--PFIND_HASH=62c3a7e31
+-PFIND_HASH=778dca8
 +PFIND_HASH=dfs_find
 
  INSTALL_DIR=$PWD
